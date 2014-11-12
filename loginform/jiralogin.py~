@@ -1,0 +1,10 @@
+from loginform import fill_login_form
+import requests
+
+#url = "https://hyperiongray.atlassian.net/login"
+#url = "http://starcraft.wikia.com/wiki/Psionic_storm"
+url = "http://www.hyperiongray.com/"
+
+r = requests.get(url)
+flf = fill_login_form(url, r.text, "acacere2176", "\#\%\$CryptiK\%\#\$1234")
+print flf
