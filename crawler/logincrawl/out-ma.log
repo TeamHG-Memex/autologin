@@ -1,0 +1,235 @@
+2014-11-14 14:15:58-0500 [scrapy] INFO: Scrapy 0.24.4 started (bot: logincrawl)
+2014-11-14 14:15:58-0500 [scrapy] INFO: Optional features available: ssl, http11, boto
+2014-11-14 14:15:58-0500 [scrapy] INFO: Overridden settings: {'NEWSPIDER_MODULE': 'logincrawl.spiders', 'CLOSESPIDER_ITEMCOUNT': '1000', 'SPIDER_MODULES': ['logincrawl.spiders'], 'BOT_NAME': 'logincrawl', 'USER_AGENT': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0', 'LOG_FILE': 'out-ma.log'}
+2014-11-14 14:15:58-0500 [scrapy] INFO: Enabled extensions: LogStats, TelnetConsole, CloseSpider, WebService, CoreStats, SpiderState
+2014-11-14 14:15:59-0500 [scrapy] INFO: Enabled downloader middlewares: HttpAuthMiddleware, DownloadTimeoutMiddleware, UserAgentMiddleware, RetryMiddleware, DefaultHeadersMiddleware, MetaRefreshMiddleware, HttpCompressionMiddleware, RedirectMiddleware, CookiesMiddleware, ChunkedTransferMiddleware, DownloaderStats
+2014-11-14 14:15:59-0500 [scrapy] INFO: Enabled spider middlewares: HttpErrorMiddleware, OffsiteMiddleware, RefererMiddleware, UrlLengthMiddleware, DepthMiddleware
+2014-11-14 14:15:59-0500 [scrapy] INFO: Enabled item pipelines: LoginCrawlPipeline
+2014-11-14 14:15:59-0500 [login_finder] INFO: Spider opened
+2014-11-14 14:15:59-0500 [login_finder] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2014-11-14 14:15:59-0500 [scrapy] DEBUG: Telnet console listening on 127.0.0.1:6023
+2014-11-14 14:15:59-0500 [scrapy] DEBUG: Web service listening on 127.0.0.1:6080
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/login.jsp?os_destination=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login.jsp?os_destination=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Crawled (200) <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> (referer: None)
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Filtered offsite request to 'docs.atlassian.com': <GET https://docs.atlassian.com/jira/docs-052/JIRA+Documentation>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Filtered offsite request to 'confluence.atlassian.com': <GET https://confluence.atlassian.com/display/AOD/Logging+in+to+Atlassian+OnDemand>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Filtered offsite request to 'answers.atlassian.com': <GET https://answers.atlassian.com/>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Filtered offsite request to 'atlassian.com': <GET http://atlassian.com/end-user-agreement/>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Filtered offsite request to 'www.atlassian.com': <GET http://www.atlassian.com/software/ondemand/status>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login/switch-language?lang=en>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Crawled (200) <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> (referer: https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa)
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Crawled (200) <GET https://hyperiongray.atlassian.net/login/forgot> (referer: https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa)
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login/switch-language?lang=fr>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Filtered duplicate request: <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Scraped from <200 https://hyperiongray.atlassian.net/login/forgot>
+	None
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login/switch-language?lang=ja>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Filtered duplicate request: <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login/switch-language?lang=es>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Filtered duplicate request: <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login/switch-language?lang=de>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Filtered duplicate request: <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:16:00-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/>
+2014-11-14 14:16:01-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/login.jsp?os_destination=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa>
+2014-11-14 14:16:01-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa> from <POST https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:16:01-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login.jsp?os_destination=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:16:01-0500 [login_finder] DEBUG: Filtered duplicate request: <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:16:01-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/secure/Dashboard.jspa> from <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa>
+2014-11-14 14:16:01-0500 [login_finder] DEBUG: Crawled (200) <GET https://hyperiongray.atlassian.net/admin/users/sign-up> (referer: https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa)
+2014-11-14 14:16:01-0500 [login_finder] DEBUG: Scraped from <200 https://hyperiongray.atlassian.net/admin/users/sign-up>
+	None
+2014-11-14 14:16:01-0500 [login_finder] DEBUG: Crawled (200) <GET https://hyperiongray.atlassian.net/secure/Dashboard.jspa> (referer: https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa)
+2014-11-14 14:16:01-0500 [login_finder] DEBUG: Scraped from <200 https://hyperiongray.atlassian.net/secure/Dashboard.jspa>
+	None
+2014-11-14 14:16:01-0500 [login_finder] INFO: Closing spider (finished)
+2014-11-14 14:16:01-0500 [login_finder] INFO: Dumping Scrapy stats:
+	{'downloader/request_bytes': 9682,
+	 'downloader/request_count': 18,
+	 'downloader/request_method_count/GET': 17,
+	 'downloader/request_method_count/POST': 1,
+	 'downloader/response_bytes': 31703,
+	 'downloader/response_count': 18,
+	 'downloader/response_status_count/200': 5,
+	 'downloader/response_status_count/302': 7,
+	 'downloader/response_status_count/303': 6,
+	 'dupefilter/filtered': 5,
+	 'finish_reason': 'finished',
+	 'finish_time': datetime.datetime(2014, 11, 14, 19, 16, 1, 823403),
+	 'item_scraped_count': 3,
+	 'log_count/DEBUG': 33,
+	 'log_count/INFO': 7,
+	 'offsite/domains': 5,
+	 'offsite/filtered': 7,
+	 'request_depth_max': 2,
+	 'response_received_count': 5,
+	 'scheduler/dequeued': 18,
+	 'scheduler/dequeued/memory': 18,
+	 'scheduler/enqueued': 18,
+	 'scheduler/enqueued/memory': 18,
+	 'start_time': datetime.datetime(2014, 11, 14, 19, 15, 59, 773986)}
+2014-11-14 14:16:01-0500 [login_finder] INFO: Spider closed (finished)
+2014-11-14 14:24:57-0500 [scrapy] INFO: Scrapy 0.24.4 started (bot: logincrawl)
+2014-11-14 14:24:57-0500 [scrapy] INFO: Optional features available: ssl, http11, boto
+2014-11-14 14:24:57-0500 [scrapy] INFO: Overridden settings: {'NEWSPIDER_MODULE': 'logincrawl.spiders', 'CLOSESPIDER_ITEMCOUNT': '1000', 'SPIDER_MODULES': ['logincrawl.spiders'], 'BOT_NAME': 'logincrawl', 'USER_AGENT': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0', 'LOG_FILE': 'out-ma.log'}
+2014-11-14 14:24:57-0500 [scrapy] INFO: Enabled extensions: LogStats, TelnetConsole, CloseSpider, WebService, CoreStats, SpiderState
+2014-11-14 14:24:58-0500 [scrapy] INFO: Enabled downloader middlewares: HttpAuthMiddleware, DownloadTimeoutMiddleware, UserAgentMiddleware, RetryMiddleware, DefaultHeadersMiddleware, MetaRefreshMiddleware, HttpCompressionMiddleware, RedirectMiddleware, CookiesMiddleware, ChunkedTransferMiddleware, DownloaderStats
+2014-11-14 14:24:58-0500 [scrapy] INFO: Enabled spider middlewares: HttpErrorMiddleware, OffsiteMiddleware, RefererMiddleware, UrlLengthMiddleware, DepthMiddleware
+2014-11-14 14:24:58-0500 [scrapy] INFO: Enabled item pipelines: LoginCrawlPipeline
+2014-11-14 14:24:58-0500 [login_finder] INFO: Spider opened
+2014-11-14 14:24:58-0500 [login_finder] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2014-11-14 14:24:58-0500 [scrapy] DEBUG: Telnet console listening on 127.0.0.1:6023
+2014-11-14 14:24:58-0500 [scrapy] DEBUG: Web service listening on 127.0.0.1:6080
+2014-11-14 14:24:59-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net>
+2014-11-14 14:24:59-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/login.jsp?os_destination=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa>
+2014-11-14 14:24:59-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login.jsp?os_destination=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Crawled (200) <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> (referer: None)
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Filtered offsite request to 'docs.atlassian.com': <GET https://docs.atlassian.com/jira/docs-052/JIRA+Documentation>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Filtered offsite request to 'confluence.atlassian.com': <GET https://confluence.atlassian.com/display/AOD/Logging+in+to+Atlassian+OnDemand>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Filtered offsite request to 'answers.atlassian.com': <GET https://answers.atlassian.com/>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Filtered offsite request to 'atlassian.com': <GET http://atlassian.com/end-user-agreement/>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Filtered offsite request to 'www.atlassian.com': <GET http://www.atlassian.com/software/ondemand/status>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login/switch-language?lang=ja>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Crawled (200) <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> (referer: https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa)
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login/switch-language?lang=de>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Filtered duplicate request: <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login/switch-language?lang=fr>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Filtered duplicate request: <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Crawled (200) <GET https://hyperiongray.atlassian.net/login/forgot> (referer: https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa)
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login/switch-language?lang=es>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Filtered duplicate request: <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Scraped from <200 https://hyperiongray.atlassian.net/login/forgot>
+	None
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login/switch-language?lang=en>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Filtered duplicate request: <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/login.jsp?os_destination=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login.jsp?os_destination=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:00-0500 [login_finder] DEBUG: Filtered duplicate request: <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:01-0500 [login_finder] DEBUG: Crawled (200) <GET https://hyperiongray.atlassian.net/admin/users/sign-up> (referer: https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa)
+2014-11-14 14:25:01-0500 [login_finder] DEBUG: Scraped from <200 https://hyperiongray.atlassian.net/admin/users/sign-up>
+	None
+2014-11-14 14:25:01-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa> from <POST https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:01-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/secure/Dashboard.jspa> from <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa>
+2014-11-14 14:25:01-0500 [login_finder] DEBUG: Crawled (200) <GET https://hyperiongray.atlassian.net/secure/Dashboard.jspa> (referer: https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa)
+2014-11-14 14:25:01-0500 [login_finder] ERROR: Spider error processing <GET https://hyperiongray.atlassian.net/secure/Dashboard.jspa>
+	Traceback (most recent call last):
+	  File "/usr/local/lib/python2.7/dist-packages/twisted/internet/base.py", line 1201, in mainLoop
+	    self.runUntilCurrent()
+	  File "/usr/local/lib/python2.7/dist-packages/twisted/internet/base.py", line 824, in runUntilCurrent
+	    call.func(*call.args, **call.kw)
+	  File "/usr/local/lib/python2.7/dist-packages/twisted/internet/defer.py", line 382, in callback
+	    self._startRunCallbacks(result)
+	  File "/usr/local/lib/python2.7/dist-packages/twisted/internet/defer.py", line 490, in _startRunCallbacks
+	    self._runCallbacks()
+	--- <exception caught here> ---
+	  File "/usr/local/lib/python2.7/dist-packages/twisted/internet/defer.py", line 577, in _runCallbacks
+	    current.result = callback(current.result, *args, **kw)
+	  File "/home/memex-punk/memex-dev/workspace/autologin/crawler/logincrawl/spiders/login_finder.py", line 68, in after_login_attempt
+	    open_in_browser(response.body)
+	  File "/usr/local/lib/python2.7/dist-packages/scrapy/utils/response.py", line 77, in open_in_browser
+	    body = response.body
+	exceptions.AttributeError: 'str' object has no attribute 'body'
+	
+2014-11-14 14:25:01-0500 [login_finder] INFO: Closing spider (finished)
+2014-11-14 14:25:01-0500 [login_finder] INFO: Dumping Scrapy stats:
+	{'downloader/request_bytes': 9682,
+	 'downloader/request_count': 18,
+	 'downloader/request_method_count/GET': 17,
+	 'downloader/request_method_count/POST': 1,
+	 'downloader/response_bytes': 31918,
+	 'downloader/response_count': 18,
+	 'downloader/response_status_count/200': 5,
+	 'downloader/response_status_count/302': 7,
+	 'downloader/response_status_count/303': 6,
+	 'dupefilter/filtered': 5,
+	 'finish_reason': 'finished',
+	 'finish_time': datetime.datetime(2014, 11, 14, 19, 25, 1, 874455),
+	 'item_scraped_count': 2,
+	 'log_count/DEBUG': 32,
+	 'log_count/ERROR': 1,
+	 'log_count/INFO': 7,
+	 'offsite/domains': 5,
+	 'offsite/filtered': 7,
+	 'request_depth_max': 2,
+	 'response_received_count': 5,
+	 'scheduler/dequeued': 18,
+	 'scheduler/dequeued/memory': 18,
+	 'scheduler/enqueued': 18,
+	 'scheduler/enqueued/memory': 18,
+	 'spider_exceptions/AttributeError': 1,
+	 'start_time': datetime.datetime(2014, 11, 14, 19, 24, 58, 717971)}
+2014-11-14 14:25:01-0500 [login_finder] INFO: Spider closed (finished)
+2014-11-14 14:25:36-0500 [scrapy] INFO: Scrapy 0.24.4 started (bot: logincrawl)
+2014-11-14 14:25:36-0500 [scrapy] INFO: Optional features available: ssl, http11, boto
+2014-11-14 14:25:36-0500 [scrapy] INFO: Overridden settings: {'NEWSPIDER_MODULE': 'logincrawl.spiders', 'CLOSESPIDER_ITEMCOUNT': '1000', 'SPIDER_MODULES': ['logincrawl.spiders'], 'BOT_NAME': 'logincrawl', 'USER_AGENT': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0', 'LOG_FILE': 'out-ma.log'}
+2014-11-14 14:25:36-0500 [scrapy] INFO: Enabled extensions: LogStats, TelnetConsole, CloseSpider, WebService, CoreStats, SpiderState
+2014-11-14 14:25:37-0500 [scrapy] INFO: Enabled downloader middlewares: HttpAuthMiddleware, DownloadTimeoutMiddleware, UserAgentMiddleware, RetryMiddleware, DefaultHeadersMiddleware, MetaRefreshMiddleware, HttpCompressionMiddleware, RedirectMiddleware, CookiesMiddleware, ChunkedTransferMiddleware, DownloaderStats
+2014-11-14 14:25:37-0500 [scrapy] INFO: Enabled spider middlewares: HttpErrorMiddleware, OffsiteMiddleware, RefererMiddleware, UrlLengthMiddleware, DepthMiddleware
+2014-11-14 14:25:37-0500 [scrapy] INFO: Enabled item pipelines: LoginCrawlPipeline
+2014-11-14 14:25:37-0500 [login_finder] INFO: Spider opened
+2014-11-14 14:25:37-0500 [login_finder] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2014-11-14 14:25:37-0500 [scrapy] DEBUG: Telnet console listening on 127.0.0.1:6023
+2014-11-14 14:25:37-0500 [scrapy] DEBUG: Web service listening on 127.0.0.1:6080
+2014-11-14 14:25:37-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/login.jsp?os_destination=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login.jsp?os_destination=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Crawled (200) <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> (referer: None)
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Filtered offsite request to 'docs.atlassian.com': <GET https://docs.atlassian.com/jira/docs-052/JIRA+Documentation>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Filtered offsite request to 'confluence.atlassian.com': <GET https://confluence.atlassian.com/display/AOD/Logging+in+to+Atlassian+OnDemand>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Filtered offsite request to 'answers.atlassian.com': <GET https://answers.atlassian.com/>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Filtered offsite request to 'atlassian.com': <GET http://atlassian.com/end-user-agreement/>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Filtered offsite request to 'www.atlassian.com': <GET http://www.atlassian.com/software/ondemand/status>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login/switch-language?lang=ja>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Crawled (200) <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> (referer: https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa)
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login/switch-language?lang=fr>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Filtered duplicate request: <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Crawled (200) <GET https://hyperiongray.atlassian.net/login/forgot> (referer: https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa)
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login/switch-language?lang=es>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Filtered duplicate request: <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Scraped from <200 https://hyperiongray.atlassian.net/login/forgot>
+	None
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login/switch-language?lang=en>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Filtered duplicate request: <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login/switch-language?lang=de>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Filtered duplicate request: <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/login.jsp?os_destination=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Redirecting (303) to <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa> from <POST https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa> from <GET https://hyperiongray.atlassian.net/login.jsp?os_destination=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:38-0500 [login_finder] DEBUG: Filtered duplicate request: <GET https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa>
+2014-11-14 14:25:39-0500 [login_finder] DEBUG: Redirecting (302) to <GET https://hyperiongray.atlassian.net/secure/Dashboard.jspa> from <GET https://hyperiongray.atlassian.net/secure/MyJiraHome.jspa>
+2014-11-14 14:25:39-0500 [login_finder] DEBUG: Crawled (200) <GET https://hyperiongray.atlassian.net/admin/users/sign-up> (referer: https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa)
+2014-11-14 14:25:39-0500 [login_finder] DEBUG: Scraped from <200 https://hyperiongray.atlassian.net/admin/users/sign-up>
+	None
+2014-11-14 14:25:39-0500 [login_finder] DEBUG: Crawled (200) <GET https://hyperiongray.atlassian.net/secure/Dashboard.jspa> (referer: https://hyperiongray.atlassian.net/login?dest-url=%2Fsecure%2FMyJiraHome.jspa)
+2014-11-14 14:25:39-0500 [login_finder] DEBUG: Scraped from <200 https://hyperiongray.atlassian.net/secure/Dashboard.jspa>
+	None
+2014-11-14 14:25:39-0500 [login_finder] INFO: Closing spider (finished)
+2014-11-14 14:25:39-0500 [login_finder] INFO: Dumping Scrapy stats:
+	{'downloader/request_bytes': 9682,
+	 'downloader/request_count': 18,
+	 'downloader/request_method_count/GET': 17,
+	 'downloader/request_method_count/POST': 1,
+	 'downloader/response_bytes': 31841,
+	 'downloader/response_count': 18,
+	 'downloader/response_status_count/200': 5,
+	 'downloader/response_status_count/302': 7,
+	 'downloader/response_status_count/303': 6,
+	 'dupefilter/filtered': 5,
+	 'finish_reason': 'finished',
+	 'finish_time': datetime.datetime(2014, 11, 14, 19, 25, 39, 614394),
+	 'item_scraped_count': 3,
+	 'log_count/DEBUG': 33,
+	 'log_count/INFO': 7,
+	 'offsite/domains': 5,
+	 'offsite/filtered': 7,
+	 'request_depth_max': 2,
+	 'response_received_count': 5,
+	 'scheduler/dequeued': 18,
+	 'scheduler/dequeued/memory': 18,
+	 'scheduler/enqueued': 18,
+	 'scheduler/enqueued/memory': 18,
+	 'start_time': datetime.datetime(2014, 11, 14, 19, 25, 37, 534438)}
+2014-11-14 14:25:39-0500 [login_finder] INFO: Spider closed (finished)

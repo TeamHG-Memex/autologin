@@ -17,4 +17,7 @@ NEWSPIDER_MODULE = 'logincrawl.spiders'
 CLOSESPIDER_ITEMCOUNT = '1000'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = 'logincrawl (+http://www.hyperiongray.com)'
+USER_AGENT = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0'
+ITEM_PIPELINES = {
+    'logincrawl.pipelines.LoginCrawlPipeline': 800
+}

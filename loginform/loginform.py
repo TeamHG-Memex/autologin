@@ -46,7 +46,11 @@ class LoginFormFinder(object):
     def get_top_form(self, forms):
         """Return the form most likely to be a login form"""
         all_forms = sorted(forms, key=self.form_score, reverse=True)
-        top_form = all_forms[0]
+        try:
+            top_form = all_forms[0]
+        except:
+            raise Exception("No suitable form was found on the page")
+
         return top_form, self.form_score(top_form)
     
     def pick_fields(self, form):
@@ -77,6 +81,14 @@ class LoginFormFinder(object):
     def fill_top_login_form(self):
 
         userfield, passfield = self.pick_fields(self.top_form)
+
+        if userfield is None:
+            raise Exception("No fields found that look like userfield")
+
+        
+        if passfield is None:
+            raise Exception("No fields found that look like passfield")
+
         self.top_form.fields[userfield] = self.username
         self.top_form.fields[passfield] = self.password
         self.top_form_values = self.top_form.form_values() + self.submit_value(self.top_form)
@@ -84,6 +96,8 @@ class LoginFormFinder(object):
         return self.top_form_values, self.top_form.action or self.top_form.base_url, self.top_form.method
 
 if __name__ == '__main__':
+    
+    """
     def main():
         ap = ArgumentParser()
         ap.add_argument('-u', '--username', default='username')
@@ -107,3 +121,11 @@ if __name__ == '__main__':
             print('- {0}: {1}'.format(k, v))
     
     main()
+    """
+    import requests
+    url = "https://github.com/login"
+    r=requests.get(url)
+    lff = LoginFormFinder(url, r.text, "ddd", "pass")
+    print lff.fill_top_login_form()
+    
+    
