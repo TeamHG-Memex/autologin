@@ -52,7 +52,7 @@ class AuthHeaderFinder(object):
             if "Cookie" in auth_item["auth_headers"]:
                 print "adding for cookie"
                 auth_score += 10
-
+                
                 #if there's a cookie field and appears to issue session token, add to score
                 cookie_value = auth_item["auth_headers"]["Cookie"][0]
                 #sessi is on purpose to catch common stuff like JSESSID or PHPSESSID
@@ -70,10 +70,15 @@ class AuthHeaderFinder(object):
                 if self.match_url_auth_words(referer_url):
                     print "adding for match in referer"
                     auth_score += 10
-                    
-                    
+
             auth_item["auth_score"] = auth_score
-            scored_auth_items.append(auth_item)
+            
+            #items must have at least a score of 9 to make it into the queue
+            if auth_score > 9:
+                scored_auth_items.append(auth_item)
+
+        if len(scored_auth_items) == 0:
+            raise Exception("No suitable authentication items found!")
 
         return sorted(scored_auth_items, key=itemgetter('auth_score'), reverse = True)
 

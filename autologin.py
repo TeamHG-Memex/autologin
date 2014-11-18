@@ -13,6 +13,7 @@ os.environ["SCRAPY_SETTINGS_MODULE"] = "crawler.logincrawl.settings"
 import pickledb
 from scrapy import Request as Request
 from scrapy.settings import Settings
+import traceback
 #import importlib
 #settings_module = importlib.import_module('crawler.logincrawl.settings')
 #settings = Settings(settings_module)
@@ -46,7 +47,7 @@ class AutoLogin(object):
         crawler.start()
         log.start(loglevel=log.DEBUG, logfile=self.logfile)
         log.msg("Item pipelines enabled: %s" % str(settings.get("ITEM_PIPELINES")), level = log.INFO)
-        reactor.run()  # the script will block here until the spider is closed    
+        reactor.run()  # the script will block here until the spider is closed
 
     def get_auth_headers_and_redirect_url(self):
 
@@ -55,7 +56,13 @@ class AutoLogin(object):
 
         #determine header that looks most reasonable as login header and return it
         ahf = AuthHeaderFinder()
-        auth_info = ahf.get_auth_header()
+        try:
+            auth_info = ahf.get_auth_header()
+        except:
+            log.msg("No valid login headers found. Here is the traceback: ", level = log.CRITICAL)
+            traceback.print_exc()
+            raise Exception("No valid login headers found.")
+            
         redirected_to = auth_info["response_url"]
         auth_headers = auth_info["auth_headers"]
         log.msg("Got auth headers %s" % json.dumps(auth_headers))
@@ -70,10 +77,10 @@ class AutoLogin(object):
             return Request(redirected_to, callback = callback, meta = meta, headers = auth_headers)
         else:
             return Request(redirected_to, meta = meta, headers = auth_headers)
-    
+
 if __name__ == "__main__":
 
-    al = AutoLogin("https://www.python.org/", username = "actest1234", password = "passpasspass123")
+    al = AutoLogin("https://github.com/", username = "actest1234", password = "passpasspass123")
     req = al.return_authenticated_request_item()
     log.msg("Request object returned: %s" % req.url)
     log.msg("Request object returned: %s" % req.headers)
