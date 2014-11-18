@@ -1,12 +1,12 @@
 import scrapy
 from scrapy.utils.response import open_in_browser
 from urlparse import urlparse
-from loginform import LoginFormFinder
+from loginform.loginform import LoginFormFinder
 from scrapy.http import FormRequest
 from scrapy.contrib.linkextractors import LinkExtractor
 from scrapy.contrib.spiders import CrawlSpider, Rule
-from logincrawl.items import AuthInfoItem
-from logincrawl.items import LoginCrawlItem
+from crawler.logincrawl.items import AuthInfoItem
+from crawler.logincrawl.items import LoginCrawlItem
 import traceback
 import json
 
