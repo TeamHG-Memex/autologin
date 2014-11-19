@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tutorial &mdash; sourcefinder 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="sourcefinder 0.1.0 documentation" href="index.html" />
+    <link rel="prev" title="Introduction" href="intro.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">sourcefinder 0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<div class="section" id="install">
+<h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
+<p>You shouldn&#8217;t have to do anything fancy, just check out the code and run</p>
+<div class="highlight-python"><div class="highlight"><pre>python server.py
+</pre></div>
+</div>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>Here is an example of AutoLogin use</p>
+<div class="highlight-python"><div class="highlight"><pre>$ curl &quot;http://localhost:5000?seedurl=https://github.com/&amp;username=actest1234&amp;password=passpasspass123&quot;
+</pre></div>
+</div>
+<p>We are authenticating to github, note how we specified just the homepage of github, we don&#8217;t need to specify the actual login page or any
+other information on the site, the system will crawl it, find the login form, and authenticate for you seemlessly.</p>
+<p>The response looks like the following</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+   <span class="s">&quot;redirected_to&quot;</span><span class="p">:</span> <span class="s">&quot;https://github.com/&quot;</span><span class="p">,</span>
+   <span class="s">&quot;auth_headers&quot;</span><span class="p">:</span>
+   <span class="p">{</span>
+      <span class="s">&quot;Accept-Language&quot;</span><span class="p">:</span>
+      <span class="p">[</span>
+         <span class="s">&quot;en&quot;</span>
+      <span class="p">],</span>
+
+      <span class="s">&quot;Accept-Encoding&quot;</span><span class="p">:</span>
+      <span class="p">[</span>
+         <span class="s">&quot;gzip,deflate&quot;</span>
+      <span class="p">],</span>
+
+      <span class="s">&quot;Accept&quot;</span><span class="p">:</span>
+      <span class="p">[</span>
+         <span class="s">&quot;text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8&quot;</span>
+      <span class="p">],</span>
+
+      <span class="s">&quot;User-Agent&quot;</span><span class="p">:</span>
+      <span class="p">[</span>
+         <span class="s">&quot;Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0&quot;</span>
+      <span class="p">],</span>
+
+      <span class="s">&quot;Referer&quot;</span><span class="p">:</span>
+      <span class="p">[</span>
+         <span class="s">&quot;https://github.com/login&quot;</span>
+      <span class="p">],</span>
+
+      <span class="s">&quot;Cookie&quot;</span><span class="p">:</span>
+      <span class="p">[</span>
+         <span class="s">&quot;_gh_sess=eyJsYXN0X3dyaXRlIjoxNDE2NDM3NzU1MTQ1LCJzZXNzaW9uX2lkIjoiZWI1YzJkYjE3YWFhNDQ4OWU1ZWZjN2Q5ZGFjZjRkZjIifQ%3D%3D--06456947bdba7a9b84b8a8938eb7086da99ef3f0; user_session=Xg9CSIRrxSCy2eZfv8_w4bJzd2iW9ZC5HG6oTIR8vhsSvNmNVG0f-0jGqnuQ4cgY58QGs_fnItf4Nnir; logged_in=yes; dotcom_user=actest1234&quot;</span>
+      <span class="p">]</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If you then use the returned headers in your own tool, the website will think you&#8217;re authenticated (because you are!) and you can increase the richness of the content collected. Enjoy!</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">sourcefinder</a></h1>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=&repo=&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014, Alejandro Caceres, Amanda Towler, Mikhail Korobov, Tomas Fornara.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.1</a>
+      
+      |
+      <a href="_sources/tutorial.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>
