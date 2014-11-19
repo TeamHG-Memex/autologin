@@ -14,45 +14,18 @@ import pickledb
 from scrapy import Request as Request
 from scrapy.settings import Settings
 import traceback
+from scrapy.crawler import CrawlerRunner
 #import importlib
 #settings_module = importlib.import_module('crawler.logincrawl.settings')
 #settings = Settings(settings_module)
 #crawler_settings = CrawlerSettings(settings_module)
 
 class AutoLogin(object):
-
-    def __init__(self, seed_url, username, password):
-        
-        self.seed_url = seed_url
-        self.username = username
-        self.password = password
-        self.logfile="results.log"
     
-    def init_db(self, db_file = "/tmp/autologin.db"):
-        os.remove(db_file)
-        db = pickledb.load(db_file, False)
-        db.dump()
-    
-    def __stop_reactor(self):
-        reactor.stop()
-    
-    def __run_login_spider(self, seed_url, username, password):
-
-        dispatcher.connect(self.__stop_reactor, signal=signals.spider_closed)
-        spider = LoginFinderSpider(seed_url = seed_url, username=username, password = password)
-        settings = get_project_settings()
-        crawler = Crawler(settings)
-        crawler.configure()
-        crawler.crawl(spider)
-        crawler.start()
-        log.start(loglevel=log.DEBUG, logfile=self.logfile)
-        log.msg("Item pipelines enabled: %s" % str(settings.get("ITEM_PIPELINES")), level = log.INFO)
-        reactor.run()  # the script will block here until the spider is closed
-
     def get_auth_headers_and_redirect_url(self):
 
         #run login spider, saves results to /tmp/autologin.db
-        self.__run_login_spider(seed_url = self.seed_url, username = self.username, password = self.password)
+        #self.__run_login_spider(seed_url = self.seed_url, username = self.username, password = self.password)
 
         #determine header that looks most reasonable as login header and return it
         ahf = AuthHeaderFinder()
@@ -78,9 +51,27 @@ class AutoLogin(object):
         else:
             return Request(redirected_to, meta = meta, headers = auth_headers)
 
+#usage: the login_finder spider must be run and a database populated with AuthInfoItems for AutoLogin object to work
+def init_db(db_file = "/tmp/autologin.db"):
+    os.remove(db_file)
+    db = pickledb.load(db_file, False)
+    db.dump()
+
+def run_login_spider(seed_url, username, password, logfile = "results.log"):
+
+    init_db()
+    settings = get_project_settings()
+    runner = CrawlerRunner(settings)
+    d = runner.crawl(LoginFinderSpider, seed_url = seed_url, username = username, password = password)
+    d.addBoth(lambda _: reactor.stop())
+    log.start(loglevel=log.DEBUG, logfile=logfile)
+    log.msg("Item pipelines enabled: %s" % str(settings.get("ITEM_PIPELINES")), level = log.INFO)
+    reactor.run()
+
 if __name__ == "__main__":
 
-    al = AutoLogin("https://github.com/", username = "actest1234", password = "passpasspass123")
+    run_login_spider("https://github.com/", "actest1234", "passpasspass123", logfile = "results.log")
+    al = AutoLogin()
     req = al.return_authenticated_request_item()
     log.msg("Request object returned: %s" % req.url)
     log.msg("Request object returned: %s" % req.headers)

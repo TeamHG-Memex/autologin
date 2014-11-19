@@ -9,6 +9,8 @@ from crawler.logincrawl.items import AuthInfoItem
 from crawler.logincrawl.items import LoginCrawlItem
 import traceback
 import json
+import os
+import pickledb
 
 class LoginFinderSpider(CrawlSpider):
     
@@ -24,7 +26,7 @@ class LoginFinderSpider(CrawlSpider):
         
         self.start_urls.append(seed_url)
         super(LoginFinderSpider, self).__init__(*args, **kwargs)
-        #!note yet implemented
+        #!not yet implemented
         max_links_to_follow = 100
         seed_host = urlparse(seed_url).netloc
         self.allowed_domains.append(seed_host)
