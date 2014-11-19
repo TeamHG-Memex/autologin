@@ -52,8 +52,6 @@ class LoginFinderSpider(CrawlSpider):
     
     def after_login_attempt(self, response):
         
-        #print "Here I am after login for %s with a response code of " % (response.request.url, response.code)
-        print "here i am after login"
         item = AuthInfoItem()
         item["response_url"] = response.url
         item["host"] = urlparse(response.url).netloc
