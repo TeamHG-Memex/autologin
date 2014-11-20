@@ -22,13 +22,17 @@ from scrapy.crawler import CrawlerRunner
 
 class AutoLogin(object):
     
+    def __init__(self, db_name):
+
+        self.db_name = db_name
+    
     def get_auth_headers_and_redirect_url(self):
 
         #run login spider, saves results to /tmp/autologin.db
         #self.__run_login_spider(seed_url = self.seed_url, username = self.username, password = self.password)
 
         #determine header that looks most reasonable as login header and return it
-        ahf = AuthHeaderFinder()
+        ahf = AuthHeaderFinder(self.db_name)
         try:
             auth_info = ahf.get_auth_header()
         except:
@@ -52,14 +56,14 @@ class AutoLogin(object):
             return Request(redirected_to, meta = meta, headers = auth_headers)
 
 #usage: the login_finder spider must be run and a database populated with AuthInfoItems for AutoLogin object to work
-def init_db(db_file = "/tmp/autologin.db"):
-    os.remove(db_file)
-    db = pickledb.load(db_file, False)
+def init_db(db_name):
+    os.remove(db_name)
+    db = pickledb.load(db_name, False)
     db.dump()
 
-def run_login_spider(seed_url, username, password, logfile = "results.log"):
+def run_login_spider(seed_url, username, password, db_name, logfile = "results.log"):
 
-    init_db()
+    init_db(db_name)
     settings = get_project_settings()
     runner = CrawlerRunner(settings)
     d = runner.crawl(LoginFinderSpider, seed_url = seed_url, username = username, password = password)

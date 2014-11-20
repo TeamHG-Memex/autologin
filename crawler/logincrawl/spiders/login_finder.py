@@ -22,7 +22,7 @@ class LoginFinderSpider(CrawlSpider):
     start_urls = []
     allowed_domains = []
 
-    def __init__(self, seed_url, username, password, *args, **kwargs):
+    def __init__(self, seed_url, username, password, db_name, *args, **kwargs):
         
         self.start_urls.append(seed_url)
         super(LoginFinderSpider, self).__init__(*args, **kwargs)
@@ -32,6 +32,7 @@ class LoginFinderSpider(CrawlSpider):
         self.allowed_domains.append(seed_host)
         self.username = username
         self.password = password
+        self.db_name = db_name
 
     def parse_item(self, response):
         

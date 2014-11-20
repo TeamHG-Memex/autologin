@@ -9,9 +9,13 @@ Tutorial
 Install
 =======
 
-You shouldn't have to do anything fancy, just check out the code and run ::
+You shouldn't have to do anything fancy, just check out the code and run (from the project root), make sure you have scrapy and scrapyd installed and run ::
 
    python server.py
+
+Followed by ::
+
+   scrapyd
 
 Usage
 =====
