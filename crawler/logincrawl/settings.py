@@ -14,7 +14,7 @@ SPIDER_MODULES = ['crawler.logincrawl.spiders']
 NEWSPIDER_MODULE = 'crawler.logincrawl.spiders'
 
 #grab max of 1000 pages on site looking for login
-CLOSESPIDER_ITEMCOUNT = '1000'
+CLOSESPIDER_ITEMCOUNT = '100'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0'

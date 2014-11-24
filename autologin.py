@@ -39,13 +39,13 @@ class AutoLogin(object):
             log.msg("No valid login headers found. Here is the traceback: ", level = log.CRITICAL)
             traceback.print_exc()
             raise Exception("No valid login headers found.")
-            
-        redirected_to = auth_info["response_url"]
-        auth_headers = auth_info["auth_headers"]
-        log.msg("Got auth headers %s" % json.dumps(auth_headers))
 
-        return auth_headers, redirected_to
-    
+        #redirected_to = auth_info["response_url"]
+        #auth_headers = auth_info["auth_headers"]
+        log.msg("Got auth headers %s" % json.dumps(auth_info["auth_headers"]))
+
+        return auth_info
+
     def return_authenticated_request_item(self, callback = None, meta = None):
     
         auth_headers, redirected_to = self.get_auth_headers_and_redirect_url()
@@ -57,7 +57,10 @@ class AutoLogin(object):
 
 #usage: the login_finder spider must be run and a database populated with AuthInfoItems for AutoLogin object to work
 def init_db(db_name):
-    os.remove(db_name)
+    try:
+        os.remove(db_name)
+    except:
+        pass
     db = pickledb.load(db_name, False)
     db.dump()
 
@@ -74,8 +77,9 @@ def run_login_spider(seed_url, username, password, db_name, logfile = "results.l
 
 if __name__ == "__main__":
 
-    run_login_spider("https://github.com/", "actest1234", "passpasspass123", logfile = "results.log")
+    run_login_spider("https://www.signupgenius.com/", "actest@hyperiongray.com", "passpasspass123", "eawfwefawefaewweeawf.db", logfile = "results.log")
     al = AutoLogin()
     req = al.return_authenticated_request_item()
     log.msg("Request object returned: %s" % req.url)
     log.msg("Request object returned: %s" % req.headers)
+    reactor.stop()
