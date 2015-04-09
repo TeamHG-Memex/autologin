@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# sourcefinder documentation build configuration file, created by
+# AutoLogin documentation build configuration file, created by
 # sphinx-quickstart on Fri Sep 26 19:16:45 2014.
 #
 # This file is execfile()d with the current directory set to its
@@ -43,7 +43,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'sourcefinder'
+project = u'AutoLogin'
 copyright = u'2014, Alejandro Caceres, Amanda Towler, Mikhail Korobov, Tomas Fornara'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -185,7 +185,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'sourcefinderdoc'
+htmlhelp_basename = 'autologindoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -235,7 +235,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'sourcefinder', u'sourcefinder Documentation',
+    ('index', 'AutoLogin', u'AutoLogin Documentation',
      [u'Alejandro Caceres, Amanda Towler, Mikhail Korobov, Tomas Fornara'], 1)
 ]
 
@@ -249,8 +249,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'sourcefinder', u'sourcefinder Documentation',
-   u'Alejandro Caceres, Amanda Towler, Mikhail Korobov, Tomas Fornara', 'sourcefinder', 'One line description of project.',
+  ('index', 'AutoLogin', u'AutoLogin Documentation',
+   u'Alejandro Caceres, Amanda Towler, Mikhail Korobov, Tomas Fornara', 'autologin', 'One line description of project.',
    'Miscellaneous'),
 ]
 

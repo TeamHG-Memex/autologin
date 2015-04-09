@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Welcome to sourcefinder’s documentation! &mdash; sourcefinder 0.1.0 documentation</title>
+    <title>Search &mdash; AutoLogin 0.1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -23,11 +23,18 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="sourcefinder 0.1.0 documentation" href="#" />
-    <link rel="next" title="Introduction" href="intro.html" />
+    <script type="text/javascript" src="_static/searchtools.js"></script>
+    <link rel="top" title="AutoLogin 0.1.0 documentation" href="index.html" />
+  <script type="text/javascript">
+    jQuery(function() { Search.loadIndex("searchindex.js"); });
+  </script>
+  
+  <script type="text/javascript" id="searchindexloader"></script>
+  
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
 
   </head>
   <body>
@@ -37,10 +44,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="intro.html" title="Introduction"
-             accesskey="N">next</a> |</li>
-        <li><a href="#">sourcefinder 0.1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">AutoLogin 0.1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -49,28 +53,36 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="welcome-to-sourcefinder-s-documentation">
-<h1>Welcome to sourcefinder&#8217;s documentation!<a class="headerlink" href="#welcome-to-sourcefinder-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>Contents:</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#install">Install</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#usage">Usage</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-
+  <h1 id="search-documentation">Search</h1>
+  <div id="fallback" class="admonition warning">
+  <script type="text/javascript">$('#fallback').hide();</script>
+  <p>
+    Please activate JavaScript to enable the search
+    functionality.
+  </p>
+  </div>
+  <p>
+    From here you can search these documents. Enter your search
+    words into the box below and click "search". Note that the search
+    function will automatically search for all of the words. Pages
+    containing fewer words won't appear in the result list.
+  </p>
+  <form action="" method="get">
+    <input type="text" name="q" value="" />
+    <input type="submit" value="search" />
+    <span id="search-progress" style="padding-left: 10px"></span>
+  </form>
+  
+  <div id="search-results">
+  
+  </div>
 
           </div>
         </div>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="#">sourcefinder</a></h1>
+<h1 class="logo"><a href="index.html">AutoLogin</a></h1>
 
 
 
@@ -89,19 +101,6 @@
 </ul>
 
 
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -113,9 +112,6 @@
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
       
-      |
-      <a href="_sources/index.txt"
-          rel="nofollow">Page source</a></li>
     </div>
 
     

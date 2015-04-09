@@ -45,9 +45,9 @@ class LoginFormFinder(object):
     
     def get_top_form(self, forms):
         """Return the form most likely to be a login form"""
-        all_forms = sorted(forms, key=self.form_score, reverse=True)
+        self.all_forms = sorted(forms, key=self.form_score, reverse=True)
         try:
-            top_form = all_forms[0]
+            top_form = self.all_forms[0]
         except:
             raise Exception("No suitable form was found on the page")
 
