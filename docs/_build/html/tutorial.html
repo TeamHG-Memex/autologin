@@ -30,24 +30,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="intro.html" title="Introduction"
-             accesskey="P">previous</a> |</li>
-        <li><a href="index.html">AutoLogin 0.1.0 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body role="document">  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
@@ -57,8 +45,16 @@
 </div>
 <div class="section" id="install">
 <h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
-<p>You shouldn&#8217;t have to do anything fancy, just check out the code and run (from the project root), make sure you have scrapy and scrapyd installed and run</p>
-<div class="highlight-python"><div class="highlight"><pre>python server.py
+<p>You shouldn&#8217;t have to do anything fancy. Just check out the code and run this
+command from the project root</p>
+<div class="highlight-python"><div class="highlight"><pre>pip install -r requirements.txt
+</pre></div>
+</div>
+</div>
+<div class="section" id="running">
+<h2>Running<a class="headerlink" href="#running" title="Permalink to this headline">¶</a></h2>
+<p>From the project root, start the autologin service</p>
+<div class="highlight-python"><div class="highlight"><pre>python service.py
 </pre></div>
 </div>
 <p>Followed by</p>
@@ -68,13 +64,15 @@
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<p>Here is an example of AutoLogin use</p>
-<div class="highlight-python"><div class="highlight"><pre>$ curl &quot;http://localhost:5000?seedurl=https://github.com/&amp;username=actest1234&amp;password=passpasspass123&quot;
+<p>Here is an example of AutoLogin usage</p>
+<div class="highlight-python"><div class="highlight"><pre>$ curl &quot;http://localhost:5000/?seedurl=https://github.com/&amp;username=actest1234&amp;password=passpasspass123&quot;
 </pre></div>
 </div>
-<p>We are authenticating to github, note how we specified just the homepage of github, we don&#8217;t need to specify the actual login page or any
-other information on the site, the system will crawl it, find the login form, and authenticate for you seemlessly.</p>
-<p>The response looks like the following</p>
+<p>Note how we only specified the GitHub homepage. We don&#8217;t need to specify the
+actual login page, or any other information on the site: autologin will crawl
+from the starting URL, find the login form, and submit authentication
+credentials seamlessly.</p>
+<p>The response looks like this</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
    <span class="s">&quot;redirected_to&quot;</span><span class="p">:</span> <span class="s">&quot;https://github.com/&quot;</span><span class="p">,</span>
    <span class="s">&quot;auth_headers&quot;</span><span class="p">:</span>
@@ -112,7 +110,8 @@ other information on the site, the system will crawl it, find the login form, an
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>If you then use the returned headers in your own tool, the website will think you&#8217;re authenticated (because you are!) and you can increase the richness of the content collected. Enjoy!</p>
+<p>If you then use the returned headers in your own tool, the website will think
+you&#8217;re authenticated – because you are! Enjoy!</p>
 </div>
 </div>
 
@@ -120,7 +119,7 @@ other information on the site, the system will crawl it, find the login form, an
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="index.html">AutoLogin</a></h1>
 
@@ -129,7 +128,7 @@ other information on the site, the system will crawl it, find the login form, an
 
 
 <p>
-<iframe src="http://ghbtns.com/github-btn.html?user=&repo=&type=watch&count=true&size=large"
+<iframe src="https://ghbtns.com/github-btn.html?user=&repo=&type=watch&count=true&size=large"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
 
@@ -139,13 +138,14 @@ other information on the site, the system will crawl it, find the login form, an
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Tutorial</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running">Running</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
 </ul>
 </li>
 </ul>
 
 
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -166,12 +166,12 @@ other information on the site, the system will crawl it, find the login form, an
       &copy;2014, Alejandro Caceres, Amanda Towler, Mikhail Korobov, Tomas Fornara.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
       
       |
       <a href="_sources/tutorial.txt"
-          rel="nofollow">Page source</a></li>
+          rel="nofollow">Page source</a>
     </div>
 
     

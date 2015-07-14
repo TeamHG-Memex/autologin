@@ -1,0 +1,7 @@
+flask
+pickledb
+python-scrapyd-api
+requests
+scrapy
+scrapyd
+sphinx
