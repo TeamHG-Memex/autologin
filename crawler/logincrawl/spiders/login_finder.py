@@ -3,8 +3,8 @@ from scrapy.utils.response import open_in_browser
 from urlparse import urlparse
 from loginform.loginform import LoginFormFinder
 from scrapy.http import FormRequest
-from scrapy.contrib.linkextractors import LinkExtractor
-from scrapy.contrib.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
+from scrapy.spiders import CrawlSpider, Rule
 from crawler.logincrawl.items import AuthInfoItem
 from crawler.logincrawl.items import LoginCrawlItem
 import traceback
@@ -35,7 +35,6 @@ class LoginFinderSpider(CrawlSpider):
         self.db_name = db_name
 
     def parse_item(self, response):
-        
         item = LoginCrawlItem()
         item["url"] = response.url
         item["host"] = urlparse(response.url).netloc

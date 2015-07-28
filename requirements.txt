@@ -2,6 +2,7 @@ flask
 pickledb
 python-scrapyd-api
 requests
-scrapy
+scrapy>=1.0
 scrapyd
 sphinx
+service_identity
