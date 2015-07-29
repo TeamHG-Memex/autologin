@@ -4,7 +4,7 @@ import time
 
 class ScrapydLoginFinderJob(object):
 
-    def __init__(self, seed_url, username, password, db_name, scrapyd_host="localhost", scrapyd_port="6800", project="default", spider="login_finder"):
+    def __init__(self, seed_url, username, password, db_name, use_formasaurus=True, scrapyd_host="localhost", scrapyd_port="6800", project="default", spider="login_finder"):
 
         scrapy_url = "http://" + scrapyd_host + ":" + str(scrapyd_port)
         self.scrapi = ScrapydAPI(scrapy_url)
@@ -14,10 +14,12 @@ class ScrapydLoginFinderJob(object):
         self.username = username
         self.password = password
         self.db_name = db_name
+        self.use_formasaurus = use_formasaurus
+        print 'LoginFinderJob use formasaurus? %s' % self.use_formasaurus
 
     def schedule(self):
 
-        self.job_id = self.scrapi.schedule(self.project, self.spider, seed_url = self.seed_url, username = self.username, password = self.password, db_name = self.db_name)
+        self.job_id = self.scrapi.schedule(self.project, self.spider, seed_url = self.seed_url, username = self.username, password = self.password, db_name = self.db_name, use_formasaurus = self.use_formasaurus)
 
         return self.job_id
 

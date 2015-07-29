@@ -72,12 +72,20 @@ def init_db(db_name):
     db = pickledb.load(db_name, False)
     db.dump()
 
-def run_login_spider(seed_url, username, password, db_name, logfile = "results.log"):
+def run_login_spider(seed_url, username, password, db_name, logfile = "results.log", use_formasaurus = True):
+    # Check that we can import Formasaurs, fallback to scoring method
+    if use_formasaurus:
+        try:
+            from formasaurus import FormExtractor
+            logging.info("Formasaurus is active. We have AI :-)")
+        except:
+            logging.warning("Formasaurus could not be imported. No AI :-( Falling back to naive scoring method")
+            use_formasaurus = False
 
     init_db(db_name)
     settings = get_project_settings()
     runner = CrawlerRunner(settings)
-    d = runner.crawl(LoginFinderSpider, seed_url = seed_url, username = username, password = password, db_name=db_name)
+    d = runner.crawl(LoginFinderSpider, seed_url = seed_url, username = username, password = password, db_name = db_name, use_formasaurus = use_formasaurus)
     d.addBoth(lambda _: reactor.stop())
     logging.info("Item pipelines enabled: %s" % str(settings.get("ITEM_PIPELINES")))
     reactor.run()
@@ -86,7 +94,8 @@ if __name__ == "__main__":
     db_name = "eawfwefawefaewweeawf.db"
     logfile = 'results.log'
     logging.basicConfig(filename=logfile,level=logging.DEBUG)
-    run_login_spider("https://www.signupgenius.com/", "actest@hyperiongray.com", "passpasspass123", db_name, logfile = logfile)
+    use_formasaurus = True
+    run_login_spider("https://www.signupgenius.com/", "actest@hyperiongray.com", "passpasspass123", db_name, logfile = logfile, use_formasaurus = use_formasaurus)
     al = AutoLogin(db_name)
     req = al.return_authenticated_request_item()
     logging.info("Request object returned: %s" % req.url)

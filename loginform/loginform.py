@@ -9,17 +9,60 @@ __version__ = '1.0'  # also update setup.py
 
 class LoginFormFinder(object):
 
-    def __init__(self, url, body, username, password):
+    def __init__(self, url, body, username, password, use_formasaurus=True):
 
         self.username =  username
         self.password= password
         self.form_extractor = FormExtractor.load()
         doc = html.document_fromstring(body, base_url=url)
         #self.top_form, self.top_form_score = self.get_top_form(doc.xpath('//form'))
-        self.login_form = self.get_login_form(doc)
+        if use_formasaurus is True:
+            print 'Using Formasaurus'
+            self.login_form = self.get_login_form_with_formasaurus(doc)
+        else:
+            print 'Using naive scoring algo'
+            self.login_form, self.top_form_score =  self.get_top_form(doc.xpath('//form'))
 
+
+    def form_score(self, form):
+        score = 0
+        # In case of user/pass or user/pass/remember-me
+        if len(form.inputs.keys()) in (2, 3):
+            score += 10
     
-    def get_login_form(self, doc):
+        typecount = defaultdict(int)
+        for x in form.inputs:
+            type_ = x.type if isinstance(x, html.InputElement) else "other"
+            typecount[type_] += 1
+    
+        if typecount['text'] > 1:
+            score += 10
+        if not typecount['text']:
+            score -= 10
+    
+        if typecount['password'] == 1:
+            score += 10
+        if not typecount['password']:
+            score -= 10
+    
+        if typecount['checkbox'] > 1:
+            score -= 10
+        if typecount['radio']:
+            score -= 10
+    
+        return score
+    
+    def get_top_form(self, forms):
+        """Return the form most likely to be a login form"""
+        self.all_forms = sorted(forms, key=self.form_score, reverse=True)
+        try:
+            top_form = self.all_forms[0]
+        except:
+            raise Exception("No suitable form was found on the page")
+
+        return top_form, self.form_score(top_form)
+    
+    def get_login_form_with_formasaurus(self, doc):
         """Return the form most likely to be a login form"""
         #self.all_forms = sorted(forms, key=self.form_score, reverse=True)
         self.all_forms = self.form_extractor.extract_forms(doc) 
