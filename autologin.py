@@ -30,7 +30,7 @@ class AutoLogin(object):
 
         self.db_name = db_name
     
-    def get_auth_headers_and_redirect_url(self):
+    def get_auth_info(self):
 
         #run login spider, saves results to /tmp/autologin.db
         #self.__run_login_spider(seed_url = self.seed_url, username = self.username, password = self.password)
@@ -44,16 +44,18 @@ class AutoLogin(object):
             traceback.print_exc()
             raise Exception("No valid login headers found.")
 
-        redirected_to = auth_info["response_url"]
-        auth_headers = auth_info["auth_headers"]
+        #redirected_to = auth_info["response_url"]
+        #auth_headers = auth_info["auth_headers"]
         logging.info("Got auth headers %s" % json.dumps(auth_info["auth_headers"]))
 
-        return auth_headers, redirected_to
+        return auth_info
+        #return auth_headers, redirected_to
 
     def return_authenticated_request_item(self, callback = None, meta = None):
-    
+        
+        auth_info = self.get_auth_info 
         auth_headers, redirected_to = self.get_auth_headers_and_redirect_url()
-        logging.info("Returning auth headers %s and redirected_to url %s" % (json.dumps(auth_headers), str(redirected_to)))
+        logging.info("Returning auth headers %s and redirected_to url %s" % (json.dumps(auth_info['auth_headers']), str(auth_info['redirected_to'])))
         if callback:
             return Request(redirected_to, callback = callback, meta = meta, headers = auth_headers)
         else:
