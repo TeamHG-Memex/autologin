@@ -53,9 +53,11 @@ class AutoLogin(object):
 
     def return_authenticated_request_item(self, callback = None, meta = None):
         
-        auth_info = self.get_auth_info 
-        auth_headers, redirected_to = self.get_auth_headers_and_redirect_url()
-        logging.info("Returning auth headers %s and redirected_to url %s" % (json.dumps(auth_info['auth_headers']), str(auth_info['redirected_to'])))
+        auth_info = self.get_auth_info()
+        auth_headers = auth_info['auth_headers']
+        redirected_to = auth_info['response_url']
+
+        logging.info("Returning auth headers %s and redirected_to url %s" % (json.dumps(auth_headers), str(redirected_to)))
         if callback:
             return Request(redirected_to, callback = callback, meta = meta, headers = auth_headers)
         else:
