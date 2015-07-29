@@ -30,7 +30,7 @@ def autologin():
     slfj.block_until_done()
     
     al = AutoLogin(db_name)
-    auth_info = al.get_auth_headers_and_redirect_url()
+    auth_info = al.get_auth_info()
 
     if open_in_browser:
 
