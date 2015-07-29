@@ -3,6 +3,7 @@ import sys
 from argparse import ArgumentParser
 from collections import defaultdict
 from lxml import html
+from formasaurus import FormExtractor
 
 __version__ = '1.0'  # also update setup.py
 
@@ -12,46 +13,24 @@ class LoginFormFinder(object):
 
         self.username =  username
         self.password= password
+        self.form_extractor = FormExtractor.load()
         doc = html.document_fromstring(body, base_url=url)
-        self.top_form, self.top_form_score = self.get_top_form(doc.xpath('//form'))
+        #self.top_form, self.top_form_score = self.get_top_form(doc.xpath('//form'))
+        self.login_form = self.get_login_form(doc)
 
-    def form_score(self, form):
-        score = 0
-        # In case of user/pass or user/pass/remember-me
-        if len(form.inputs.keys()) in (2, 3):
-            score += 10
     
-        typecount = defaultdict(int)
-        for x in form.inputs:
-            type_ = x.type if isinstance(x, html.InputElement) else "other"
-            typecount[type_] += 1
-    
-        if typecount['text'] > 1:
-            score += 10
-        if not typecount['text']:
-            score -= 10
-    
-        if typecount['password'] == 1:
-            score += 10
-        if not typecount['password']:
-            score -= 10
-    
-        if typecount['checkbox'] > 1:
-            score -= 10
-        if typecount['radio']:
-            score -= 10
-    
-        return score
-    
-    def get_top_form(self, forms):
+    def get_login_form(self, doc):
         """Return the form most likely to be a login form"""
-        self.all_forms = sorted(forms, key=self.form_score, reverse=True)
+        #self.all_forms = sorted(forms, key=self.form_score, reverse=True)
+        self.all_forms = self.form_extractor.extract_forms(doc) 
+        login_forms = [v[0] for i, v in enumerate(self.all_forms) if v[1] == 'l']
         try:
-            top_form = self.all_forms[0]
+            login_form = login_forms[0]
         except:
             raise Exception("No suitable form was found on the page")
 
-        return top_form, self.form_score(top_form)
+        return login_form
+
     
     def pick_fields(self, form):
         """Return the most likely field names for username and password"""
@@ -80,7 +59,7 @@ class LoginFormFinder(object):
 
     def fill_top_login_form(self):
 
-        userfield, passfield = self.pick_fields(self.top_form)
+        userfield, passfield = self.pick_fields(self.login_form)
 
         if userfield is None:
             raise Exception("No fields found that look like userfield")
@@ -89,11 +68,11 @@ class LoginFormFinder(object):
         if passfield is None:
             raise Exception("No fields found that look like passfield")
 
-        self.top_form.fields[userfield] = self.username
-        self.top_form.fields[passfield] = self.password
-        self.top_form_values = self.top_form.form_values() + self.submit_value(self.top_form)
+        self.login_form.fields[userfield] = self.username
+        self.login_form.fields[passfield] = self.password
+        self.login_form_values = self.login_form.form_values() + self.submit_value(self.login_form)
 
-        return self.top_form_values, self.top_form.action or self.top_form.base_url, self.top_form.method
+        return self.login_form_values, self.login_form.action or self.login_form.base_url, self.login_form.method
 
 if __name__ == '__main__':
     

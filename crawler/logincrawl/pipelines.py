@@ -9,18 +9,18 @@ import traceback
 from loginform.loginform import LoginFormFinder
 from crawler.logincrawl.items import AuthInfoItem
 import pickledb
-from scrapy import log
+import logging
 
 class LoginCrawlPipeline(object):
 
     def process_item(self, item, spider):
         #add url to list of keys/urls
-        log.msg("Processing an AuthInfoItem", level = log.INFO)
+        logging.info("Processing an AuthInfoItem")
 
         self.db_location = spider.db_name
         self.db = pickledb.load(self.db_location, False)
         self.db.lcreate("auth_urls")
-        log.msg("Using db at location %s" % self.db_location, level = log.INFO)
+        logging.info("Using db at location %s" % self.db_location)
         
         if isinstance(item, AuthInfoItem):
             if item["response_url"] not in self.db.lgetall("auth_urls"):
