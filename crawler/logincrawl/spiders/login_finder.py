@@ -11,6 +11,7 @@ import traceback
 import json
 import os
 import pickledb
+import logging
 
 class LoginFinderSpider(CrawlSpider):
     
@@ -22,7 +23,7 @@ class LoginFinderSpider(CrawlSpider):
     start_urls = []
     allowed_domains = []
 
-    def __init__(self, seed_url, username, password, db_name, *args, **kwargs):
+    def __init__(self, seed_url, username, password, db_name, use_formasaurus, *args, **kwargs):
         
         self.start_urls.append(seed_url)
         super(LoginFinderSpider, self).__init__(*args, **kwargs)
@@ -33,6 +34,7 @@ class LoginFinderSpider(CrawlSpider):
         self.username = username
         self.password = password
         self.db_name = db_name
+        self.use_formasaurus = use_formasaurus
 
     def parse_item(self, response):
         item = LoginCrawlItem()
@@ -41,7 +43,7 @@ class LoginFinderSpider(CrawlSpider):
         item["raw_html"] = response.body
 
         try:
-            lff = LoginFormFinder(response.url, response.body, self.username, self.password)
+            lff = LoginFormFinder(response.url, response.body, self.username, self.password, self.use_formasaurus)
             args, url, method = lff.fill_top_login_form()
 
             #sometimes this callback in the FormRequest is not called! Why?
@@ -51,7 +53,7 @@ class LoginFinderSpider(CrawlSpider):
             return item
     
     def after_login_attempt(self, response):
-        
+        self.logger.info('Parse function called on %s', response.url)
         item = AuthInfoItem()
         item["response_url"] = response.url
         item["host"] = urlparse(response.url).netloc
@@ -62,6 +64,6 @@ class LoginFinderSpider(CrawlSpider):
         item["request_meta"] = response.request.meta
         item["response_meta"] = response.meta
         item["response_body"] = response.body
-#        open_in_browser(response)
+        #open_in_browser(response)
 
         return item

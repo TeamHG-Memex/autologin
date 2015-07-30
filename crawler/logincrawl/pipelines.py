@@ -7,9 +7,10 @@
 import json
 import traceback
 from loginform.loginform import LoginFormFinder
-from crawler.logincrawl.items import AuthInfoItem
+from crawler.logincrawl.items import AuthInfoItem, LoginCrawlItem
 import pickledb
 import logging
+from scrapy.exceptions import DropItem
 
 class LoginCrawlPipeline(object):
 
@@ -27,3 +28,5 @@ class LoginCrawlPipeline(object):
                 self.db.ladd("auth_urls", item["response_url"])
                 self.db.set(item["response_url"], dict(item))
                 self.db.dump()
+        elif isinstance(item, LoginCrawlItem):
+            raise DropItem("LoginCrawlItem")
