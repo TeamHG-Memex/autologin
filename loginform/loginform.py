@@ -16,7 +16,7 @@ class LoginFormFinder(object):
         self.form_extractor = FormExtractor.load()
         doc = html.document_fromstring(body, base_url=url)
         #self.top_form, self.top_form_score = self.get_top_form(doc.xpath('//form'))
-        if use_formasaurus is True:
+        if use_formasaurus is True or use_formasaurus == 'True':
             print 'Using Formasaurus'
             self.login_form = self.get_login_form_with_formasaurus(doc)
         else:
