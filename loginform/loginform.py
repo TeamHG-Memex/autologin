@@ -9,7 +9,7 @@ __version__ = '1.0'  # also update setup.py
 
 class LoginFormFinder(object):
 
-    def __init__(self, url, body, username, password, use_formasaurus=True):
+    def __init__(self, url, body, username, password, use_formasaurus='1'):
 
         self.username =  username
         self.password= password
@@ -17,11 +17,11 @@ class LoginFormFinder(object):
         self.use_formasaurus = use_formasaurus
         doc = html.document_fromstring(body, base_url=url)
         #self.top_form, self.top_form_score = self.get_top_form(doc.xpath('//form'))
-        if self.use_formasaurus is True or self.use_formasaurus=='True':
-            print 'Using Formasaurus'
+        if self.use_formasaurus == '1':
+            print 'Using Formasaurus for %s' % url
             self.login_form = self.get_login_form_with_formasaurus(doc)
         else:
-            print 'Using naive scoring algo'
+            print 'Using naive scoring algo for %s' % url
             self.login_form, self.top_form_score =  self.get_top_form(doc.xpath('//form'))
 
 

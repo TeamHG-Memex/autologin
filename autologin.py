@@ -72,15 +72,15 @@ def init_db(db_name):
     db = pickledb.load(db_name, False)
     db.dump()
 
-def run_login_spider(seed_url, username, password, db_name, logfile = "results.log", use_formasaurus = True):
+def run_login_spider(seed_url, username, password, db_name, logfile = "results.log", use_formasaurus = '1'):
     # Check that we can import Formasaurs, fallback to scoring method
-    if use_formasaurus:
+    if use_formasaurus == '1':
         try:
             from formasaurus import FormExtractor
             logging.info("Formasaurus is active. We have AI :-)")
         except:
             logging.warning("Formasaurus could not be imported. No AI :-( Falling back to naive scoring method")
-            use_formasaurus = False
+            use_formasaurus = '0' 
 
     init_db(db_name)
     settings = get_project_settings()
@@ -94,14 +94,35 @@ if __name__ == "__main__":
     db_name = "eawfwefawefaewweeawf.db"
     logfile = 'results.log'
     logging.basicConfig(filename=logfile,level=logging.DEBUG)
-    use_formasaurus = True
-    run_login_spider("https://www.signupgenius.com/", "actest@hyperiongray.com", "passpasspass123", db_name, logfile = logfile, use_formasaurus = use_formasaurus)
+    use_formasaurus = '0' 
+    open_in_browser = '1'
+    sites = {
+            'https://github.com': ['actest1234', 'passpasspass123'],
+            'https://www.signupgenius.com': ['actest@hyperiongray.com', 'passpasspass123'],
+            'https://twitter.com': ['ghostshell1010', 'B00msh4k3th3r00m!'],
+            'https://foursquare.com': ['ghostintheshell1010@gmail.com', 'B00msh4k3th3r00m!'],
+            }
+    site = 'https://foursquare.com'
+    #site = 'https://twitter.com'
+    user =  sites[site][0]
+    password = sites[site][1]
+    print 'Running login spider'
+    run_login_spider(site, user, password, db_name, logfile = logfile, use_formasaurus = use_formasaurus)
     al = AutoLogin(db_name)
     req = al.return_authenticated_request_item()
+    auth_info = al.get_auth_info()
     logging.info("Request object returned: %s" % req.url)
     logging.info("Request object returned: %s" % req.headers)
     print ("Request object returned: %s" % req.url)
     print ("Request object returned: %s" % req.headers)
+    if open_in_browser == "1":
+        import webbrowser
+        print 'Opening browser'
+        tmp_response_file = "/tmp/openinbrowser.html" 
+        f = open(tmp_response_file, "w")
+        f.write(auth_info["response_body"].encode("utf-8"))
+        webbrowser.open(tmp_response_file, new = 2)
+
     try:
         reactor.stop()
     except ReactorNotRunning:
