@@ -7,3 +7,4 @@ scrapyd
 sphinx
 service_identity
 formasaurus
+scipy
