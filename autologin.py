@@ -94,15 +94,17 @@ if __name__ == "__main__":
     db_name = "eawfwefawefaewweeawf.db"
     logfile = 'results.log'
     logging.basicConfig(filename=logfile,level=logging.DEBUG)
-    use_formasaurus = '0' 
+    use_formasaurus = '1' 
     open_in_browser = '1'
     sites = {
             'https://github.com': ['actest1234', 'passpasspass123'],
             'https://www.signupgenius.com': ['actest@hyperiongray.com', 'passpasspass123'],
             'https://twitter.com': ['ghostshell1010', 'B00msh4k3th3r00m!'],
             'https://foursquare.com': ['ghostintheshell1010@gmail.com', 'B00msh4k3th3r00m!'],
+            'https://www.tumblr.com': ['ghostintheshell1010@gmail.com', 'password=B00msh4k3th3r00m!'],
+            'https://google.com': ['ghostintheshell1010@gmail.com', 'password=B00msh4k3th3r00m!'],
             }
-    site = 'https://github.com'
+    site = 'https://twitter.com'
     #site = 'https://twitter.com'
     user =  sites[site][0]
     password = sites[site][1]
