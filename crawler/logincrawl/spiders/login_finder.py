@@ -34,16 +34,18 @@ class LoginFinderSpider(CrawlSpider):
         self.username = username
         self.password = password
         self.db_name = db_name
-        self.use_formasaurus = use_formasaurus
+        if use_formasaurus == '1':
+            from formasaurus import FormExtractor
+            self.form_extractor = FormExtractor.load()
+
 
     def parse_item(self, response):
-        print response.url
         item = LoginCrawlItem()
         item["url"] = response.url
         item["host"] = urlparse(response.url).netloc
         item["raw_html"] = response.body
         try:
-            lff = LoginFormFinder(response.url, response.body, self.username, self.password, self.use_formasaurus)
+            lff = LoginFormFinder(response.url, response.body, self.username, self.password, self.form_extractor)
             args, url, method = lff.fill_top_login_form()
 
             #sometimes this callback in the FormRequest is not called! Why?

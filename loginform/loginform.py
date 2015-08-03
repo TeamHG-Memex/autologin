@@ -8,18 +8,16 @@ __version__ = '1.0'  # also update setup.py
 
 class LoginFormFinder(object):
 
-    def __init__(self, url, body, username, password, use_formasaurus='1'):
+    def __init__(self, url, body, username, password, form_extractor=None):
 
         self.username =  username
         self.password= password
-        self.use_formasaurus = use_formasaurus
+        self.form_extractor = form_extractor
         doc = html.document_fromstring(body, base_url=url)
         #self.top_form, self.top_form_score = self.get_top_form(doc.xpath('//form'))
 
-        if self.use_formasaurus == '1':
+        if self.form_extractor is not None:
             print 'Using Formasaurus for %s' % url
-            from formasaurus import FormExtractor
-            self.form_extractor = FormExtractor.load()
             self.login_form = self.get_login_form_with_formasaurus(doc)
         else:
             print 'Using naive scoring algo for %s' % url
@@ -69,6 +67,7 @@ class LoginFormFinder(object):
         #self.all_forms = sorted(forms, key=self.form_score, reverse=True)
         self.all_forms = self.form_extractor.extract_forms(doc) 
         login_forms = [v[0] for i, v in enumerate(self.all_forms) if v[1] == 'l']
+        print 'login forms found: %d' % len(login_forms)
         try:
             login_form = login_forms[0]
         except:
