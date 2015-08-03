@@ -3,7 +3,6 @@ import sys
 from argparse import ArgumentParser
 from collections import defaultdict
 from lxml import html
-from formasaurus import FormExtractor
 
 __version__ = '1.0'  # also update setup.py
 
@@ -13,12 +12,14 @@ class LoginFormFinder(object):
 
         self.username =  username
         self.password= password
-        self.form_extractor = FormExtractor.load()
         self.use_formasaurus = use_formasaurus
         doc = html.document_fromstring(body, base_url=url)
         #self.top_form, self.top_form_score = self.get_top_form(doc.xpath('//form'))
+
         if self.use_formasaurus == '1':
             print 'Using Formasaurus for %s' % url
+            from formasaurus import FormExtractor
+            self.form_extractor = FormExtractor.load()
             self.login_form = self.get_login_form_with_formasaurus(doc)
         else:
             print 'Using naive scoring algo for %s' % url

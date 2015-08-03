@@ -102,7 +102,7 @@ if __name__ == "__main__":
             'https://twitter.com': ['ghostshell1010', 'B00msh4k3th3r00m!'],
             'https://foursquare.com': ['ghostintheshell1010@gmail.com', 'B00msh4k3th3r00m!'],
             }
-    site = 'https://foursquare.com'
+    site = 'https://github.com'
     #site = 'https://twitter.com'
     user =  sites[site][0]
     password = sites[site][1]

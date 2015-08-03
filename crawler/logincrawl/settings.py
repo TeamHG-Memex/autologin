@@ -21,5 +21,5 @@ USER_AGENT = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Fi
 ITEM_PIPELINES = {
     'crawler.logincrawl.pipelines.LoginCrawlPipeline': 800
 }
-CONCURRENT_REQUESTS_PER_DOMAIN = 1
-DOWNLOAD_DELAY = 1 
+#CONCURRENT_REQUESTS_PER_DOMAIN = 1
+#DOWNLOAD_DELAY = 1 
