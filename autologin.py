@@ -79,29 +79,36 @@ def run_login_spider(seed_url, username, password, db_name, logfile = "results.l
     settings = get_project_settings()
     runner = CrawlerRunner(settings)
     d = runner.crawl(LoginFinderSpider, seed_url = seed_url, username = username, password = password, db_name = db_name, use_formasaurus = use_formasaurus)
+    for crawler in runner.crawlers:
+        crawler.signals.connect(callback, signal=signals.spider_closed)
+
     d.addBoth(lambda _: reactor.stop())
     logging.info("Item pipelines enabled: %s" % str(settings.get("ITEM_PIPELINES")))
     reactor.run()
 
+def callback(spider, reason):
+    stats = spider.crawler.stats.get_stats()  # stats is a dictionary
+    delta = str(stats['finish_time'] - stats['start_time'])
+    request_count = stats['downloader/request_count']
+    print 'Time: %s' % delta 
+    print 'Requests: %d' % request_count
+
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description='Autologin args')
+    parser.add_argument('url', help='seed url')
+    parser.add_argument('username', help='username or email')
+    parser.add_argument('password', help='password!')
+    args = parser.parse_args()
     db_name = "eawfwefawefaewweeawf.db"
     logfile = 'results.log'
     logging.basicConfig(filename=logfile,level=logging.DEBUG)
-    use_formasaurus = '0' 
+    use_formasaurus = '1' 
     open_in_browser = '1'
-    sites = {
-            'https://github.com': ['actest1234', 'passpasspass123'],
-            'https://www.signupgenius.com': ['actest@hyperiongray.com', 'passpasspass123'],
-            'https://twitter.com': ['ghostshell1010', 'B00msh4k3th3r00m!'],
-            'https://foursquare.com': ['ghostintheshell1010@gmail.com', 'B00msh4k3th3r00m!'],
-            'https://www.tumblr.com': ['ghostintheshell1010@gmail.com', 'password=B00msh4k3th3r00m!'],
-            'https://google.com': ['ghostintheshell1010@gmail.com', 'password=B00msh4k3th3r00m!'],
-            }
-    site = 'https://twitter.com'
-    #site = 'https://twitter.com'
-    user =  sites[site][0]
-    password = sites[site][1]
+    site = args.url
+    user = args.username
+    password = args.password
     print 'Running login spider'
     run_login_spider(site, user, password, db_name, logfile = logfile, use_formasaurus = use_formasaurus)
     al = AutoLogin(db_name)
