@@ -31,6 +31,7 @@ class LoginFinderSpider(CrawlSpider):
         max_links_to_follow = 100
         seed_host = urlparse(seed_url).netloc
         self.allowed_domains.append(seed_host)
+        self.form_extractor = None
         self.username = username
         self.password = password
         self.db_name = db_name
