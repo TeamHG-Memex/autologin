@@ -74,13 +74,6 @@ def init_db(db_name):
 
 def run_login_spider(seed_url, username, password, db_name, logfile = "results.log", use_formasaurus = '1'):
     # Check that we can import Formasaurs, fallback to scoring method
-    if use_formasaurus == '1':
-        try:
-            from formasaurus import FormExtractor
-            logging.info("Formasaurus is active. We have AI :-)")
-        except:
-            logging.warning("Formasaurus could not be imported. No AI :-( Falling back to naive scoring method")
-            use_formasaurus = '0' 
 
     init_db(db_name)
     settings = get_project_settings()
@@ -90,11 +83,12 @@ def run_login_spider(seed_url, username, password, db_name, logfile = "results.l
     logging.info("Item pipelines enabled: %s" % str(settings.get("ITEM_PIPELINES")))
     reactor.run()
 
+
 if __name__ == "__main__":
     db_name = "eawfwefawefaewweeawf.db"
     logfile = 'results.log'
     logging.basicConfig(filename=logfile,level=logging.DEBUG)
-    use_formasaurus = '1' 
+    use_formasaurus = '0' 
     open_in_browser = '1'
     sites = {
             'https://github.com': ['actest1234', 'passpasspass123'],
