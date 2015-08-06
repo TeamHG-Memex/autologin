@@ -82,7 +82,7 @@ class LoginFormFinder(object):
         for x in form.inputs:
             if not isinstance(x, html.InputElement):
                 continue
-    
+                
             type_ = x.type
             if type_ == 'password' and passfield is None:
                 passfield = x.name
@@ -96,10 +96,13 @@ class LoginFormFinder(object):
     def submit_value(self, form):
         """Returns the value for the submit input, if any"""
         for x in form.inputs:
+            if not isinstance(x, html.InputElement):
+                continue
+
             if x.type == "submit" and x.name:
                 return [(x.name, x.value)]
-        else:
-            return []
+            else:
+                return []
 
     def fill_top_login_form(self):
 
