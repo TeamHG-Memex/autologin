@@ -7,6 +7,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from crawler.logincrawl.items import AuthInfoItem
 from crawler.logincrawl.items import LoginCrawlItem
+import tldextract
 import traceback
 import json
 import os
@@ -17,7 +18,6 @@ class LoginFinderSpider(CrawlSpider):
     
     name = "login_finder"
     rules = (
-        # Extract links matching 'item.php' and parse them with the spider's method parse_item
         Rule(LinkExtractor(allow=('.*', )), callback='parse_item'),
     )
     start_urls = []
@@ -30,7 +30,9 @@ class LoginFinderSpider(CrawlSpider):
         #!not yet implemented
         max_links_to_follow = 100
         seed_host = urlparse(seed_url).netloc
-        self.allowed_domains.append(seed_host)
+        tldextracted = tldextract.extract(seed_url)
+        allowed_domain =  '%s.%s' % (tldextracted.domain, tldextracted.sufix)
+        self.allowed_domains.append(allowed_domain)
         self.form_extractor = None
         self.username = username
         self.password = password
