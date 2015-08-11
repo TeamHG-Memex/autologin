@@ -20,8 +20,8 @@ class LoginFinderSpider(CrawlSpider):
     
     name = "login_finder"
     rules = (
-        #Rule(LinkExtractor(allow=('.*', )), callback='parse_item', process_request='prioritise'),
-        Rule(LinkExtractor(allow=('.*', )), callback='parse_item'),
+        Rule(LinkExtractor(allow=('.*', )), callback='parse_item', process_links='prioritise'),
+        #Rule(LinkExtractor(allow=('.*', )), callback='parse_item'),
     )
     start_urls = []
     allowed_domains = []
@@ -30,12 +30,9 @@ class LoginFinderSpider(CrawlSpider):
         self.start_urls.append(seed_url)
         super(LoginFinderSpider, self).__init__(*args, **kwargs)
         #!not yet implemented
+        self.login_keywords = ['login', 'account', 'accounts', 'myaccount', 'signin']
         max_links_to_follow = 100
-        seed_host = urlparse(seed_url).netloc
-        start_ts = datetime.now()
         tldextracted = tldextract.extract(seed_url)
-        end_ts = datetime.now()
-        diff = end_ts - start_ts
         allowed_domain =  tldextracted.domain + '.' +  tldextracted.suffix
         self.allowed_domains.append(allowed_domain)
         self.form_extractor = None
@@ -73,16 +70,21 @@ class LoginFinderSpider(CrawlSpider):
         return sanitized_list
 
     def is_login_page(self, url):
-        tokens = extract_tokens(url)
-        matches = set(tokens) & set(LOGIN_KEYWORDS)
+        tokens = self.extract_tokens(url)
+        matches = set(tokens) & set(self.login_keywords)
         if len(matches) > 0:
             return True
         return False
 
-    def prioritise(self, request):
-        if is_login_page(request.url):
-                request.priority = 100
-        return request      
+    def prioritise(self, links):
+        prioritised_links = []
+        for link in links:
+            is_login = self.is_login_page(link.url)
+            if is_login:
+                prioritised_links.insert(0, link)
+            else:
+                prioritised_links.append(link)
+        return prioritised_links
 
     def parse_item(self, response):
         item = LoginCrawlItem()
@@ -94,7 +96,7 @@ class LoginFinderSpider(CrawlSpider):
             args, url, method = lff.fill_top_login_form()
 
             #sometimes this callback in the FormRequest is not called! Why?
-            fr = FormRequest(url, method=method, formdata=args, callback=self.after_login_attempt, dont_filter=True)
+            fr = FormRequest(url, method=method, formdata=args, priority=100, callback=self.after_login_attempt, dont_filter=True)
             return fr
         except:
             return item
