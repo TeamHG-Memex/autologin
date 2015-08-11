@@ -29,8 +29,8 @@ class LoginFinderSpider(CrawlSpider):
     def __init__(self, seed_url, username, password, db_name, use_formasaurus, *args, **kwargs):
         self.start_urls.append(seed_url)
         super(LoginFinderSpider, self).__init__(*args, **kwargs)
-        #!not yet implemented
         self.login_keywords = ['login', 'account', 'accounts', 'myaccount', 'signin']
+        #!not yet implemented
         max_links_to_follow = 100
         tldextracted = tldextract.extract(seed_url)
         allowed_domain =  tldextracted.domain + '.' +  tldextracted.suffix
