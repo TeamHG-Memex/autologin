@@ -20,7 +20,7 @@ class LoginFinderSpider(CrawlSpider):
     
     name = "login_finder"
     rules = (
-        Rule(LinkExtractor(allow=('.*', )), callback='parse_item', process_links='prioritise'),
+        Rule(LinkExtractor(allow=('.*', )), callback='parse_item', process_links='prioritise_links'),
         #Rule(LinkExtractor(allow=('.*', )), callback='parse_item'),
     )
     start_urls = []
@@ -76,7 +76,7 @@ class LoginFinderSpider(CrawlSpider):
             return True
         return False
 
-    def prioritise(self, links):
+    def prioritise_links(self, links):
         prioritised_links = []
         for link in links:
             is_login = self.is_login_page(link.url)
