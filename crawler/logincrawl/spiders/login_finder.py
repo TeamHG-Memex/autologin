@@ -11,27 +11,32 @@ import tldextract
 import traceback
 import json
 import os
+import re
 import pickledb
 import logging
+from datetime import datetime
 
 class LoginFinderSpider(CrawlSpider):
     
     name = "login_finder"
     rules = (
+        #Rule(LinkExtractor(allow=('.*', )), callback='parse_item', process_request='prioritise'),
         Rule(LinkExtractor(allow=('.*', )), callback='parse_item'),
     )
     start_urls = []
     allowed_domains = []
 
     def __init__(self, seed_url, username, password, db_name, use_formasaurus, *args, **kwargs):
-        
         self.start_urls.append(seed_url)
         super(LoginFinderSpider, self).__init__(*args, **kwargs)
         #!not yet implemented
         max_links_to_follow = 100
         seed_host = urlparse(seed_url).netloc
+        start_ts = datetime.now()
         tldextracted = tldextract.extract(seed_url)
-        allowed_domain =  '%s.%s' % (tldextracted.domain, tldextracted.sufix)
+        end_ts = datetime.now()
+        diff = end_ts - start_ts
+        allowed_domain =  tldextracted.domain + '.' +  tldextracted.suffix
         self.allowed_domains.append(allowed_domain)
         self.form_extractor = None
         self.username = username
@@ -41,6 +46,43 @@ class LoginFinderSpider(CrawlSpider):
             from formasaurus import FormExtractor
             self.form_extractor = FormExtractor.load()
 
+    def extract_tokens(self, url):
+        keyword_list = re.findall(r'\w+',url)
+        exclude_list = [
+            'html',
+            'htm',
+            'xhtml',
+            'shtm',
+            'json',
+            'pdf',
+            'php',
+            'pl',
+            'cgi',
+            'asp',
+            'aspx',   
+            'xml',            
+        ]
+        sanitized_list = []
+        for keyword in keyword_list:
+            if not keyword.isdigit():
+                keyword = keyword.replace('_', ' ')
+                keyword = keyword.replace('-', ' ')
+                keyword = keyword.strip()
+                if keyword not in exclude_list:
+                    sanitized_list.append(keyword)
+        return sanitized_list
+
+    def is_login_page(self, url):
+        tokens = extract_tokens(url)
+        matches = set(tokens) & set(LOGIN_KEYWORDS)
+        if len(matches) > 0:
+            return True
+        return False
+
+    def prioritise(self, request):
+        if is_login_page(request.url):
+                request.priority = 100
+        return request      
 
     def parse_item(self, response):
         item = LoginCrawlItem()
