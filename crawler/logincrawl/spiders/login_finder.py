@@ -31,7 +31,7 @@ class LoginFinderSpider(CrawlSpider):
         max_links_to_follow = 100
         seed_host = urlparse(seed_url).netloc
         tldextracted = tldextract.extract(seed_url)
-        allowed_domain =  '%s.%s' % (tldextracted.domain, tldextracted.sufix)
+        allowed_domain = tldextracted.domain + '.' + tldextracted.suffix
         self.allowed_domains.append(allowed_domain)
         self.form_extractor = None
         self.username = username
