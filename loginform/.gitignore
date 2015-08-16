@@ -1,5 +1,0 @@
-*.pyc
-build/
-dist/
-samples/
-loginform.egg-info/
