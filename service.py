@@ -15,7 +15,7 @@ from forms import LoginForm
 
 server_path = os.path.dirname(os.path.realpath(__file__))
 app = Flask(__name__)
-app.secret_key = 'a334r9asdfmasdfkasdf90joa'
+app.secret_key = 'b334r9asdfmasdfkasdf90joa'
 
 def flash_errors(form):
     for field, errors in form.errors.items():
