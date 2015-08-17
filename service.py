@@ -67,6 +67,7 @@ def download_page(url, cookie_jar):
 @app.route("/", methods=["GET", "POST"])
 def index():
     form = LoginForm(request.form)
+    auto_login = AutoLogin()
     login_cookies = None
     filename = None
     if request.method == 'POST' and form.validate():
@@ -74,9 +75,14 @@ def index():
         msg += '{} '.format(form.url.data)
         msg += 'with username={} and '.format(form.username.data)
         msg += 'password={}'.format(form.password.data)
-        login_cookies = ['cookie', {'foo': 'bar'}]
-        cj = cookielib.CookieJar()
-        download = download_page(form.url.data, cj)
+        login_cookie_jar = auto_login.auth_cookies_from_url(
+                url=form.url.data,
+                username=form.username.data,
+                password=form.password.data
+                )
+        #cj = cookielib.CookieJar()
+        download = download_page(form.url.data, login_cookie_jar)
+        login_cookies = login_cookie_jar.__dict__
         if download[0] != 'ok':
             flash(download, 'danger')
         else:

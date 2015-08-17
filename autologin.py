@@ -100,11 +100,7 @@ class AutoLogin():
             }
         return request
 
-    def auth_cookies_from_site(self, url):
-        # ToDo
-        return True
-
-    def auth_cookies_from_url(self, url, username, password, proxy=None):
+    def auth_cookies_from_crawl(self, url, username, password, proxy=None):
         # Try to login from any forms on page
         html_source = self.get_html(url)
         login_request = self.login_request(html_source, username, password, proxy)
@@ -127,6 +123,15 @@ class AutoLogin():
                 if login_request:
                     return self.auth_cookies_from_html(
                         html_source, username, password, proxy)
+        return None 
+
+    def auth_cookies_from_url(self, url, username, password, proxy=None):
+        # Try to login from any forms on page
+        html_source = self.get_html(url)
+        login_request = self.login_request(html_source, username, password, proxy)
+        if login_request:
+            return self.auth_cookies_from_html(
+                html_source, username, password, proxy)
         return None 
 
     def auth_cookies_from_html(
@@ -187,7 +192,7 @@ class AutoLogin():
         results = []
         doc = html.document_fromstring(html_source, self.parser)
         links = doc.xpath('//a')
-        print '#Links: %d' % len(links)
+        print('#Links: {}'.format(len(links)))
         for link in links:
             # Ignore links without href
             try:
@@ -197,9 +202,7 @@ class AutoLogin():
             is_login = self.is_login_link(link)
             if is_login and link not in results:
                 results.append(href)
-        print '#Login links: %d' % len(results)
-        for href in results:
-            print href
+        print('#Login links: {}'.format(len(results)))
         return results
 
     def show_in_browser(self, url, cookie_jar):
@@ -227,7 +230,7 @@ def test_extract_login_links():
         auto_login = AutoLogin()
         urls = f.read().splitlines()
         for url in urls:
-            print 'URL: %s' % url
+            print('URL: {}'.format(url))
             html_source = auto_login.get_html(url)
             login_links = auto_login.extract_login_links(html_source)
             results.append([url, login_links])
@@ -237,10 +240,10 @@ def test_extract_login_links():
             else:
                 not_found.append(url)
 
-    print '#URLs tested: %d' % len(results)
-    print '#Total login links: %d' % total_login_links
-    print '#URLs with logins: %d' % len(found)
-    print '#URLs without logins: %d' % len(not_found)
+    print('#URLs tested: {}'.format(len(results)))
+    print('#Total login links: {}'.format(total_login_links))
+    print('#URLs with logins: {}'.format(len(found)))
+    print('#URLs without logins: {}'.format(len(not_found)))
 
 
 def test_auth_cookies_from_html():
@@ -252,7 +255,7 @@ def test_auth_cookies_from_html():
     auth_cookies = auto_login.auth_cookies_from_html(
         html_source, username, password)
     import webbrowser
-    print 'Opening browser'
+    print('Opening browser')
     tmp_response_file = "/tmp/openinbrowser.html"
     f = open(tmp_response_file, "w")
     f.write(auth_headers["response_body"])

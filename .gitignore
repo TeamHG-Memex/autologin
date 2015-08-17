@@ -1,8 +1,4 @@
-.settings/
-.project
-.pydevproject
-dbs
-items
-logs
-venv
 *.pyc
+/static/browser/*
+
+
