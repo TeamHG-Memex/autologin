@@ -8,7 +8,7 @@ from formasaurus import FormExtractor
 from login_form import LoginFormFinder
 from urlparse import urlparse
 from lxml import html
-from lml.etree import HTMLParser
+from lxml.etree import HTMLParser
 import webbrowser
 
 
