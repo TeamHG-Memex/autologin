@@ -58,24 +58,18 @@
                   <tr>
                     <th>HTTP Method</th>
                     <th>URI</th>
+                    <th>Type</th>
+                    <th>Fields</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>GET</td>
-                    <td>http://[hostname]/login-cookies/?url=[url]&username=[username]&password=[password]</td>
+                    <td>POST</td>
+                    <td>http://[hostname]/login-cookies/</td>
+                    <td>json</td>
+                    <td>url, username, password</td>
                     <td>Retrieve authorized login cookies for URL</td>
-                  </tr>
-                  <tr>
-                    <td>GET</td>
-                    <td>http://[hostname]/login-request/?url=[url]&username=[username]&password=[password]</td>
-                    <td>Retrieve login form request from URL</td>
-                  </tr>
-                  <tr>
-                    <td>GET</td>
-                    <td>http://[hostname]/login-links/?url=[url]</td>
-                    <td>Retrieve login links from URL</td>
                   </tr>
                 </tbody>
             </table>

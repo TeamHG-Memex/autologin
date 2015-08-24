@@ -10,20 +10,29 @@ import uuid
 import shutil
 from autologin import AutoLogin
 from flask import Flask
-from flask import render_template, Response, request, flash, redirect
+from flask import render_template
+from flask import Response
+from flask import request
+from flask import flash
+from flask import redirect
+from flask import abort
+from flask import jsonify
 from forms import LoginForm
 
 server_path = os.path.dirname(os.path.realpath(__file__))
 app = Flask(__name__)
 app.secret_key = 'b334r9asdfmasdfkasdf90joa'
 
+
 def flash_errors(form):
     for field, errors in form.errors.items():
         for error in errors:
             flash(
-                u"Error in the %s field - %s" % (getattr(form, field).label.text,error),
-                'danger' 
+                u"Error in the %s field - %s" % (
+                    getattr(form, field).label.text, error),
+                'danger'
             )
+
 
 def delete_directory_files(directory_path):
     for file_object in os.listdir(directory_path):
@@ -33,17 +42,19 @@ def delete_directory_files(directory_path):
         else:
             shutil.rmtree(file_object_path)
 
+
 def download_page(url, cookie_jar):
-    #sh.rm(sh.glob(os.getcwd() + '/static/browser/*'))
-    user_agent = 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 ' \
-                '(KHTML, like Gecko) Ubuntu Chromium/43.0.2357.130 Chrome/43.0.2357.130 Safari/537.36'
+    user_agent = (
+            'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 '
+            '(KHTML, like Gecko) Ubuntu Chromium/43.0.2357.130 '
+            'Chrome/43.0.2357.130 Safari/537.36'
+    )
     headers = {
-        'User-Agent': user_agent, 
+        'User-Agent': user_agent,
         'Accept': 'text/html,application/xhtml+xml,'
         'application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'en',
     }
-    # a form of cache busting..kinda
     browser_dir = os.getcwd() + '/static/browser'
     delete_directory_files(browser_dir)
 
@@ -53,16 +64,17 @@ def download_page(url, cookie_jar):
     try:
         response = opener.open(req, timeout=10)
     except urllib2.URLError as e:
-       return e 
+        return e
     except ValueError as e:
         return ('error', e)
     html_source = response.read()
     doc = html.document_fromstring(html_source)
 
-    f = open(filename, 'w+') 
+    f = open(filename, 'w+')
     f.write(html.tostring(doc))
     f.close()
     return ('ok', filename)
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -76,11 +88,10 @@ def index():
         msg += 'with username={} and '.format(form.username.data)
         msg += 'password={}'.format(form.password.data)
         login_cookie_jar = auto_login.auth_cookies_from_url(
-                url=form.url.data,
-                username=form.username.data,
-                password=form.password.data
-                )
-        #cj = cookielib.CookieJar()
+            url=form.url.data,
+            username=form.username.data,
+            password=form.password.data
+        )
         download = download_page(form.url.data, login_cookie_jar)
         login_cookies = login_cookie_jar.__dict__
         if download[0] != 'ok':
@@ -91,12 +102,35 @@ def index():
     else:
         flash_errors(form)
     return render_template(
-            'index.html',
-            form=form,
-            login_cookies=login_cookies,
-            filename=filename
-            )
+        'index.html',
+        form=form,
+        login_cookies=login_cookies,
+        filename=filename
+    )
+
+
+@app.route("/login-cookies", methods=["POST"])
+def get_login_cookies():
+
+    if not request.json:
+        abort(400)
+    if 'url' not in request.json:
+        abort(400)
+    if 'username' not in request.json:
+        abort(400)
+    if 'password' not in request.json:
+        abort(400)
+
+    auto_login = AutoLogin()
+    login_cookie_jar = auto_login.auth_cookies_from_url(
+        url=request.json['url'],
+        username=request.json['username'],
+        password=request.json['password']
+    )
+    login_cookies = auto_login.cookies_from_jar(login_cookie_jar)
+
+    return jsonify({'cookies': login_cookies}), 201
 
 
 if __name__ == '__main__':
-    app.run(debug = True, threaded = True)
+    app.run(debug=True, threaded=True)
