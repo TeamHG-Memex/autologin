@@ -1,0 +1,4 @@
+from autologin.server import app
+
+
+app.run(debug=True, threaded=True)

@@ -3,5 +3,6 @@
 .ipynb_checkpoints/
 build/
 dist/
+autologin.egg-info/
 
 

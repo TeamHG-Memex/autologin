@@ -1,0 +1,2 @@
+recursive-include autologin/templates *
+recursive-include autologin/static *

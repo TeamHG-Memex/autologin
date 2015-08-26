@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>Welcome to AutoLogin</h1>
+        <p>AutoLogin is a utility that makes it easier for web spiders to access content behind logins. Provide it with a URL (normally the homepage), and a set of valid login credentials and it will search the page for login forms and attempt to login for you. Cookies are returned to be used by your spider.</p>
+        <p>AutoLogin can be used as a library, on the command line, or as a service.</p>
+        <h2>Try it out</h2>
+	<form action="" method="post" name="login" class="navbar-form navbar-left">
+            <div class="form-group">
+		{{ form.url(class="form-control", placeholder="Site URL") }}
+            </div>
+            <div class="form-group">
+		{{ form.username(class="form-control", placeholder="Username") }}
+            </div>
+            <div class="form-group">
+		{{ form.password(class="form-control", placeholder="Password") }}
+            </div>
+            <button type="submit" class="btn btn-success">Login</button>
+	</form>
+      </div>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+      <div class="container">
+          <div class="row">
+              <div class="col-sm-12">
+                {% for category,message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+              </div>
+          </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Example row of columns -->
+    {% if login_cookies %}
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6">
+	            <code>{{ login_cookies }}</code>
+                </div>
+                <div class="col-sm-6">
+			<a href="/static/browser/{{ filename }}" class="btn btn-success" role="button" target="_blank">Test in browser</a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="container">
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-sm-12">
+          <h2>API</h2>
+            <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>HTTP Method</th>
+                    <th>URI</th>
+                    <th>Type</th>
+                    <th>Fields</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>POST</td>
+                    <td>http://[hostname]/login-cookies/</td>
+                    <td>json</td>
+                    <td>url, username, password</td>
+                    <td>Retrieve authorized login cookies for URL</td>
+                  </tr>
+                </tbody>
+            </table>
+        </div>
+      </div>
+
+      <hr>
+
+      <footer> 
+          <p><a class="btn btn-primary btn-lg" href="https://github.com/TeamHG-Memex/autologin" role="button">Learn more &raquo;</a></p>
+      </footer>
+    </div> <!-- /container -->
+
+{% endblock %}
