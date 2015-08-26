@@ -1,5 +1,7 @@
 *.pyc
 /static/browser/
 .ipynb_checkpoints/
+build/
+dist/
 
 
