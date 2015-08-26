@@ -7,10 +7,6 @@ Autologin can be used as a library, on the command line, or as a service. You ca
 
 Autologin is written in Python and only requires lxml and Flask in order to do its thing. However if you install Formasaurus (and you should) it will use it automatically and performance will improve.
 
-## Code Example
-
-Show what the library does as concisely as possible, developers should be able to figure out **how** your project solves their problem by looking at the code example. Make sure the API you are showing off is obvious, and that your code is short and concise.
-
 ## Installation
 This is not (yet) registered on PyPi so you must clone the repository and use setup.py to build and install:
 ```
