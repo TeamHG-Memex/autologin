@@ -34,10 +34,8 @@ You now have a dictionary.
 * Command line client
 * Web service for testing your requests and cookies
 
-.. contents::
-    :local:
-    :depth: 1
-    :backlinks: none
+
+[Installation](##Installation)
 
 
 ## Installation
