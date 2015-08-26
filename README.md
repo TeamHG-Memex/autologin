@@ -11,6 +11,9 @@ Autologin is written in Python and only requires lxml and Flask in order to do i
 
 Show what the library does as concisely as possible, developers should be able to figure out **how** your project solves their problem by looking at the code example. Make sure the API you are showing off is obvious, and that your code is short and concise.
 
+## Server
+![autologin server dashboard](autologin/static/images/autologin-server.jpb)
+
 ## Motivation
 
 A short description of the motivation behind the creation and maintenance of the project. This should explain **why** the project exists.
