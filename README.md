@@ -1,9 +1,13 @@
-# autologin
-AutoLogin is a utility that makes it easier for web spiders to access content behind logins. Provide it with a URL (normally the homepage), and a set of valid login credentials and it will search the page for login forms and attempt to login for you. Cookies are returned to be used by your spider.
+# Autologin: Automatic login for web spiders
+AutoLogin is a *utility that makes it easier for web spiders to access content behind logins*. Provide it with credentials and a URL or the html source of a page(normally the homepage), and it will search the page for login forms and attempt to login for you. Cookies are returned to be used by your spider.
 
-AutoLogin can be used as a library, on the command line, or as a service.
+The goal of Autologin is to make it easier for web spiders to crawl websites that require authentication *without having to re-write login code for each website* that is the subject of a crawl.
 
-Docs and usage are in docs/_build/index.html.
+Autologin can be used as a library, on the command line, or as a service.
+
+
+
+Autologin is written in Python and only requires lxml and Flask in order to do its thing. However if you install Formasaurus (and you should) it will automatically make use of it and be more likely to return valid login cookies.
 
 ## Code Example
 
