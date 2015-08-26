@@ -7,15 +7,6 @@ Autologin can be used as a library, on the command line, or as a service. You ca
 
 Autologin is written in Python and only requires lxml and Flask in order to do its thing. However if you install Formasaurus (and you should) it will use it automatically and performance will improve.
 
-## Installation
-This is not (yet) registered on PyPi so you must clone the repository and use setup.py to build and install:
-```
-$ git clone https://github.com/TeamHG-Memex/autologin.git
-$ cd autologin
-$ python setup.py build
-$ python setup.py install
-```
-
 ## Quickstart
 Don't like reading documentation? 
 ```python
@@ -33,6 +24,27 @@ Don't want a cookiejar?
 cookies.__dict__
 ```
 You now have a dictionary.
+
+## Features
+* Automatically find login forms and fields
+* Obtain authenticated cookies
+* Obtain form requests to submit from your own spider
+* Extract links to login pages
+* Use as a library with or without making http requests
+* Command line client
+* Web service for testing your requests and coookies
+* Compatible with Requests and Scrapy
+
+## Installation
+This is not (yet) registered on PyPi so you must clone the repository and use setup.py to build and install:
+```
+$ git clone https://github.com/TeamHG-Memex/autologin.git
+$ cd autologin
+$ python setup.py build
+$ python setup.py install
+```
+
+
 
 
 ## API Reference
