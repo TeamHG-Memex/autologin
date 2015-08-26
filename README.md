@@ -36,7 +36,12 @@ You now have a dictionary.
 
 
 [Installation](##Installation)
-
+[Auth Cookies From URL](##Auth cookies from URL)
+[Auth Cookies From HTML](##Auth cokies from HTML)
+[Login request](##Login request)
+[Extract login links](##Extract login links)
+[Command Line](##Command Line)
+[Web Service](##Web Service)
 
 ## Installation
 This is not (yet) registered on PyPi so you must clone the repository and use setup.py to build and install:
@@ -47,12 +52,28 @@ $ python setup.py build
 $ python setup.py install
 ```
 
+## Auth cookies from URL
 
+## Auth cookies from HTML
 
+## Login request
 
-## API Reference
+## Extract login links
 
-Depending on the size of the project, if it is small and simple enough the reference docs can be added to the README. For medium size to larger projects it is important to at least provide a link to where the API reference docs live.
+## Command Line
+```
+$ autologin
+usage: autologin [-h] [--proxy PROXY] [--show-in-browser SHOW_IN_BROWSER]
+                 username password url
+```
+
+## Web Service
+``
+$ autologin-server
+ * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+ * Restarting with stat
+```
+
 
 ## Tests
 
