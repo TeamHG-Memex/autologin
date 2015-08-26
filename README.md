@@ -53,6 +53,12 @@ $ python setup.py install
 ```
 
 ## Auth cookies from URL
+This method makes an http request to the URL using urllib, extracts the login form (if there is one), fills the fields and submits the form. It then return any cookies it has picked up.
+```
+cookies = al.auth_cookies_from_url(url, username_password)
+```
+Note that it returns all cookies, they may be session cookies rather than authenticated cookies.
+
 
 ## Auth cookies from HTML
 
@@ -68,7 +74,7 @@ usage: autologin [-h] [--proxy PROXY] [--show-in-browser SHOW_IN_BROWSER]
 ```
 
 ## Web Service
-``
+```
 $ autologin-server
  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
  * Restarting with stat
