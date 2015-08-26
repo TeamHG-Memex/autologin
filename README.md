@@ -34,6 +34,12 @@ You now have a dictionary.
 * Command line client
 * Web service for testing your requests and cookies
 
+.. contents::
+    :local:
+    :depth: 1
+    :backlinks: none
+
+
 ## Installation
 This is not (yet) registered on PyPi so you must clone the repository and use setup.py to build and install:
 ```
