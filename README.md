@@ -7,6 +7,27 @@ Autologin can be used as a library, on the command line, or as a service. You ca
 
 Autologin is written in Python and only requires lxml and Flask in order to do its thing. However if you install Formasaurus (and you should) it will use it automatically and performance will improve.
 
+* [Features](##Features)
+* [Quickstart](##Quickstart)
+* [Installation](##Installation)
+* [Auth Cookies From URL](##Auth cookies from URL)
+* [Auth Cookies From HTML](##Auth cokies from HTML)
+* [Login request](##Login request)
+* [Extract login links](##Extract login links)
+* [Command Line](##Command Line)
+* [Web Service](##Web Service)
+
+
+## Features
+* Automatically find login forms and fields
+* Obtain authenticated cookies
+* Obtain form requests to submit from your own spider
+* Extract links to login pages
+* Use as a library with or without making http requests
+* Command line client
+* Web service for testing your requests and cookies
+
+
 ## Quickstart
 Don't like reading documentation? 
 ```python
@@ -24,24 +45,6 @@ Don't want a cookiejar?
 cookies.__dict__
 ```
 You now have a dictionary.
-
-## Features
-* Automatically find login forms and fields
-* Obtain authenticated cookies
-* Obtain form requests to submit from your own spider
-* Extract links to login pages
-* Use as a library with or without making http requests
-* Command line client
-* Web service for testing your requests and cookies
-
-
-* [Installation](##Installation)
-* [Auth Cookies From URL](##Auth cookies from URL)
-* [Auth Cookies From HTML](##Auth cokies from HTML)
-* [Login request](##Login request)
-* [Extract login links](##Extract login links)
-* [Command Line](##Command Line)
-* [Web Service](##Web Service)
 
 ## Installation
 This is not (yet) registered on PyPi so you must clone the repository and use setup.py to build and install:
