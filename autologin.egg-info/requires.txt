@@ -1,3 +1,0 @@
-lxml
-flask
-Flask-WTF
