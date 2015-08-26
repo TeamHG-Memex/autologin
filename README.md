@@ -27,7 +27,12 @@ password = 'bar'
 al = AutoLogin()
 cookies = al.auth_cookies_from_url(url, username, login)
 ```
-You now have a cookiejar that you can use in your spider. 
+You now have a [cookiejar](https://docs.python.org/2/library/cookielib.html) that you can use in your spider.
+Don't want a cookiejar? 
+```python
+cookies.__dict__
+```
+You now have a dictionary.
 
 
 ## API Reference
