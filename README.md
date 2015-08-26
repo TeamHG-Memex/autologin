@@ -12,9 +12,12 @@ Autologin is written in Python and only requires lxml and Flask in order to do i
 Show what the library does as concisely as possible, developers should be able to figure out **how** your project solves their problem by looking at the code example. Make sure the API you are showing off is obvious, and that your code is short and concise.
 
 ## Installation
-This is not (yet) registered on PyPi so you clone the repository and then use setup.py:
+This is not (yet) registered on PyPi so you must clone the repository and use setup.py to build and install:
 ```
-$ git clone 
+$ git clone https://github.com/TeamHG-Memex/autologin.git
+$ cd autologin
+$ python setup.py build
+$ python setup.py install
 ```
 
 
