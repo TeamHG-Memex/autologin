@@ -12,7 +12,7 @@ Autologin is written in Python and only requires lxml and Flask in order to do i
 Show what the library does as concisely as possible, developers should be able to figure out **how** your project solves their problem by looking at the code example. Make sure the API you are showing off is obvious, and that your code is short and concise.
 
 ## Server
-<img src="autologin/static/images/autologin-server.jpg" height="250" width="250">
+<img src="autologin/static/images/autologin-server.jpg" height="400" width="636">
 
 ## Motivation
 
