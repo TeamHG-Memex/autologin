@@ -23,7 +23,7 @@ setup(
         'flask',
         'Flask-WTF'
     ],
-    scripts = ['bin/login-server', 'bin/login-cookies'],
+    scripts = ['bin/autologin-server', 'bin/autologin'],
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 3 - Alpha",

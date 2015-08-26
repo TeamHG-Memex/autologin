@@ -28,5 +28,5 @@ autologin/static/js/npm.js
 autologin/templates/__init__.py
 autologin/templates/base.html
 autologin/templates/index.html
-bin/login-cookies
-bin/login-server
+bin/autologin
+bin/autologin-server

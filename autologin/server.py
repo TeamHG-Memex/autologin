@@ -70,6 +70,8 @@ def download_page(url, cookie_jar):
         return e
     except ValueError as e:
         return ('error', e)
+    except SSLError as e:
+        return ('error', e)
     html_source = response.read()
     doc = html.document_fromstring(html_source)
 
