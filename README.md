@@ -32,8 +32,7 @@ You now have a dictionary.
 * Extract links to login pages
 * Use as a library with or without making http requests
 * Command line client
-* Web service for testing your requests and coookies
-* Compatible with Requests and Scrapy
+* Web service for testing your requests and cookies
 
 ## Installation
 This is not (yet) registered on PyPi so you must clone the repository and use setup.py to build and install:
