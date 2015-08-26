@@ -20,6 +20,19 @@ $ python setup.py build
 $ python setup.py install
 ```
 
+## Quickstart
+Don't like reading documentation? 
+```python
+from autologin.autologin import AutoLogin
+
+url = 'https://reddit.com'
+username = 'foo'
+password = 'bar'
+al = AutoLogin()
+cookies = al.auth_cookies_from_url(url, username, login)
+```
+You now have a cookiejar that you can use in your spider. 
+
 
 ## API Reference
 
