@@ -342,15 +342,6 @@ def main(argv):
         type=int,
     )
     argparser.add_argument(
-        '--formasaurus',
-        '-f',
-        help=('use Formasaurus for highly accurate form extraction '
-              'https://github.com/TeamHG-Memex/Formasaurus '
-              '(default: True)'),
-        type=bool,
-        default=True
-    )
-    argparser.add_argument(
         '--show-in-browser',
         '-b',
         help=('show page in browser after login (default: False)'),

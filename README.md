@@ -3,7 +3,7 @@ AutoLogin is a utility that makes it easier for web spiders to **crawl websites 
 
 The goal of Autologin is to make it easier for web spiders to crawl websites that require authentication **without having to re-write login code for each website.**
 
-Autologin can be used as a library, on the command line, or as a service. You can make use of Autologin without generating http requests, so you can drop it right into your spider. It works with all the best tools like Scrapy and Requests.
+Autologin can be used as a library, on the command line, or as a service. You can make use of Autologin without generating http requests, so you can drop it right into your spider without worrying about the impact on your rate limits.
 
 Autologin is written in Python and only requires lxml and Flask in order to do its thing. However if you install Formasaurus (and you should) it will use it automatically and performance will improve.
 
