@@ -37,7 +37,7 @@ url = 'https://reddit.com'
 username = 'foo'
 password = 'bar'
 al = AutoLogin()
-cookies = al.auth_cookies_from_url(url, username, login)
+cookies = al.auth_cookies_from_url(url, username, password)
 ```
 You now have a [cookiejar](https://docs.python.org/2/library/cookielib.html) that you can use in your spider.
 Don't want a cookiejar? 
