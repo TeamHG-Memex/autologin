@@ -58,7 +58,7 @@ $ python setup.py install
 ## Auth cookies from URL
 This method makes an http request to the URL using urllib, extracts the login form (if there is one), fills the fields and submits the form. It then return any cookies it has picked up.
 ```
-cookies = al.auth_cookies_from_url(url, username_password)
+cookies = al.auth_cookies_from_url(url, username, password)
 ```
 Note that it returns all cookies, they may be session cookies rather than authenticated cookies.
 
