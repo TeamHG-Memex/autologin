@@ -83,6 +83,7 @@ $ autologin-server
  * Restarting with stat
 ```
 
+Opening a browser to this URL will show you the AutoLogin UI which can be used to test credentials and get a basic understanding of how the system works. API endpoints are also documented here if you'd like to use AutoLogin as a service.
 
 ## Tests
 
