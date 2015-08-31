@@ -70,8 +70,8 @@ def download_page(url, cookie_jar):
         return e
     except ValueError as e:
         return ('error', e)
-    except SSLError as e:
-        return ('error', e)
+    #except urllib2.SSLError as e:
+    #    return ('error', e)
     html_source = response.read()
     doc = html.document_fromstring(html_source)
 
@@ -86,37 +86,49 @@ def index():
     form = LoginForm(request.form)
     auto_login = AutoLogin()
     login_cookies = None
+    login_links = None
     filename = None
     if request.method == 'POST' and form.validate():
         msg = 'Login requested for '
         msg += '{} '.format(form.url.data)
         msg += 'with username={} and '.format(form.username.data)
         msg += 'password={}'.format(form.password.data)
-        login_cookie_jar = auto_login.auth_cookies_from_url(
-            url=form.url.data,
+        html_source = auto_login.get_html(form.url.data)
+        login_cookie_jar = auto_login.auth_cookies_from_html(
+            html_source=html_source,
             username=form.username.data,
-            password=form.password.data
+            password=form.password.data,
+            base_url=form.url.data
         )
-        download = download_page(form.url.data, login_cookie_jar)
-        login_cookies = login_cookie_jar.__dict__
-        if download[0] != 'ok':
-            flash(download, 'danger')
+        if login_cookie_jar is not None:
+            #download = download_page(form.url.data, login_cookie_jar)
+            download = download_page(form.url.data, auto_login.cookie_jar)
+            login_cookies = login_cookie_jar.__dict__
+            if download[0] != 'ok':
+                flash(download, 'danger')
+            else:
+                flash(msg, 'success')
+                filename = download[1]
         else:
-            flash(msg, 'success')
-            filename = download[1]
+            flash('No login form found', 'danger')
+            login_links = auto_login.extract_login_links(html_source)
+            if len(login_links) > 0:
+                flash('{} login links found'.format(len(login_links)), 'success')
+            else:
+                flash('No login links found', 'danger')
     else:
         flash_errors(form)
     return render_template(
         'index.html',
         form=form,
         login_cookies=login_cookies,
+        login_links=login_links,
         filename=filename
     )
 
 
 @app.route("/login-cookies", methods=["POST"])
 def get_login_cookies():
-
     if not request.json:
         abort(400)
     if 'url' not in request.json:
@@ -125,14 +137,17 @@ def get_login_cookies():
         abort(400)
     if 'password' not in request.json:
         abort(400)
-
     auto_login = AutoLogin()
     login_cookie_jar = auto_login.auth_cookies_from_url(
         url=request.json['url'],
         username=request.json['username'],
         password=request.json['password']
     )
-    login_cookies = auto_login.cookies_from_jar(login_cookie_jar)
+
+    if login_cookie_jar is not None:
+        login_cookies = auto_login.cookies_from_jar(login_cookie_jar)
+    else:
+        login_cookies = {}
 
     return jsonify({'cookies': login_cookies}), 201
 

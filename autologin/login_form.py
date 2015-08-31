@@ -9,12 +9,12 @@ __version__ = '1.0'  # also update setup.py
 
 class LoginFormFinder(object):
 
-    def __init__(self, html_source, username, password, form_extractor=None):
+    def __init__(self, html_source, username, password, form_extractor=None, base_url=None):
 
         self.username = username
         self.password = password
         self.form_extractor = form_extractor
-        doc = html.document_fromstring(html_source)
+        doc = html.document_fromstring(html_source, base_url=base_url)
 
         if self.form_extractor is not None:
             self.login_form = self.get_login_form_with_formasaurus(doc)

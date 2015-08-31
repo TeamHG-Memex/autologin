@@ -52,6 +52,7 @@ class AutoLogin():
             'Accept-Language': 'en',
         }
         self.parser = HTMLParser(recover=True, encoding='utf-8')
+        self.cookie_jar = CookieJar()
 
     def logged_in(self, cookies):
         # ToDo...
@@ -79,14 +80,14 @@ class AutoLogin():
 
     def login(self, form_url, form_data, referer_url=None):
         cookies = []
-        cj = []
+        #cj = []
 
         if referer_url is not None:
             self.headers['Referer'] = referer_url
 
-        cj = CookieJar()
-        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie_jar))
         data = urlencode(form_data)
+        print data
         req = urllib2.Request(form_url, data, headers=self.headers)
 
         try:
@@ -98,14 +99,15 @@ class AutoLogin():
         except:
             print('No cookies found.')
             pass
+        
+        return self.cookie_jar
 
-        return cj
-
-    def login_request(self, html_source, username, password, proxy=None):
+    def login_request(self, html_source, username, password, base_url=None, proxy=None):
         request = None
         login_form_finder = LoginFormFinder(
-            html_source, username, password, self.form_extractor)
+            html_source, username, password, self.form_extractor, base_url)
         args, url, method = login_form_finder.fill_top_login_form()
+        print args,url,method
 
         if args is not None and url is not None:
             data = {}
@@ -119,6 +121,9 @@ class AutoLogin():
             }
 
         return request
+
+    def reset_cookies(self):
+        self.cookie_jar = CookieJar()
 
     def auth_cookies_from_crawl(self, url, username, password, proxy=None):
         # Try to login from any forms on page
@@ -157,7 +162,12 @@ class AutoLogin():
         # Try to login from any forms on page
         html_source = self.get_html(url)
         login_request = self.login_request(
-            html_source, username, password, proxy)
+            html_source=html_source,
+            username=username,
+            password=password,
+            base_url=url,
+            proxy=proxy
+        )
 
         if login_request:
             return self.auth_cookies_from_html(
@@ -167,27 +177,34 @@ class AutoLogin():
 
     def auth_cookies_from_html(
             self, html_source, username,
-            password, proxy=None, referer_url=None):
+            password, base_url=None, proxy=None, referer_url=None):
+
         cookies = []
-        login_request = self.login_request(html_source, username, password)
+        login_request = self.login_request(
+                    html_source=html_source,
+                    username=username,
+                    password=password,
+                    base_url=base_url
+                )
 
         if login_request is not None:
             cookies = self.login(
                 login_request['url'],
                 login_request['data'],
                 referer_url)
+            return cookies
 
-        return cookies
+        return None
 
     def get_html(self, url):
         html_source = None
+        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie_jar))
         req = urllib2.Request(url, headers=self.headers)
-
         try:
-            response = urllib2.urlopen(req)
+            response = opener.open(req, timeout=10)
             html_source = response.read()
-        except:
-            pass
+        except urllib2.URLError as e:
+            print(e)
 
         return html_source
 
@@ -249,6 +266,13 @@ class AutoLogin():
 
         print('#Login links: {}'.format(len(results)))
         return results
+
+    def show_html_in_browser(self, html_source):
+        filename = '/tmp/autologin_show_in_browser.html'
+        f = open(filename, 'w+')
+        f.write(html_source)
+        f.close()
+        webbrowser.open(filename, new=2)
 
     def show_in_browser(self, url, cookie_jar):
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie_jar))

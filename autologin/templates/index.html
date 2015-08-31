@@ -34,7 +34,6 @@
       {% endif %}
     {% endwith %}
 
-    <!-- Example row of columns -->
     {% if login_cookies %}
         <div class="container">
             <div class="row">
@@ -48,8 +47,17 @@
         </div>
     {% endif %}
 
+    {% if login_links %}
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <code>{{ login_links }}</code>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     <div class="container">
-      <!-- Example row of columns -->
       <div class="row">
         <div class="col-sm-12">
           <h2>API</h2>
