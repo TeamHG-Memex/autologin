@@ -94,7 +94,7 @@ usage: autologin [-h] [--proxy PROXY] [--show-in-browser SHOW_IN_BROWSER]
 ## Web Service
 ```
 $ autologin-server
- * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+ * Running on http://127.0.0.1:8088/ (Press CTRL+C to quit)
  * Restarting with stat
 ```
 
