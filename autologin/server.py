@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 from lxml import html
 import json
@@ -19,15 +20,21 @@ from flask import abort
 from flask import jsonify
 from forms import LoginForm
 
+# Set paths for static assets and temp files
 server_path = os.path.dirname(os.path.realpath(__file__))
 static_dir = os.path.join(server_path, 'static')
 browser_dir = os.path.join(static_dir, 'browser')
 
+# Initiate flask app
 app = Flask(__name__)
 app.secret_key = 'b334r9asdfmasdfkasdf90joa'
 
 
 def flash_errors(form):
+    """
+    Method for displaying flash messages with form errors.
+    Pass the form as a parameter.
+    """
     for field, errors in form.errors.items():
         for error in errors:
             flash(
@@ -38,6 +45,10 @@ def flash_errors(form):
 
 
 def delete_directory_files(directory_path):
+    """
+    Method for deleting temporary html files created by 
+    show in browser process.
+    """
     for file_object in os.listdir(directory_path):
         file_object_path = os.path.join(directory_path, file_object)
         if os.path.isfile(file_object_path):
@@ -47,6 +58,11 @@ def delete_directory_files(directory_path):
 
 
 def download_page(url, cookie_jar):
+    """
+    Request page using authenticated cookies (cookiejar).
+    Download html source and save in browser directory, to
+    be used by in show_in_browser().
+    """
     user_agent = (
             'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 '
             '(KHTML, like Gecko) Ubuntu Chromium/43.0.2357.130 '
@@ -70,8 +86,6 @@ def download_page(url, cookie_jar):
         return e
     except ValueError as e:
         return ('error', e)
-    #except urllib2.SSLError as e:
-    #    return ('error', e)
     html_source = response.read()
     doc = html.document_fromstring(html_source)
 
@@ -83,25 +97,39 @@ def download_page(url, cookie_jar):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    """
+    Main app route.
+    Hosts form used for testing autologin.
+    User can submit credentials and URL,
+    authenticated cookies returned.
+    Also makes a request using extracted cookies,
+    saves the source and allows you to view in browser.
+    Useful for checking whether login was successful.
+    """
     form = LoginForm(request.form)
     auto_login = AutoLogin()
     login_cookies = None
     login_links = None
     filename = None
+    # Process form submission
     if request.method == 'POST' and form.validate():
         msg = 'Login requested for '
         msg += '{} '.format(form.url.data)
         msg += 'with username={} and '.format(form.username.data)
         msg += 'password={}'.format(form.password.data)
+        # Grab html for login page
         html_source = auto_login.get_html(form.url.data)
+        # Attempt login
         login_cookie_jar = auto_login.auth_cookies_from_html(
             html_source=html_source,
             username=form.username.data,
             password=form.password.data,
             base_url=form.url.data
         )
+        # If we've extracted some cookies, 
+        # use them to request a page and download html source
+        # for viewing in browser,
         if login_cookie_jar is not None:
-            #download = download_page(form.url.data, login_cookie_jar)
             download = download_page(form.url.data, auto_login.cookie_jar)
             login_cookies = login_cookie_jar.__dict__
             if download[0] != 'ok':
@@ -129,6 +157,9 @@ def index():
 
 @app.route("/login-cookies", methods=["POST"])
 def get_login_cookies():
+    """
+    Simple API for returning login cookies
+    """
     if not request.json:
         abort(400)
     if 'url' not in request.json:

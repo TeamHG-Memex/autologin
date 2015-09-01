@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 import argparse
 import re
@@ -236,28 +237,28 @@ class AutoLogin():
 
         return None
 
-    #def auth_cookies_from_html(
-    #        self, html_source, username,
-    #        password, base_url=None, proxy=None):
-    #        #password, base_url=None, proxy=None, referer_url=None):
+    def auth_cookies_from_html(
+            self, html_source, username,
+            password, base_url=None, proxy=None):
+            #password, base_url=None, proxy=None, referer_url=None):
 
-    #    cookies = []
-    #    login_request = self.login_request(
-    #                html_source=html_source,
-    #                username=username,
-    #                password=password,
-    #                base_url=base_url
-    #            )
+        cookies = []
+        login_request = self.login_request(
+                    html_source=html_source,
+                    username=username,
+                    password=password,
+                    base_url=base_url
+                )
 
-    #    if login_request is not None:
-    #        cookies = self.login(
-    #            login_request['url'],
-    #            login_request['data'],
-    #            base_url)
-    #            #referer_url)
-    #        return cookies
+        if login_request is not None:
+            cookies = self.login(
+                login_request['url'],
+                login_request['data'],
+                base_url)
+                #referer_url)
+            return cookies
 
-    #    return None
+        return None
 
     def get_html(self, url):
         """
