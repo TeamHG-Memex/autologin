@@ -100,14 +100,8 @@ $ autologin-server
 
 Opening a browser to this URL will show you the AutoLogin UI which can be used to test credentials and get a basic understanding of how the system works. API endpoints are also documented here if you'd like to use AutoLogin as a service.
 
-## Tests
-
-Describe and show how to run the tests with code examples.
-
 ## Contributors
-
-Let people know how they can dive into the project, include important links to things like issue trackers, irc, twitter accounts if applicable.
+Source code and bug tracker are on github: https://github.com/TeamHG-Memex/autologin.
 
 ## License
-
-A short snippet describing the license (MIT, Apache, etc.)
+License is MIT.
