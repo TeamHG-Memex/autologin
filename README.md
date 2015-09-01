@@ -64,10 +64,25 @@ Note that it returns all cookies, they may be session cookies rather than authen
 
 
 ## Auth cookies from HTML
+This method extracts the login form (if there is one), fills the fields and submits the form. It then return any cookies it has picked up.
+```
+cookies = al.auth_cookies_from_html(html_source, username, password, base_url=None)
+```
+The base_url can be used to a form url is returned when the form action is empty.
+Note that it returns all cookies, they may be session cookies rather than authenticated cookies.
 
 ## Login request
+This method extracts the login form (if there is one), fills the fields and returns a dictionary with the form url and args for your spider to submit. No http requests are made.
+```
+cookies = al.login_request(html_source, username, password, base_url=None)
+```
+The base_url can be used to a form url is returned when the form action is empty.
 
 ## Extract login links
+This method extracts any login links that it can find in the source and returns a list. 
+```
+cookies = al.extract_login_links(html_source)
+```
 
 ## Command Line
 ```
@@ -79,20 +94,14 @@ usage: autologin [-h] [--proxy PROXY] [--show-in-browser SHOW_IN_BROWSER]
 ## Web Service
 ```
 $ autologin-server
- * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+ * Running on http://127.0.0.1:8088/ (Press CTRL+C to quit)
  * Restarting with stat
 ```
 
 Opening a browser to this URL will show you the AutoLogin UI which can be used to test credentials and get a basic understanding of how the system works. API endpoints are also documented here if you'd like to use AutoLogin as a service.
 
-## Tests
-
-Describe and show how to run the tests with code examples.
-
 ## Contributors
-
-Let people know how they can dive into the project, include important links to things like issue trackers, irc, twitter accounts if applicable.
+Source code and bug tracker are on github: https://github.com/TeamHG-Memex/autologin.
 
 ## License
-
-A short snippet describing the license (MIT, Apache, etc.)
+License is MIT.
