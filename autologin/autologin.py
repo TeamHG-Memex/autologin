@@ -11,7 +11,10 @@ from lxml.etree import HTMLParser
 import webbrowser
 import logging
 
-
+# Use formasaurus for form identification.
+# There is a fallback if it is not installed.
+# However, formasaurus is more effecive at finding login forms.
+# https://github.com/TeamHG-Memex/Formasaurus
 try:
     from formasaurus import FormExtractor
     FORMASAURUS = True
@@ -21,6 +24,8 @@ except ImportError:
 
 
 class AutoLogin():
+    # Keywords used to pattern match login links
+    # Both anchor href and text are checked.
     login_keywords = [
         'login',
         'logon',
@@ -33,10 +38,12 @@ class AutoLogin():
     ]
 
     def __init__(self):
+        # Use naive scoring algorithm if formasuarus is not installed
         if FORMASAURUS:
             self.form_extractor = FormExtractor.load()
         else:
             self.form_extractor = None
+        # Set some friendly headers
         self.user_agent = (
             'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 '
             '(KHTML, like Gecko) Ubuntu Chromium/43.0.2357.130 '
@@ -51,17 +58,26 @@ class AutoLogin():
             'Accept': self.accept_encoding,
             'Accept-Language': 'en',
         }
+        # Cookie jar and html parser for making requests with urllib
         self.parser = HTMLParser(recover=True, encoding='utf-8')
         self.cookie_jar = CookieJar()
 
 
     def encode_var(self, var):
+        """
+        Method for encoding a form variable. 
+        UTF-8 instead of unicode.
+        """
         if isinstance(var, unicode):
             return var.encode('utf-8')
         else:
             return str(var)
             
     def encode_form_dict(self, form_data):
+        """
+        Method to encode all form variables as UTF-8.
+        Returns a dictionary.
+        """
         encoded_dict = {} 
         for field,value in form_data.items():
             field = self.encode_var(field)
@@ -70,6 +86,10 @@ class AutoLogin():
         return encoded_dict
 
     def logged_in(self, cookies):
+        """
+        Method to determine whether a request is authenticated.
+        Not yet implemented.
+        """
         # ToDo...
         for cookie in cookies:
             if 'sessi' in cookie['name']:
@@ -79,6 +99,12 @@ class AutoLogin():
         return False
 
     def cookies_to_header(self, cookies):
+        """
+        Turn a cookie a cookie jar into a header.
+        If you do not want to use a cookie jar,
+        you can send the authenticated cookies as a header.
+        Returns a dictionary.
+        """
         cookie_dict = {}
         for cookie in cookies:
             cookie_dict[cookie.name] = cookie.value
@@ -86,6 +112,11 @@ class AutoLogin():
         return headers
 
     def cookies_from_jar(self, cookie_jar):
+        """
+        Extract cookie jar into a list of cookies.
+        Some of the values are objects, so this requires further work.
+        """
+        # ToDo - translate nested cookiejar/urllib objects
         cookies = []
 
         for cookie in cookie_jar:
@@ -94,6 +125,12 @@ class AutoLogin():
         return cookies
 
     def login(self, form_url, form_data, base_url=None):
+        """
+        Attempt to login to a site using form_data dictionary.
+        Uses a cookielib cookiejar https://docs.python.org/2/library/cookielib.html.
+        Request timeout is set to 10 seconds.
+        Returns the cookiejar.
+        """
         self.headers['Referer'] = base_url
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie_jar))
         encoded_form_data = self.encode_form_dict(form_data)
@@ -112,6 +149,10 @@ class AutoLogin():
         return self.cookie_jar
 
     def login_request(self, html_source, username, password, base_url=None, proxy=None):
+        """
+        Search html_source for login forms, return a form request dictionary.
+        The request dictionary contains the form action URL and the data to post.
+        """
         request = None
         login_form_finder = LoginFormFinder(
             html_source, username, password, self.form_extractor, base_url)
@@ -131,6 +172,11 @@ class AutoLogin():
         return request
 
     def reset_cookies(self):
+        """
+        Cookies are stored as a class attribute.
+        If using an object across multiple login attempts,
+        you may want to reset the cookies.
+        """
         self.cookie_jar = CookieJar()
 
     #def auth_cookies_from_crawl(self, url, username, password, proxy=None):
@@ -167,6 +213,9 @@ class AutoLogin():
     #    return None
 
     def auth_cookies_from_url(self, url, username, password, proxy=None):
+        """
+        Attempt to login and return the authenticated cookies.
+        """
         # Try to login from any forms on page
         html_source = self.get_html(url)
         cookies = []
@@ -187,30 +236,36 @@ class AutoLogin():
 
         return None
 
-    def auth_cookies_from_html(
-            self, html_source, username,
-            password, base_url=None, proxy=None):
-            #password, base_url=None, proxy=None, referer_url=None):
+    #def auth_cookies_from_html(
+    #        self, html_source, username,
+    #        password, base_url=None, proxy=None):
+    #        #password, base_url=None, proxy=None, referer_url=None):
 
-        cookies = []
-        login_request = self.login_request(
-                    html_source=html_source,
-                    username=username,
-                    password=password,
-                    base_url=base_url
-                )
+    #    cookies = []
+    #    login_request = self.login_request(
+    #                html_source=html_source,
+    #                username=username,
+    #                password=password,
+    #                base_url=base_url
+    #            )
 
-        if login_request is not None:
-            cookies = self.login(
-                login_request['url'],
-                login_request['data'],
-                base_url)
-                #referer_url)
-            return cookies
+    #    if login_request is not None:
+    #        cookies = self.login(
+    #            login_request['url'],
+    #            login_request['data'],
+    #            base_url)
+    #            #referer_url)
+    #        return cookies
 
-        return None
+    #    return None
 
     def get_html(self, url):
+        """
+        Method to return the html source of a page.
+        Uses the object cookie jar, allowing you to request the login page,
+        find the login form, then submit a login request while persistiing the cookies.
+        Some sites require this flow for authentication.
+        """
         html_source = None
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie_jar))
         req = urllib2.Request(url, headers=self.headers)
@@ -223,6 +278,10 @@ class AutoLogin():
         return html_source
 
     def extract_tokens(self, text):
+        """
+        Tokenize a string, replacing nonalphanumeric characters.
+        Used to match against login keywords.
+        """
         # Split by non-alphanumeric characters
         keyword_list = re.findall(r'\w+', text)
         # Create sanitized list,
@@ -239,6 +298,11 @@ class AutoLogin():
         return sanitized_list
 
     def is_login_link(self, link_element):
+        """
+        Take an lxml link element and test whether it is a login link.
+        Tokenezise the items in the href and text and checks whether they
+        match login keywords.
+        """
         # Tokenize href
         href = link_element.xpath('@href')[0]
         href_tokens = self.extract_tokens(href)
@@ -261,6 +325,9 @@ class AutoLogin():
         return False
 
     def extract_login_links(self, html_source, regex_filter=None):
+        """
+        Extract login links from html source.
+        """
         results = []
         doc = html.document_fromstring(html_source, self.parser)
         links = doc.xpath('//a')
@@ -282,6 +349,10 @@ class AutoLogin():
         return results
 
     def show_html_in_browser(self, html_source):
+        """
+        Save html in /tmp/ directory, then open using webbrowser.
+        Used for testing.
+        """
         filename = '/tmp/autologin_show_in_browser.html'
         f = open(filename, 'w+')
         f.write(html_source)
@@ -289,6 +360,10 @@ class AutoLogin():
         webbrowser.open(filename, new=2)
 
     def show_in_browser(self, url, cookie_jar):
+        """
+        Get html source, save in /tmp/ directory,
+        then show in browser using webbrowser.
+        """
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie_jar))
         req = urllib2.Request(url, headers=self.headers)
 
@@ -306,51 +381,13 @@ class AutoLogin():
         webbrowser.open(filename, new=2)
 
 
-def test_extract_login_links():
-    results = []
-    found = []
-    not_found = []
-    total_login_links = 0
-
-    with open('urls.csv') as f:
-        auto_login = AutoLogin()
-        urls = f.read().splitlines()
-
-        for url in urls:
-            print('URL: {}'.format(url))
-            html_source = auto_login.get_html(url)
-            login_links = auto_login.extract_login_links(html_source)
-            results.append([url, login_links])
-            total_login_links += len(login_links)
-
-            if len(login_links) > 0:
-                found.append(url)
-            else:
-                not_found.append(url)
-
-    print('#URLs tested: {}'.format(len(results)))
-    print('#Total login links: {}'.format(total_login_links))
-    print('#URLs with logins: {}'.format(len(found)))
-    print('#URLs without logins: {}'.format(len(not_found)))
-
-
-def test_auth_cookies_from_html():
-    url = 'https://reddit.com'
-    auto_login = AutoLogin()
-    username = 'ghostintheshell1010'
-    password = 'B00msh4k3th3r00m!'
-    html_source = auto_login.get_html(url)
-    auth_cookies = auto_login.auth_cookies_from_html(
-        html_source, username, password)
-    import webbrowser
-    print('Opening browser')
-    tmp_response_file = "/tmp/openinbrowser.html"
-    f = open(tmp_response_file, "w")
-    f.write(auth_headers["response_body"])
-    webbrowser.open(tmp_response_file, new=2)
-
 
 def main(argv):
+    """
+    Command line utility for extracting authenticated login cookies.
+    Params: username, password, url.
+    Proxy support not yet implemented.
+    """
     import pprint
     if not FORMASAURUS:
         logging.warning('Formasaurus is not installed. Install it here: https://github.com/TeamHG-Memex/Formasaurus. AutoLogin will still work, it will just be a little less successful.')
