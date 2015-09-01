@@ -54,6 +54,21 @@ class AutoLogin():
         self.parser = HTMLParser(recover=True, encoding='utf-8')
         self.cookie_jar = CookieJar()
 
+
+    def encode_var(self, var):
+        if isinstance(var, unicode):
+            return var.encode('utf-8')
+        else:
+            return str(var)
+            
+    def encode_form_dict(self, form_data):
+        encoded_dict = {} 
+        for field,value in form_data.items():
+            field = self.encode_var(field)
+            value = self.encode_var(value)
+            encoded_dict[field] =  value
+        return encoded_dict
+
     def logged_in(self, cookies):
         # ToDo...
         for cookie in cookies:
@@ -78,16 +93,11 @@ class AutoLogin():
 
         return cookies
 
-    def login(self, form_url, form_data, referer_url=None):
-        cookies = []
-        #cj = []
-
-        if referer_url is not None:
-            self.headers['Referer'] = referer_url
-
+    def login(self, form_url, form_data, base_url=None):
+        self.headers['Referer'] = base_url
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie_jar))
-        data = urlencode(form_data)
-        print data
+        encoded_form_data = self.encode_form_dict(form_data)
+        data = urlencode(encoded_form_data)
         req = urllib2.Request(form_url, data, headers=self.headers)
 
         try:
@@ -95,11 +105,10 @@ class AutoLogin():
         except urllib2.URLError as e:
             print(e)
         try:
-            cookies = self.cookies_from_jar(cj)
+            cookies = self.cookies_from_jar(self.cookie_jar)
         except:
             print('No cookies found.')
             pass
-        
         return self.cookie_jar
 
     def login_request(self, html_source, username, password, base_url=None, proxy=None):
@@ -107,7 +116,6 @@ class AutoLogin():
         login_form_finder = LoginFormFinder(
             html_source, username, password, self.form_extractor, base_url)
         args, url, method = login_form_finder.fill_top_login_form()
-        print args,url,method
 
         if args is not None and url is not None:
             data = {}
@@ -125,59 +133,64 @@ class AutoLogin():
     def reset_cookies(self):
         self.cookie_jar = CookieJar()
 
-    def auth_cookies_from_crawl(self, url, username, password, proxy=None):
-        # Try to login from any forms on page
-        html_source = self.get_html(url)
-        login_request = self.login_request(
-            html_source, username, password, proxy)
+    #def auth_cookies_from_crawl(self, url, username, password, proxy=None):
+    #    # Try to login from any forms on page
+    #    html_source = self.get_html(url)
+    #    login_request = self.login_request(
+    #        html_source, username, password, proxy)
 
-        if login_request:
-            return self.auth_cookies_from_html(
-                html_source, username, password, proxy)
-        else:  # Follow login links and try login
-            login_links = self.extract_login_links(html_source)
+    #    if login_request:
+    #        return self.auth_cookies_from_html(
+    #            html_source, username, password, proxy)
+    #    else:  # Follow login links and try login
+    #        login_links = self.extract_login_links(html_source)
 
-            for link in login_links:
-                html_source = self.get_html(url)
-                login_request = self.login_request(username, password, proxy)
+    #        for link in login_links:
+    #            html_source = self.get_html(url)
+    #            login_request = self.login_request(username, password, proxy)
 
-                if login_request:
-                    return self.auth_cookies_from_html(
-                        html_source, username, password, proxy)
+    #            if login_request:
+    #                return self.auth_cookies_from_html(
+    #                    html_source, username, password, proxy)
 
-            # If we get here, just try all the internal links on the page
-            internal_links = self.extract_internal_links(html_source)
+    #        # If we get here, just try all the internal links on the page
+    #        internal_links = self.extract_internal_links(html_source)
 
-            for link in internal_links:
-                html_source = self.get_html(url)
-                login_request = self.login_request(username, password, proxy)
+    #        for link in internal_links:
+    #            html_source = self.get_html(url)
+    #            login_request = self.login_request(username, password, proxy)
 
-                if login_request:
-                    return self.auth_cookies_from_html(
-                        html_source, username, password, proxy)
+    #            if login_request:
+    #                return self.auth_cookies_from_html(
+    #                    html_source, username, password, proxy)
 
-        return None
+    #    return None
 
     def auth_cookies_from_url(self, url, username, password, proxy=None):
         # Try to login from any forms on page
         html_source = self.get_html(url)
+        cookies = []
         login_request = self.login_request(
             html_source=html_source,
             username=username,
             password=password,
             base_url=url,
-            proxy=proxy
+            proxy=proxy,
         )
 
-        if login_request:
-            return self.auth_cookies_from_html(
-                html_source, username, password, proxy)
+        if login_request is not None:
+            cookies = self.login(
+                form_url=login_request['url'],
+                form_data=login_request['data'],
+                base_url=login_request['url'])
+            return cookies
 
         return None
 
     def auth_cookies_from_html(
             self, html_source, username,
-            password, base_url=None, proxy=None, referer_url=None):
+            password, base_url=None, proxy=None):
+            #password, base_url=None, proxy=None, referer_url=None):
 
         cookies = []
         login_request = self.login_request(
@@ -191,7 +204,8 @@ class AutoLogin():
             cookies = self.login(
                 login_request['url'],
                 login_request['data'],
-                referer_url)
+                base_url)
+                #referer_url)
             return cookies
 
         return None
