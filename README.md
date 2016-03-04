@@ -74,7 +74,7 @@ Note that it returns all cookies, they may be session cookies rather than authen
 ## Login request
 This method extracts the login form (if there is one), fills the fields and returns a dictionary with the form url and args for your spider to submit. No http requests are made.
 ```
-cookies = al.login_request(html_source, username, password, base_url=None)
+login_request_data = al.login_request(html_source, username, password, base_url=None)
 ```
 The base_url can be used to a form url is returned when the form action is empty.
 
