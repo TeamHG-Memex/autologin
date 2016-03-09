@@ -1,16 +1,18 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 import argparse
 import re
 import urllib2
 from urllib import urlencode
 from cookielib import CookieJar
-from login_form import LoginFormFinder
+from login_form import LoginFormFinder, NotFoundError
 from urlparse import urlparse
 from lxml import html
 from lxml.etree import HTMLParser
 import webbrowser
 import logging
+from traceback import print_exc
 
 # Use formasaurus for form identification.
 # There is a fallback if it is not installed.
@@ -141,12 +143,13 @@ class AutoLogin():
         try:
             response = opener.open(req, timeout=10)
         except urllib2.URLError as e:
-            print(e)
+            print('Error while submiting a form to %s' % form_url,
+                  file=sys.stderr)
+            print_exc()
         try:
             cookies = self.cookies_from_jar(self.cookie_jar)
         except:
-            print('No cookies found.')
-            pass
+            print('No cookies found.', file=sys.stderr)
         return self.cookie_jar
 
     def login_request(self, html_source, username, password, base_url=None, proxy=None):
@@ -155,9 +158,12 @@ class AutoLogin():
         The request dictionary contains the form action URL and the data to post.
         """
         request = None
-        login_form_finder = LoginFormFinder(
-            html_source, username, password, self.form_extractor, base_url)
-        args, url, method = login_form_finder.fill_top_login_form()
+        try:
+            login_form_finder = LoginFormFinder(
+                html_source, username, password, self.form_extractor, base_url)
+            args, url, method = login_form_finder.fill_top_login_form()
+        except NotFoundError:
+            return None
 
         if args is not None and url is not None:
             data = {}
@@ -219,21 +225,21 @@ class AutoLogin():
         """
         # Try to login from any forms on page
         html_source = self.get_html(url)
-        cookies = []
-        login_request = self.login_request(
-            html_source=html_source,
-            username=username,
-            password=password,
-            base_url=url,
-            proxy=proxy,
-        )
+        if html_source:
+            login_request = self.login_request(
+                html_source=html_source,
+                username=username,
+                password=password,
+                base_url=url,
+                proxy=proxy,
+            )
 
-        if login_request is not None:
-            cookies = self.login(
-                form_url=login_request['url'],
-                form_data=login_request['data'],
-                base_url=login_request['url'])
-            return cookies
+            if login_request is not None:
+                cookies = self.login(
+                    form_url=login_request['url'],
+                    form_data=login_request['data'],
+                    base_url=login_request['url'])
+                return cookies
 
         return None
 
@@ -274,7 +280,8 @@ class AutoLogin():
             response = opener.open(req, timeout=10)
             html_source = response.read()
         except urllib2.URLError as e:
-            print(e)
+            print('Error while getting html at %s' % url, file=sys.stderr)
+            print_exc()
 
         return html_source
 
@@ -371,7 +378,7 @@ class AutoLogin():
         try:
             response = opener.open(req, timeout=10)
         except urllib2.URLError as e:
-            print(e)
+            print_exc()
             sys.exit()
 
         html_source = response.read()

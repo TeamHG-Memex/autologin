@@ -56,7 +56,7 @@ class LoginFormFinder(object):
         try:
             top_form = self.all_forms[0]
         except:
-            raise Exception("No suitable form was found on the page")
+            raise NotFoundError("No suitable form was found on the page")
 
         return top_form, self.form_score(top_form)
 
@@ -105,10 +105,10 @@ class LoginFormFinder(object):
             userfield, passfield = self.pick_fields(self.login_form)
 
             if userfield is None:
-                raise Exception("No fields found that look like userfield")
+                raise NotFoundError("No fields found that look like userfield")
 
             if passfield is None:
-                raise Exception("No fields found that look like passfield")
+                raise NotFoundError("No fields found that look like passfield")
 
             self.login_form.fields[userfield] = self.username
             self.login_form.fields[passfield] = self.password
@@ -119,6 +119,11 @@ class LoginFormFinder(object):
             return self.login_form_values, action, self.login_form.method
 
         return None, None, None
+
+
+class NotFoundError(Exception):
+    pass
+
 
 if __name__ == '__main__':
     import requests

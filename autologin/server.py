@@ -16,7 +16,7 @@ from flask import Response
 from flask import request
 from flask import flash
 from flask import redirect
-from flask import abort
+from flask import make_response
 from flask import jsonify
 from forms import LoginForm
 
@@ -161,13 +161,13 @@ def get_login_cookies():
     Simple API for returning login cookies
     """
     if not request.json:
-        abort(400)
+        return make_response('request is not JSON', 400)
     if 'url' not in request.json:
-        abort(400)
+        return make_response('missing required argument "url"', 400)
     if 'username' not in request.json:
-        abort(400)
+        return make_response('missing required argument "username"', 400)
     if 'password' not in request.json:
-        abort(400)
+        return make_response('missing required argument "password"', 400)
     auto_login = AutoLogin()
     login_cookie_jar = auto_login.auth_cookies_from_url(
         url=request.json['url'],
