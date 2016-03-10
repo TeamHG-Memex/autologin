@@ -6,8 +6,9 @@ from twisted.web.server import Site
 from twisted.web.resource import Resource
 
 from .autologin import AutoLogin
-from .app import db
+from .app import app, db
 from .login_keychain import KeychainItem
+from .spider import Spider, crawl_runner
 
 
 class Index(Resource):
@@ -30,10 +31,20 @@ class AutologinAPI(Resource):
         if url is None:
             request.setResponseCode(400)
             return 'Missing required field "url"'
+        with app.app_context():
+            return self._handle_request(
+                url,
+                username=data.get('username'),
+                password=data.get('password'))
 
+    def _handle_request(self, url, username=None, password=None):
+        # TODO - restore old API (explicit username and password)
+        # TODO - and maybe make it use the crawler too?
         credentials = KeychainItem.get_credentials(url)
         if not credentials:
-            KeychainItem.add_task(url)
+            item = KeychainItem.add_task(url)
+            if item:
+                crawl_runner.crawl(Spider, url, item)
             return json.dumps({'status': 'pending'})
         elif credentials.skip:
             return json.dumps({'status': 'skipped'})
@@ -42,7 +53,7 @@ class AutologinAPI(Resource):
         else:
             auto_login = AutoLogin()
             login_cookie_jar = auto_login.auth_cookies_from_url(
-                url=credentials.url,
+                url=credentials.login_url,
                 username=credentials.login,
                 password=credentials.password,
             )
