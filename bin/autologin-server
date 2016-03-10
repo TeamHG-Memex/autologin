@@ -1,4 +1,2 @@
-from autologin.server import app
-
-
-app.run(debug=True, port=8088, threaded=True)
+from autologin.server import main
+main()

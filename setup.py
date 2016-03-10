@@ -15,13 +15,16 @@ setup(
                      "into websites with a set of valid credentials."),
     license = "BSD",
     keywords = "login, automated, spider",
-    url = "http://packages.python.org/an_example_pypi_project",
+    url = "https://github.com/TeamHG-Memex/autologin",
     packages=['autologin'],
     include_package_data = True,
     install_requires = [
+        'six'
         'lxml',
         'flask',
-        'Flask-WTF'
+        'wtforms',
+        'flask-sqlalchemy',
+        'flask-admin',
     ],
     scripts = ['bin/autologin-server', 'bin/autologin'],
     long_description=read('README.md'),

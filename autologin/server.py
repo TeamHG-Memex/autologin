@@ -1,33 +1,26 @@
-#!/usr/bin/env python
+from __future__ import absolute_import
 import os
 from lxml import html
-import json
-import hashlib
 import urllib2
-import cookielib
-import hashlib
-import time
 import uuid
 import shutil
-from autologin import AutoLogin
-from flask import Flask
+
 from flask import render_template
-from flask import Response
 from flask import request
 from flask import flash
-from flask import redirect
 from flask import make_response
 from flask import jsonify
-from forms import LoginForm
+import flask_admin
 
-# Set paths for static assets and temp files
-server_path = os.path.dirname(os.path.realpath(__file__))
-static_dir = os.path.join(server_path, 'static')
-browser_dir = os.path.join(static_dir, 'browser')
+from .autologin import AutoLogin
+from .forms import LoginForm
+from .app import app, db, server_path
+from .login_keychain import KeychainItemAdmin, KeychainItem
 
-# Initiate flask app
-app = Flask(__name__)
-app.secret_key = 'b334r9asdfmasdfkasdf90joa'
+
+# Add the admin
+admin = flask_admin.Admin(app, template_mode='bootstrap3')
+admin.add_view(KeychainItemAdmin(KeychainItem, db.session))
 
 
 def flash_errors(form):
@@ -46,7 +39,7 @@ def flash_errors(form):
 
 def delete_directory_files(directory_path):
     """
-    Method for deleting temporary html files created by 
+    Method for deleting temporary html files created by
     show in browser process.
     """
     for file_object in os.listdir(directory_path):
@@ -74,10 +67,10 @@ def download_page(url, cookie_jar):
         'application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'en',
     }
-    #browser_dir = os.getcwd() + '/static/browser'
+    browser_dir = os.path.join(server_path, 'static/browser')
     delete_directory_files(browser_dir)
     filename = '{}.html'.format(uuid.uuid4())
-    filepath = os.path.join(browser_dir, filename) 
+    filepath = os.path.join(browser_dir, filename)
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie_jar))
     req = urllib2.Request(url, headers=headers)
     try:
@@ -126,7 +119,7 @@ def index():
             password=form.password.data,
             base_url=form.url.data
         )
-        # If we've extracted some cookies, 
+        # If we've extracted some cookies,
         # use them to request a page and download html source
         # for viewing in browser,
         if login_cookie_jar is not None:
@@ -183,5 +176,12 @@ def get_login_cookies():
     return jsonify({'cookies': login_cookies}), 201
 
 
-if __name__ == '__main__':
-    app.run(debug=True, port=8088, threaded=True)
+def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--host', default='127.0.0.1')
+    parser.add_argument('--port', type=int, default=8088)
+    parser.add_argument('--debug', action='store_true')
+    args = parser.parse_args()
+    db.create_all()
+    app.run(args.host, args.port, debug=args.debug, threaded=True)
