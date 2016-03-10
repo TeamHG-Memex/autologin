@@ -16,7 +16,7 @@ class KeychainItem(db.Model):
     start_url = db.Column(db.Text(), nullable=False)
     login_url = db.Column(db.Text(), nullable=False, default='')
     registration_url = db.Column(db.Text(), nullable=False, default='')
-    # Login credentials (or marked as skipped)
+    # Login credentials (or marked as a skip)
     skip = db.Column(db.Boolean, default=False, nullable=False)
     login = db.Column(db.String(255), nullable=True)
     password = db.Column(db.String(255), nullable=True)
@@ -60,7 +60,7 @@ class KeychainItem(db.Model):
         if self.login:
             if self.login_url:
                 url = self.login_url
-        elif self.registration_url and not self.skipped:
+        elif self.registration_url and not self.skip:
             url = self.registration_url
         return jinja2.Markup(
             '<a href="{url}" target="_blank">{url}</a>'.format(url=url))
