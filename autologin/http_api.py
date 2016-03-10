@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import json
 
 from twisted.internet import reactor
@@ -6,6 +7,7 @@ from twisted.web.resource import Resource
 
 from .autologin import AutoLogin
 from .app import db
+from .login_keychain import KeychainItem
 
 
 class Index(Resource):
@@ -24,24 +26,31 @@ class AutologinAPI(Resource):
         except (TypeError, ValueError):
             request.setResponseCode(400)
             return 'JSON body expected'
-        for field in ['url', 'username', 'password']:
-            if field not in data:
-                request.setResponseCode(400)
-                return 'Missing required field "%s"' % field
+        url = data.get('url')
+        if url is None:
+            request.setResponseCode(400)
+            return 'Missing required field "url"'
 
-        auto_login = AutoLogin()
-        login_cookie_jar = auto_login.auth_cookies_from_url(
-            url=data['url'],
-            username=data['username'],
-            password=data['password'],
-        )
-        if login_cookie_jar is not None:
-            login_cookies = auto_login.cookies_from_jar(login_cookie_jar)
+        credentials = KeychainItem.get_credentials(url)
+        if not credentials:
+            KeychainItem.add_task(url)
+            return json.dumps({'status': 'pending'})
+        elif credentials.skip:
+            return json.dumps({'status': 'skipped'})
+        elif not credentials.solved:
+            return json.dumps({'status': 'pending'})
         else:
-            login_cookies = {}
-
-        request.setResponseCode(201)
-        return json.dumps({'cookies': login_cookies})
+            auto_login = AutoLogin()
+            login_cookie_jar = auto_login.auth_cookies_from_url(
+                url=credentials.url,
+                username=credentials.login,
+                password=credentials.password,
+            )
+            if login_cookie_jar is not None:
+                login_cookies = auto_login.cookies_from_jar(login_cookie_jar)
+            else:
+                login_cookies = {}
+            return json.dumps({'status': 'solved', 'cookies': login_cookies})
 
 
 root = Resource()
