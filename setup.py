@@ -19,14 +19,19 @@ setup(
     packages=['autologin'],
     include_package_data = True,
     install_requires = [
-        'six'
+        'six',
         'lxml',
         'flask',
         'wtforms',
         'flask-sqlalchemy',
         'flask-admin',
+        'scrapy==1.1.0rc3',
     ],
-    scripts = ['bin/autologin-server', 'bin/autologin'],
+    scripts = [
+        'bin/autologin-server',
+        'bin/autologin-http-api',
+        'bin/autologin',
+    ],
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 3 - Alpha",

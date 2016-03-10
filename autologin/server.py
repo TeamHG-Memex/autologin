@@ -8,8 +8,6 @@ import shutil
 from flask import render_template
 from flask import request
 from flask import flash
-from flask import make_response
-from flask import jsonify
 import flask_admin
 
 from .autologin import AutoLogin
@@ -146,34 +144,6 @@ def index():
         login_links=login_links,
         filename=filename
     )
-
-
-@app.route("/login-cookies", methods=["POST"])
-def get_login_cookies():
-    """
-    Simple API for returning login cookies
-    """
-    if not request.json:
-        return make_response('request is not JSON', 400)
-    if 'url' not in request.json:
-        return make_response('missing required argument "url"', 400)
-    if 'username' not in request.json:
-        return make_response('missing required argument "username"', 400)
-    if 'password' not in request.json:
-        return make_response('missing required argument "password"', 400)
-    auto_login = AutoLogin()
-    login_cookie_jar = auto_login.auth_cookies_from_url(
-        url=request.json['url'],
-        username=request.json['username'],
-        password=request.json['password']
-    )
-
-    if login_cookie_jar is not None:
-        login_cookies = auto_login.cookies_from_jar(login_cookie_jar)
-    else:
-        login_cookies = {}
-
-    return jsonify({'cookies': login_cookies}), 201
 
 
 def main():

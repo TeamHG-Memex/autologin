@@ -1,0 +1,2 @@
+from autologin.http_api import main
+main()
