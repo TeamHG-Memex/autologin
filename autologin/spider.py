@@ -7,6 +7,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.settings import Settings
 from scrapy.crawler import CrawlerRunner
 from scrapy.utils.log import configure_logging
+from scrapy.exceptions import CloseSpider
 
 from .app import app, db
 from .login_keychain import get_domain
@@ -44,6 +45,8 @@ class Spider(scrapy.Spider):
         self.credentials = credentials
         self.start_urls = [url]
         self.link_extractor = LinkExtractor(allow_domains=[get_domain(url)])
+        self.found_login = False
+        self.found_registration = False
         super(Spider, self).__init__(*args, **kwargs)
 
     def start_requests(self):
@@ -59,10 +62,15 @@ class Spider(scrapy.Spider):
         if response.text:
             for _, meta in formasaurus.extract_forms(response.text):
                 form_type = meta['form']
-                if form_type == 'login':
+                if form_type == 'login' and not self.found_login:
+                    self.found_login = True
                     self.handle_login_form(url)
-                elif form_type == 'registration':
+                elif form_type == 'registration' \
+                        and not self.found_registration:
+                    self.found_registration = True
                     self.handle_registration_form(url)
+        if self.found_registration and self.found_login:
+            raise CloseSpider('done')
         for link in self.link_extractor.extract_links(response):
             priority = 0
             text = ' '.join([relative_url(link.url), link.text]).lower()
@@ -73,7 +81,6 @@ class Spider(scrapy.Spider):
     def handle_login_form(self, url):
         self.logger.info('Found login form at %s', url)
         with app.app_context():
-            # TODO - update only login_url field
             self.credentials.login_url = url
             db.session.add(self.credentials)
             db.session.commit()
@@ -81,7 +88,6 @@ class Spider(scrapy.Spider):
     def handle_registration_form(self, url):
         self.logger.info('Found registration form at %s', url)
         with app.app_context():
-            # TODO - update only registration_url field
             self.credentials.registration_url = url
             db.session.add(self.credentials)
             db.session.commit()
