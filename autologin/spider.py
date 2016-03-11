@@ -18,6 +18,8 @@ settings = Settings(values=dict(
     DEPTH_LIMIT = 3,
     DOWNLOAD_DELAY = 2.0,
     DEPTH_PRIORITY = 1,
+    CONCURRENT_REQUESTS = 2,
+    CONCURRENT_REQUESTS_PER_DOMAIN = 2,
     SCHEDULER_DISK_QUEUE = 'scrapy.squeues.PickleFifoDiskQueue',
     SCHEDULER_MEMORY_QUEUE = 'scrapy.squeues.FifoMemoryQueue',
     ))
