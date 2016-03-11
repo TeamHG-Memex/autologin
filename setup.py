@@ -21,7 +21,7 @@ setup(
     install_requires = [
         'six',
         'lxml',
-        'flask',
+        'Flask',
         'wtforms',
         'flask-sqlalchemy',
         'flask-admin',
