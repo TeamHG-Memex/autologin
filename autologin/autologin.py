@@ -128,11 +128,10 @@ class AutoLogin():
 
         return cookies
 
-    def login(self, form_url, form_data, base_url=None):
+    def login(self, form_url, form_data, base_url=None, timeout=30, retries=5):
         """
         Attempt to login to a site using form_data dictionary.
         Uses a cookielib cookiejar https://docs.python.org/2/library/cookielib.html.
-        Request timeout is set to 10 seconds.
         Returns the cookiejar.
         """
         self.headers['Referer'] = base_url
@@ -141,16 +140,24 @@ class AutoLogin():
         data = urlencode(encoded_form_data)
         req = urllib2.Request(form_url, data, headers=self.headers)
 
-        try:
-            response = opener.open(req, timeout=10)
-        except (urllib2.URLError, ssl.SSLError) as e:
-            print('Error while submiting a form to %s' % form_url,
+        for _ in range(retries):
+            try:
+                response = opener.open(req, timeout=timeout)
+            except (urllib2.URLError, ssl.SSLError) as e:
+                print('Error while submiting a form to %s' % form_url,
+                      file=sys.stderr)
+                print_exc()
+            else:
+                break
+        else:
+            print('Max retries exceeded while submitting a form to %s' % form_url,
                   file=sys.stderr)
-            print_exc()
+
         try:
             cookies = self.cookies_from_jar(self.cookie_jar)
         except:
             print('No cookies found.', file=sys.stderr)
+
         return self.cookie_jar
 
     def login_request(self, html_source, username, password, base_url=None, proxy=None):
