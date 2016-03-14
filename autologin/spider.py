@@ -40,6 +40,7 @@ class Spider(scrapy.Spider):
         'sign up',
         'register',
         'registration',
+        'account',
         'join',
     ]
 
