@@ -3,6 +3,7 @@ from __future__ import print_function
 import sys
 import argparse
 import re
+import ssl
 import urllib2
 from urllib import urlencode
 from cookielib import CookieJar
@@ -142,7 +143,7 @@ class AutoLogin():
 
         try:
             response = opener.open(req, timeout=10)
-        except urllib2.URLError as e:
+        except (urllib2.URLError, ssl.SSLError) as e:
             print('Error while submiting a form to %s' % form_url,
                   file=sys.stderr)
             print_exc()
@@ -279,7 +280,7 @@ class AutoLogin():
         try:
             response = opener.open(req, timeout=10)
             html_source = response.read()
-        except urllib2.URLError as e:
+        except (urllib2.URLError, ssl.SSLError) as e:
             print('Error while getting html at %s' % url, file=sys.stderr)
             print_exc()
 
