@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 from six.moves.urllib.parse import urlsplit
 
-import jinja2
 from flask_admin.contrib import sqla
 from sqlalchemy.exc import IntegrityError
 
@@ -62,8 +61,7 @@ class KeychainItem(db.Model):
                 url = self.login_url
         elif self.registration_url and not self.skip:
             url = self.registration_url
-        return jinja2.Markup(
-            '<a href="{url}" target="_blank">{url}</a>'.format(url=url))
+        return url
 
 
 def get_domain(url):
