@@ -75,5 +75,6 @@ def main():
     parser.add_argument('--port', type=int, default=8089)
     args = parser.parse_args()
     db.create_all()
+    print("Autologin HTTP API is started on port %s" % args.port)
     reactor.listenTCP(args.port, Site(root))
     reactor.run()

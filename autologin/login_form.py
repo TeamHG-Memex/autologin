@@ -68,7 +68,7 @@ class LoginFormFinder(object):
                        for i, v in enumerate(self.all_forms) if v[1] == 'l']
         try:
             login_form = login_forms[0]
-        except:
+        except IndexError:
             pass
         return login_form
 
@@ -130,4 +130,4 @@ if __name__ == '__main__':
     url = "https://github.com/login"
     r = requests.get(url)
     lff = LoginFormFinder(url, r.text, "ddd", "pass")
-    print lff.fill_top_login_form()
+    print(lff.fill_top_login_form())

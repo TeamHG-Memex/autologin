@@ -22,22 +22,31 @@ settings = Settings(values=dict(
     CONCURRENT_REQUESTS_PER_DOMAIN = 2,
     SCHEDULER_DISK_QUEUE = 'scrapy.squeues.PickleFifoDiskQueue',
     SCHEDULER_MEMORY_QUEUE = 'scrapy.squeues.FifoMemoryQueue',
+    CLOSESPIDER_PAGECOUNT = 2000,
+    DOWNLOAD_MAXSIZE = 1*1024*1024,  # 1MB
     ))
 configure_logging({'LOG_FORMAT': '%(levelname)s: %(message)s'})
 crawl_runner = CrawlerRunner(settings)
 
 
 class Spider(scrapy.Spider):
+    """
+    This spider crawls a website trying to find login and registration forms.
+    When a form is found, its URL is saved to the database.
+    """
     name = 'spider'
     priority_patterns = [
         # Login links
         'login',
+        'log in',
         'logon',
         'signin',
         'sign in',
+        'sign-in',
         # Registration links
         'signup',
         'sign up',
+        'sign-up',
         'register',
         'registration',
         'account',
@@ -51,13 +60,6 @@ class Spider(scrapy.Spider):
         self.found_login = False
         self.found_registration = False
         super(Spider, self).__init__(*args, **kwargs)
-
-    def start_requests(self):
-        for url in self.start_urls:
-            yield self.request(url)
-
-    def request(self, url, **kwargs):
-        return scrapy.Request(url, callback=self.parse, **kwargs)
 
     def parse(self, response):
         url = response.url
@@ -79,7 +81,7 @@ class Spider(scrapy.Spider):
             text = ' '.join([relative_url(link.url), link.text]).lower()
             if any(pattern in text for pattern in self.priority_patterns):
                 priority = 100
-            yield self.request(link.url, priority=priority)
+            yield scrapy.Request(link.url, self.parse, priority=priority)
 
     def handle_login_form(self, url):
         self.logger.info('Found login form at %s', url)
