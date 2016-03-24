@@ -22,7 +22,7 @@ DEFAULT_POST_HEADERS = {b'Content-Type': b'application/x-www-form-urlencoded'}
 
 
 settings = Settings(values=dict(
-    TELNET_ENABLED = False,
+    TELNETCONSOLE_ENABLED = False,
     ROBOTSTXT_OBEY = False,
     DEPTH_LIMIT = 3,
     DOWNLOAD_DELAY = 2.0,
