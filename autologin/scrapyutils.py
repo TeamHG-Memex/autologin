@@ -4,7 +4,6 @@ import logging
 import collections
 
 from twisted.internet.defer import Deferred
-from scrapy.crawler import Crawler
 from scrapy import signals
 
 
@@ -33,10 +32,7 @@ def scrape_items(crawler_runner, crawler_or_spidercls, *args, **kwargs):
     This convoluted way to write a loop should become unnecessary
     in Python 3.5 because of ``async for``.
     """
-    crawler = crawler_or_spidercls
-    if not isinstance(crawler_or_spidercls, Crawler):
-        crawler = crawler_runner._create_crawler(crawler_or_spidercls)
-
+    crawler = crawler_runner.create_crawler(crawler_or_spidercls)
     d = crawler_runner.crawl(crawler, *args, **kwargs)
     return ItemCursor(d, crawler)
 
