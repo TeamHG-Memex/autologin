@@ -2,20 +2,25 @@ from __future__ import absolute_import
 import json
 
 from twisted.internet import reactor
-from twisted.web.server import Site
+from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.web.server import Site, NOT_DONE_YET
 from twisted.web.resource import Resource
 
-from .autologin import AutoLogin
 from .app import app, db
 from .login_keychain import KeychainItem
-from .spider import Spider, crawl_runner
+from .spiders import FormSpider, LoginSpider, crawl_runner
+from .scrapyutils import scrape_items
+
+
+def return_json(dct):
+    returnValue(json.dumps(dct))
 
 
 class Index(Resource):
     isLeaf = True
 
     def render_GET(self, _request):
-        return 'API: POST /login-cookies {"url": url}'
+        return b'API: POST /login-cookies {"url": url}'
 
 
 class AutologinAPI(Resource):
@@ -26,42 +31,69 @@ class AutologinAPI(Resource):
             data = json.loads(request.content.read())
         except (TypeError, ValueError):
             request.setResponseCode(400)
-            return 'JSON body expected'
+            return b'JSON body expected'
         url = data.get('url')
         if url is None:
             request.setResponseCode(400)
-            return 'Missing required field "url"'
-        with app.app_context():
-            return self._handle_request(
-                url,
-                username=data.get('username'),
-                password=data.get('password'))
+            return b'Missing required field "url"'
 
+        self._render_POST(request, data)
+        return NOT_DONE_YET
+
+    @inlineCallbacks
+    def _render_POST(self, request, data):
+        result = yield self._handle_request(
+            data['url'],
+            username=data.get('username'),
+            password=data.get('password'))
+
+        if not isinstance(result, bytes):
+            result = result.encode('utf8')
+
+        request.write(result)
+
+        if not request.finished:
+            request.finish()
+
+    @inlineCallbacks
     def _handle_request(self, url, username=None, password=None):
-        # TODO - restore old API (explicit username and password)
-        # TODO - and maybe make it use the crawler too?
-        credentials = KeychainItem.get_credentials(url)
-        if not credentials:
-            item = KeychainItem.add_task(url)
-            if item:
-                crawl_runner.crawl(Spider, url, item)
-            return json.dumps({'status': 'pending'})
-        elif credentials.skip:
-            return json.dumps({'status': 'skipped'})
-        elif not credentials.solved:
-            return json.dumps({'status': 'pending'})
+        if username is None and password is None:
+            with app.app_context():
+                credentials = KeychainItem.get_credentials(url)
+
+                if not credentials:
+                    item = KeychainItem.add_task(url)
+                    if item:
+                        crawl_runner.crawl(FormSpider, url, item)
+                    return_json({'status': 'pending'})
+                elif credentials.skip:
+                    return_json({'status': 'skipped'})
+                elif not credentials.solved:
+                    return_json({'status': 'pending'})
+                else:
+                    login_url = credentials.login_url
+                    username = credentials.login
+                    password = credentials.password
         else:
-            auto_login = AutoLogin()
-            login_cookie_jar = auto_login.auth_cookies_from_url(
-                url=credentials.login_url,
-                username=credentials.login,
-                password=credentials.password,
-            )
-            if login_cookie_jar is not None:
-                login_cookies = auto_login.cookies_from_jar(login_cookie_jar)
-            else:
-                login_cookies = {}
-            return json.dumps({'status': 'solved', 'cookies': login_cookies})
+            login_url = url
+
+        item = yield self._login(login_url, username, password)
+        if item is None:
+            return_json({'status': 'error', 'error': 'unknown'})
+        elif not item['ok']:
+            return_json({'status': 'error', 'error': item['error']})
+
+        return_json({'status': 'solved', 'cookies': item['cookies']})
+
+    @inlineCallbacks
+    def _login(self, login_url, username, password):
+        async_items = scrape_items(crawl_runner,
+                                   LoginSpider,
+                                   url=login_url,
+                                   login=username,
+                                   password=password)
+        while (yield async_items.fetch_next):
+            returnValue(async_items.next_item())
 
 
 root = Resource()
@@ -75,5 +107,6 @@ def main():
     parser.add_argument('--port', type=int, default=8089)
     args = parser.parse_args()
     db.create_all()
+    print("Autologin HTTP API is started on port %s" % args.port)
     reactor.listenTCP(args.port, Site(root))
     reactor.run()
