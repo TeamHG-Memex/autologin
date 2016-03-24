@@ -159,7 +159,7 @@ class LoginSpider(scrapy.Spider):
 
         if new_cookies <= old_cookies:  # no new or changed cookies
             return {'ok': False, 'error': 'badauth'}
-        return {'ok': True, 'cookies': cookies}
+        return {'ok': True, 'cookies': cookies, 'start_url': response.url}
 
     def _get_login_form(self, response):
         for form, meta in formasaurus.extract_forms(response.text):

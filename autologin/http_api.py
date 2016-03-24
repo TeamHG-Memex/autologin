@@ -83,7 +83,11 @@ class AutologinAPI(Resource):
         elif not item['ok']:
             return_json({'status': 'error', 'error': item['error']})
 
-        return_json({'status': 'solved', 'cookies': item['cookies']})
+        return_json({
+            'status': 'solved',
+            'cookies': item['cookies'],
+            'start_url': item['start_url']
+        })
 
     @inlineCallbacks
     def _login(self, login_url, username, password):
