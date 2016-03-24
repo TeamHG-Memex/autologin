@@ -18,6 +18,7 @@ from .login_keychain import get_domain
 LOGIN_FIELD_TYPES = {'username', 'email', 'username or email'}
 CHECK_CHECKBOXES = {'remember me checkbox'}
 PASSWORD_FIELD_TYPES = {'password'}
+SUBMIT_TYPES = {'submit button'}
 DEFAULT_POST_HEADERS = {b'Content-Type': b'application/x-www-form-urlencoded'}
 
 
@@ -176,8 +177,10 @@ def login_params(url, login, password, form, meta):
     Return ``{'url': url, 'method': method, 'body': body}``
     with all required information for submitting a login form.
     """
+    fields = list(meta['fields'].items())
+
     login_field = password_field = None
-    for field_name, field_type in meta['fields'].items():
+    for field_name, field_type in fields:
         if field_type in LOGIN_FIELD_TYPES:
             login_field = field_name
         elif field_type in PASSWORD_FIELD_TYPES:
@@ -186,17 +189,24 @@ def login_params(url, login, password, form, meta):
     if login_field is None or password_field is None:
         return
 
-    for field_name, field_type in meta['fields'].items():
+    for field_name, field_type in fields:
         if field_type in CHECK_CHECKBOXES:
             form.fields[field_name] = 'on'
 
     form.fields[login_field] = login
     form.fields[password_field] = password
+
+    submit_values = form.form_values()
+
+    for field_name, field_type in fields:
+        if field_type in SUBMIT_TYPES:
+            submit_values.append((field_name, form.fields[field_name]))
+
     return dict(
         url=urljoin(url, form.action),
         method=form.method,
         headers=DEFAULT_POST_HEADERS.copy() if form.method == 'POST' else {},
-        body=urlencode(form.form_values()),
+        body=urlencode(submit_values),
     )
 
 
