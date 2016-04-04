@@ -5,4 +5,4 @@ wtforms
 flask-sqlalchemy
 flask-admin
 scrapy==1.1.0rc3
--e git+git@github.com:scrapy-plugins/scrapy-splash.git@fa4f287cf2c2524ac1fa201e061e64e5b47d83bf#egg=scrapyjs
+-e git+git@github.com:lopuhin/scrapy-splash.git@8c08ad60d1668a9160c63c32801a04e49c5671b2#egg=scrapyjs
