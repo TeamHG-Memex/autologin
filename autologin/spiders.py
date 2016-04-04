@@ -191,7 +191,10 @@ def login_params(url, login, password, form, meta):
 
     for field_name, field_type in fields:
         if field_type in CHECK_CHECKBOXES:
-            form.fields[field_name] = 'on'
+            try:
+                form.fields[field_name] = 'on'
+            except ValueError:
+                pass  # This could be not a checkbox after all
 
     form.fields[login_field] = login
     form.fields[password_field] = password
