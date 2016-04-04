@@ -10,6 +10,7 @@ from scrapy.crawler import CrawlerRunner
 from scrapy.utils.log import configure_logging
 from scrapy.exceptions import CloseSpider
 from scrapy.utils.response import get_base_url
+from scrapyjs import SplashRequest
 
 from .app import app, db
 from .login_keychain import get_domain
@@ -22,7 +23,7 @@ SUBMIT_TYPES = {'submit button'}
 DEFAULT_POST_HEADERS = {b'Content-Type': b'application/x-www-form-urlencoded'}
 
 
-settings = Settings(values=dict(
+base_settings = Settings(values=dict(
     TELNETCONSOLE_ENABLED = False,
     ROBOTSTXT_OBEY = False,
     DEPTH_LIMIT = 3,
@@ -33,11 +34,8 @@ settings = Settings(values=dict(
     SCHEDULER_DISK_QUEUE = 'scrapy.squeues.PickleFifoDiskQueue',
     SCHEDULER_MEMORY_QUEUE = 'scrapy.squeues.FifoMemoryQueue',
     CLOSESPIDER_PAGECOUNT = 2000,
+    # DOWNLOADER_MIDDLEWARES are set in crawl_runner
     DOWNLOAD_MAXSIZE = 1*1024*1024,  # 1MB
-    DOWNLOADER_MIDDLEWARES = {
-        'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': None,
-        'autologin.middleware.ExposeCookiesMiddleware': 700,
-    },
     USER_AGENT = (
             'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 '
             '(KHTML, like Gecko) Ubuntu Chromium/43.0.2357.130 '
@@ -45,10 +43,77 @@ settings = Settings(values=dict(
         ),
     ))
 configure_logging({'LOG_FORMAT': '%(levelname)s: %(message)s'})
-crawl_runner = CrawlerRunner(settings)
 
 
-class FormSpider(scrapy.Spider):
+def crawl_runner(splash_url=None):
+    settings = base_settings.copy()
+    if splash_url:
+        settings['SPLASH_URL'] = splash_url
+        settings['DUPEFILTER_CLASS'] = 'scrapyjs.SplashAwareDupeFilter'
+        settings['DOWNLOADER_MIDDLEWARES'] = {
+            'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': None,
+            'scrapyjs.SplashCookiesMiddleware': 723,
+            'scrapyjs.SplashMiddleware': 725,
+            'scrapy.downloadermiddlewares.httpcompression'
+                '.HttpCompressionMiddleware': 810,
+        }
+    else:
+        settings['DOWNLOADER_MIDDLEWARES'] = {
+            'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': None,
+            'autologin.middleware.ExposeCookiesMiddleware': 700,
+        }
+    return CrawlerRunner(settings)
+
+
+class DefaultExecuteSplashRequest(SplashRequest):
+    '''
+    This is a SplashRequest subclass that uses minimal default body
+    for the execute endpoint with support for POST requests and cookies.
+    '''
+    SPLASH_SCRIPT = '''
+    function last_response_headers(splash)
+        local entries = splash:history()
+        local last_entry = entries[#entries]
+        return last_entry.response.headers
+    end
+
+    function main(splash)
+        splash:init_cookies(splash.args.cookies)
+        assert(splash:go{
+            splash.args.url,
+            headers=splash.args.headers,
+            http_method=splash.args.http_method,
+            body=splash.args.body,
+            })
+        assert(splash:wait(0.5))
+
+        return {
+            headers=last_response_headers(splash),
+            cookies=splash:get_cookies(),
+            html=splash:html(),
+        }
+    end
+    '''
+
+    def __init__(self, *args, **kwargs):
+        kwargs['endpoint'] = 'execute'
+        splash_args = kwargs.setdefault('args', {})
+        splash_args['lua_source'] = self.SPLASH_SCRIPT
+        super(DefaultExecuteSplashRequest, self).__init__(*args, **kwargs)
+
+
+class BaseSpider(scrapy.Spider):
+    def __init__(self, use_splash=False, *args, **kwargs):
+        self.request = DefaultExecuteSplashRequest if use_splash else \
+                       scrapy.Request
+        super(BaseSpider, self).__init__(*args, **kwargs)
+
+    def start_requests(self):
+        for url in self.start_urls:
+            yield self.request(url, callback=self.parse)
+
+
+class FormSpider(BaseSpider):
     """
     This spider crawls a website trying to find login and registration forms.
     When a form is found, its URL is saved to the database.
@@ -99,7 +164,7 @@ class FormSpider(scrapy.Spider):
             text = ' '.join([relative_url(link.url), link.text]).lower()
             if any(pattern in text for pattern in self.priority_patterns):
                 priority = 100
-            yield scrapy.Request(link.url, self.parse, priority=priority)
+            yield self.request(link.url, self.parse, priority=priority)
 
     def handle_login_form(self, url):
         self.logger.info('Found login form at %s', url)
@@ -116,7 +181,7 @@ class FormSpider(scrapy.Spider):
             db.session.commit()
 
 
-class LoginSpider(scrapy.Spider):
+class LoginSpider(BaseSpider):
     """ This spider tries to login and returns an item with login cookies. """
     name = 'login'
 
@@ -144,7 +209,7 @@ class LoginSpider(scrapy.Spider):
         self.logger.debug("submit parameters: %s" % params)
         initial_cookies = _cookie_dicts(response) or []
 
-        return scrapy.Request(params['url'], self.parse_login,
+        return self.request(params['url'], self.parse_login,
             method=params['method'],
             headers=params['headers'],
             body=params['body'],
@@ -214,7 +279,10 @@ def login_params(url, login, password, form, meta):
 
 
 def _cookie_dicts(response):
-    cookiejar = get_cookiejar(response)
+    if hasattr(response, 'cookiejar'):  # using splash
+        cookiejar = response.cookiejar
+    else:  # using ExposeCookiesMiddleware
+        cookiejar = get_cookiejar(response)
     if cookiejar is None:
         return None
     return [c.__dict__ for c in cookiejar]

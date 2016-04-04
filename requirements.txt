@@ -1,0 +1,8 @@
+six
+lxml
+Flask
+wtforms
+flask-sqlalchemy
+flask-admin
+scrapy==1.1.0rc3
+-e git+git@github.com:scrapy-plugins/scrapy-splash.git@fa4f287cf2c2524ac1fa201e061e64e5b47d83bf#egg=scrapyjs
