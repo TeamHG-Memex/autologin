@@ -21,11 +21,6 @@ setup(
     install_requires = [
         'six',
         'lxml',
-        'Flask',
-        'wtforms',
-        'flask-sqlalchemy',
-        'flask-admin',
-        'scrapy==1.1.0rc3',
     ],
     scripts = [
         'bin/autologin-server',
