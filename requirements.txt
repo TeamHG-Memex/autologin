@@ -7,4 +7,4 @@ Flask-WTF==0.12
 WTForms==2.1
 scrapy==1.1.0rc3
 formasaurus[with-deps]==0.7.1
--e git+git@github.com:scrapy-plugins/scrapy-splash.git@127e2358203f0cd52518761ea2a891800f0f0ef6#egg=scrapyjs
+git+https://github.com/scrapy-plugins/scrapy-splash.git@127e2358203f0cd52518761ea2a891800f0f0ef6
