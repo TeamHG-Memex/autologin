@@ -13,7 +13,7 @@ from .scrapyutils import scrape_items
 
 
 def return_json(dct):
-    returnValue(json.dumps(dct))
+    returnValue(json.dumps(dct).encode('utf-8'))
 
 
 class Index(Resource):
@@ -28,7 +28,7 @@ class AutologinAPI(Resource):
 
     def render_POST(self, request):
         try:
-            data = json.loads(request.content.read())
+            data = json.loads(request.content.read().decode('utf-8'))
         except (TypeError, ValueError):
             request.setResponseCode(400)
             return b'JSON body expected'
@@ -107,8 +107,8 @@ class AutologinAPI(Resource):
 
 
 root = Resource()
-root.putChild('', Index())
-root.putChild('login-cookies', AutologinAPI())
+root.putChild(b'', Index())
+root.putChild(b'login-cookies', AutologinAPI())
 
 
 def main():
