@@ -16,11 +16,6 @@ You can make use of Autologin without generating http requests,
 so you can drop it right into your spider without worrying about
 impacting rate limits.
 
-Autologin is written in Python and only requires
-lxml and Flask in order to do its thing.
-However if you install Formasaurus (and you should)
-it will use it automatically and performance will improve.
-
 .. contents::
 
 Features
@@ -32,7 +27,8 @@ Features
 * Extract links to login pages
 * Use as a library with or without making http requests
 * Command line client
-* Web service for testing your requests and cookies
+* Web service
+* UI for managing login credentials
 
 
 Quickstart
@@ -63,25 +59,27 @@ You now have a dictionary.
 Installation
 ------------
 
-This is not (yet) registered on PyPi so you must clone the repository
-and use setup.py to build and install::
+This is not (yet) registered on PyPi::
 
-    $ git clone https://github.com/TeamHG-Memex/autologin.git
-    $ cd autologin
-    $ python setup.py build
-    $ python setup.py install
+    $ pip install git+https://github.com/TeamHG-Memex/autologin.git
 
+Autologin depends on
+`Formasaurus <https://github.com/TeamHG-Memex/Formasaurus>`_
+for field and form classification, which has quite a lot of dependencies.
+These packages may require extra steps to install, so the command above
+may fail.
+In this case install dependencies manually, one by one
+(follow their install instructions).
 
 Auth cookies from URL
 ---------------------
 
-This method makes an http request to the URL using urllib,
+This method makes an http request to the URL,
 extracts the login form (if there is one),
 fills the fields and submits the form.
 It then return any cookies it has picked up::
 
     cookies = al.auth_cookies_from_url(url, username, password)
-
 
 Note that it returns all cookies, they may be session cookies rather
 than authenticated cookies.
@@ -97,9 +95,8 @@ It then return any cookies it has picked up::
     cookies = al.auth_cookies_from_html(
         html_source, username, password, base_url=None)
 
-
-The base_url can be used to a form url is returned when
-the form action is empty. Note that it returns all cookies,
+Relative form action will be resolved against the ``base_url``.
+Note that it returns all cookies,
 they may be session cookies rather than authenticated cookies.
 
 
@@ -112,17 +109,8 @@ for your spider to submit. No http requests are made::
 
     cookies = al.login_request(html_source, username, password, base_url=None)
 
-The ``base_url`` can be used to a form url is returned when the form action
-is empty.
+Relative form action will be resolved against the ``base_url``.
 
-
-Extract login links
--------------------
-
-This method extracts any login links that it can find in the Source
-and returns a list::
-
-    cookies = al.extract_login_links(html_source)
 
 Command Line
 ------------
@@ -137,16 +125,40 @@ Command Line
 Web Service
 -----------
 
-::
+You can start the autologin HTTP API with::
+
+    $ autologin-http-api
+
+and use ``/login-cookies`` endpoint. Make a POST request with JSON body.
+The following arguments are supported:
+
+- ``url`` (required): url of the site where we would like to login
+- ``username`` (optional): if not provided, it will be fetched from the
+  login keychain
+- ``password`` (optional): same as ``username``
+- ``splash_url`` (optional): if set, `Splash <splash.readthedocs.org>`_
+  will be used to make all requests. Use it if your cawler also uses
+  splash and the session is tied to IP and User-Agent, or for Tor sites.
+
+If ``username`` and ``password`` are not provided, autologin tries to find
+them in the login keychain. If no matching credentials are found (they are
+matched by domain, not by precise url), then human is expected to eventually
+provide them in the keychain UI, or mark domain as "skipped".
+
+Response is JSON with a ``status`` field with the following possible values:
+
+- ``error`` status means an error occured, ``error`` field has more info
+- ``skipped`` means that domain is maked as "skipped" in keychain UI
+- ``pending`` means there is an item in keychain UI (or it was just created),
+  and no credentials have been entered yet
+- ``solved`` means that cookies were obtained, they are returned in the
+  ``cookies`` field, in ``Cookie.__dict__`` format.
+
+Start keychain UI with::
 
     $ autologin-server
-    * Running on http://127.0.0.1:8088/ (Press CTRL+C to quit)
-    * Restarting with stat
 
-Opening a browser to this URL will show you the AutoLogin UI
-which can be used to test credentials and get a basic understanding
-of how the system works.  API endpoints are also documented here
-if you'd like to use AutoLogin as a service.
+TODO - think about auth here
 
 Contributors
 ------------
