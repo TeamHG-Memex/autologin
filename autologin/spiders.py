@@ -10,7 +10,7 @@ from scrapy.crawler import CrawlerRunner
 from scrapy.utils.log import configure_logging
 from scrapy.exceptions import CloseSpider
 from scrapy.utils.response import get_base_url
-from scrapyjs import SplashRequest
+from scrapy_splash import SplashRequest
 
 from .app import app, db
 from .login_keychain import get_domain
@@ -49,11 +49,11 @@ def crawl_runner(splash_url=None):
     settings = base_settings.copy()
     if splash_url:
         settings['SPLASH_URL'] = splash_url
-        settings['DUPEFILTER_CLASS'] = 'scrapyjs.SplashAwareDupeFilter'
+        settings['DUPEFILTER_CLASS'] = 'scrapy_splash.SplashAwareDupeFilter'
         settings['DOWNLOADER_MIDDLEWARES'] = {
             'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': None,
-            'scrapyjs.SplashCookiesMiddleware': 723,
-            'scrapyjs.SplashMiddleware': 725,
+            'scrapy_splash.SplashCookiesMiddleware': 723,
+            'scrapy_splash.SplashMiddleware': 725,
             'scrapy.downloadermiddlewares.httpcompression'
                 '.HttpCompressionMiddleware': 810,
         }
