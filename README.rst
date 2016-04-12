@@ -85,21 +85,6 @@ Note that it returns all cookies, they may be session cookies rather
 than authenticated cookies.
 
 
-Auth cookies from HTML
-----------------------
-
-This method extracts the login form (if there is one),
-fills the fields and submits the form.
-It then return any cookies it has picked up::
-
-    cookies = al.auth_cookies_from_html(
-        html_source, username, password, base_url=None)
-
-Relative form action will be resolved against the ``base_url``.
-Note that it returns all cookies,
-they may be session cookies rather than authenticated cookies.
-
-
 Login request
 -------------
 
@@ -161,6 +146,7 @@ Start keychain UI with::
     $ autologin-server
 
 TODO - think about auth here
+
 
 Contributors
 ------------

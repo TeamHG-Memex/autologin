@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 import os
-from lxml import html
 import urllib2
 import uuid
 import shutil
 
+from lxml import html
 from flask import render_template
 from flask import request
 from flask import flash
@@ -69,6 +69,7 @@ def download_page(url, cookie_jar):
     delete_directory_files(browser_dir)
     filename = '{}.html'.format(uuid.uuid4())
     filepath = os.path.join(browser_dir, filename)
+    # TODO - py3 compat, see also autologin
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie_jar))
     req = urllib2.Request(url, headers=headers)
     try:
@@ -108,20 +109,17 @@ def index():
         msg += '{} '.format(form.url.data)
         msg += 'with username={} and '.format(form.username.data)
         msg += 'password={}'.format(form.password.data)
-        # Grab html for login page
-        html_source = auto_login.get_html(form.url.data)
         # Attempt login
-        login_cookie_jar = auto_login.auth_cookies_from_html(
-            html_source=html_source,
+        login_cookie_jar = auto_login.auth_cookies_from_url(
+            form.url.data,
             username=form.username.data,
             password=form.password.data,
-            base_url=form.url.data
         )
         # If we've extracted some cookies,
         # use them to request a page and download html source
         # for viewing in browser,
         if login_cookie_jar is not None:
-            download = download_page(form.url.data, auto_login.cookie_jar)
+            download = download_page(form.url.data, login_cookie_jar)
             login_cookies = login_cookie_jar.__dict__
             if download[0] != 'ok':
                 flash(download, 'danger')
@@ -130,11 +128,6 @@ def index():
                 filename = download[1]
         else:
             flash('No login form found', 'danger')
-            login_links = auto_login.extract_login_links(html_source)
-            if len(login_links) > 0:
-                flash('{} login links found'.format(len(login_links)), 'success')
-            else:
-                flash('No login links found', 'danger')
     else:
         flash_errors(form)
     return render_template(
