@@ -45,7 +45,7 @@ base_settings = Settings(values=dict(
 configure_logging({'LOG_FORMAT': '%(levelname)s: %(message)s'})
 
 
-def crawl_runner(splash_url=None):
+def crawl_runner(splash_url=None, extra_settings=None):
     settings = base_settings.copy()
     if splash_url:
         settings['SPLASH_URL'] = splash_url
@@ -62,6 +62,8 @@ def crawl_runner(splash_url=None):
             'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': None,
             'autologin.middleware.ExposeCookiesMiddleware': 700,
         }
+    if extra_settings is not None:
+        settings.update(extra_settings, priority="cmdline")
     return CrawlerRunner(settings)
 
 
@@ -106,12 +108,14 @@ class DefaultExecuteSplashRequest(SplashRequest):
 
 
 class BaseSpider(scrapy.Spider):
-    def __init__(self, use_splash=False, *args, **kwargs):
-        self.request = DefaultExecuteSplashRequest if use_splash else \
-                       scrapy.Request
-        super(BaseSpider, self).__init__(*args, **kwargs)
-
+    """
+    Base spider. It uses Splash for requests if SPLASH_URL is not None or empty.
+    """
     def start_requests(self):
+        if self.settings.get('SPLASH_URL'):
+            self.request = DefaultExecuteSplashRequest
+        else:
+            self.request = scrapy.Request
         for url in self.start_urls:
             yield self.request(url, callback=self.parse)
 

@@ -139,6 +139,8 @@ The following arguments are supported:
 - ``splash_url`` (optional): if set, `Splash <splash.readthedocs.org>`_
   will be used to make all requests. Use it if your cawler also uses
   splash and the session is tied to IP and User-Agent, or for Tor sites.
+- ``settings`` (optional) - a dictionary with Scrapy settings to override.
+  Use it e.g. to set a custom User-Agent with scrapy USER_AGENT option.
 
 If ``username`` and ``password`` are not provided, autologin tries to find
 them in the login keychain. If no matching credentials are found (they are

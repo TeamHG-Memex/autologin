@@ -47,6 +47,7 @@ class AutologinAPI(Resource):
             username=data.get('username'),
             password=data.get('password'),
             splash_url=data.get('splash_url'),
+            settings=data.get('settings'),
         )
 
         if not isinstance(result, bytes):
@@ -59,17 +60,17 @@ class AutologinAPI(Resource):
 
     @inlineCallbacks
     def _handle_request(self, url,
-                        username=None, password=None, splash_url=None):
+                        username=None, password=None, splash_url=None,
+                        settings=None):
+        runner = crawl_runner(splash_url=splash_url, extra_settings=settings)
         if username is None and password is None:
             with app.app_context():
                 credentials = KeychainItem.get_credentials(url)
 
                 if not credentials:
-                    item = KeychainItem.add_task(url)
-                    if item:
-                        runner = crawl_runner(splash_url=splash_url)
-                        runner.crawl(FormSpider, url, item,
-                                     use_splash=bool(splash_url))
+                    credentials = KeychainItem.add_task(url)
+                    if credentials:
+                        runner.crawl(FormSpider, url, credentials)
                     return_json({'status': 'pending'})
                 elif credentials.skip:
                     return_json({'status': 'skipped'})
@@ -82,7 +83,7 @@ class AutologinAPI(Resource):
         else:
             login_url = url
 
-        item = yield self._login(login_url, username, password, splash_url)
+        item = yield self._login(runner, login_url, username, password)
         if item is None:
             return_json({'status': 'error', 'error': 'unknown'})
         elif not item['ok']:
@@ -95,13 +96,12 @@ class AutologinAPI(Resource):
         })
 
     @inlineCallbacks
-    def _login(self, login_url, username, password, splash_url):
-        async_items = scrape_items(crawl_runner(splash_url=splash_url),
+    def _login(self, runner, login_url, username, password):
+        async_items = scrape_items(runner,
                                    LoginSpider,
                                    url=login_url,
                                    username=username,
-                                   password=password,
-                                   use_splash=bool(splash_url))
+                                   password=password)
         while (yield async_items.fetch_next):
             returnValue(async_items.next_item())
 
