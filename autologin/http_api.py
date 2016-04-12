@@ -99,7 +99,7 @@ class AutologinAPI(Resource):
         async_items = scrape_items(crawl_runner(splash_url=splash_url),
                                    LoginSpider,
                                    url=login_url,
-                                   login=username,
+                                   username=username,
                                    password=password,
                                    use_splash=bool(splash_url))
         while (yield async_items.fetch_next):

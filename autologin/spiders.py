@@ -3,7 +3,6 @@ from six.moves.urllib.parse import urlsplit, urlunsplit, urlencode, urljoin
 
 import formasaurus
 import scrapy
-from autologin.middleware import get_cookiejar
 from scrapy.linkextractors import LinkExtractor
 from scrapy.settings import Settings
 from scrapy.crawler import CrawlerRunner
@@ -12,11 +11,12 @@ from scrapy.exceptions import CloseSpider
 from scrapy.utils.response import get_base_url
 from scrapy_splash import SplashRequest
 
+from .middleware import get_cookiejar
 from .app import app, db
 from .login_keychain import get_domain
 
 
-LOGIN_FIELD_TYPES = {'username', 'email', 'username or email'}
+USERNAME_FIELD_TYPES = {'username', 'email', 'username or email'}
 CHECK_CHECKBOXES = {'remember me checkbox'}
 PASSWORD_FIELD_TYPES = {'password'}
 SUBMIT_TYPES = {'submit button'}
@@ -188,9 +188,9 @@ class LoginSpider(BaseSpider):
     """ This spider tries to login and returns an item with login cookies. """
     name = 'login'
 
-    def __init__(self, url, login, password, *args, **kwargs):
+    def __init__(self, url, username, password, *args, **kwargs):
         self.start_urls = [url]
-        self.login = login
+        self.username = username
         self.password = password
         super(LoginSpider, self).__init__(*args, **kwargs)
 
@@ -204,7 +204,7 @@ class LoginSpider(BaseSpider):
 
         params = login_params(
             url=get_base_url(response),
-            login=self.login,
+            username=self.username,
             password=self.password,
             form=form,
             meta=meta
@@ -240,21 +240,21 @@ def relative_url(url):
     return urlunsplit(('', '') + parts[2:])
 
 
-def login_params(url, login, password, form, meta):
+def login_params(url, username, password, form, meta):
     """
     Return ``{'url': url, 'method': method, 'body': body}``
     with all required information for submitting a login form.
     """
     fields = list(meta['fields'].items())
 
-    login_field = password_field = None
+    username_field = password_field = None
     for field_name, field_type in fields:
-        if field_type in LOGIN_FIELD_TYPES:
-            login_field = field_name
+        if field_type in USERNAME_FIELD_TYPES:
+            username_field = field_name
         elif field_type in PASSWORD_FIELD_TYPES:
             password_field = field_name
 
-    if login_field is None or password_field is None:
+    if username_field is None or password_field is None:
         return
 
     for field_name, field_type in fields:
@@ -264,7 +264,7 @@ def login_params(url, login, password, form, meta):
             except ValueError:
                 pass  # This could be not a checkbox after all
 
-    form.fields[login_field] = login
+    form.fields[username_field] = username
     form.fields[password_field] = password
 
     submit_values = form.form_values()
