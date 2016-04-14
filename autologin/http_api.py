@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 import json
+import logging
 
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks, returnValue
@@ -11,8 +12,11 @@ from .login_keychain import KeychainItem
 from .spiders import FormSpider, LoginSpider, crawl_runner
 from .scrapyutils import scrape_items
 
+logger = logging.getLogger(__name__)
+
 
 def return_json(dct):
+    logger.info("Result: %s" % dct)
     returnValue(json.dumps(dct).encode('utf-8'))
 
 
@@ -37,6 +41,7 @@ class AutologinAPI(Resource):
             request.setResponseCode(400)
             return b'Missing required field "url"'
 
+        logger.info("Login request: %s" % data)
         self._render_POST(request, data)
         return NOT_DONE_YET
 
