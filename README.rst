@@ -1,7 +1,16 @@
 Autologin: Automatic login for web spiders
 ==========================================
 
-AutoLogin is a utility that makes it easier for web spiders to
+.. image:: https://img.shields.io/travis/TeamHG-Memex/autologin/prepare-merge.svg
+   :target: http://travis-ci.org/TeamHG-Memex/autologin
+   :alt: Build Status
+
+.. image:: https://codecov.io/github/TeamHG-Memex/autologin/coverage.svg?branch=prepare-merge
+   :target: https://codecov.io/github/TeamHG-Memex/autologin?branch=prepare-merge
+   :alt: Code Coverage
+
+
+AutoLogin is a library that makes it easier for web spiders to
 **crawl websites that require login**.
 Provide it with credentials and a URL or the html source of a page
 (normally the homepage), and it will attempt to login for you.

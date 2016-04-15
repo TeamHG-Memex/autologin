@@ -6,5 +6,8 @@ venv/
 build/
 dist/
 autologin.egg-info/
-
-
+.tox
+.idea
+htmlcov
+.coverage
+.cache

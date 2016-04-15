@@ -21,6 +21,15 @@ setup(
     install_requires = [
         'six',
         'lxml',
+        'Flask==0.10.1',
+        'Flask-Admin==1.4.0',
+        'Flask-SQLAlchemy==2.1',
+        'Flask-WTF==0.12',
+        'WTForms==2.1',
+        'scrapy==1.1.0rc3',
+        'formasaurus[with-deps]==0.7.1',
+        'scrapy-splash==0.4',
+        'crochet',
     ],
     entry_points = {
         'console_scripts': [
