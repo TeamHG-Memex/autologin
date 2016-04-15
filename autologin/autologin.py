@@ -2,14 +2,23 @@
 from __future__ import absolute_import, print_function
 import argparse, pprint, webbrowser
 
-from scrapy.crawler import CrawlerProcess
+import crochet
 
-from .spiders import LoginSpider, get_login_form, login_params, get_settings, \
+from .spiders import LoginSpider, get_login_form, login_params, crawl_runner, \
     USER_AGENT
+from .scrapyutils import scrape_items
+
+
+__all__ = ['AutoLoginException', 'AutoLogin']
+
+
+class AutoLoginException(Exception):
+    pass
 
 
 class AutoLogin(object):
-    def auth_cookies_from_url(self, url, username, password, splash_url=None):
+    def auth_cookies_from_url(self, url, username, password, splash_url=None,
+                              extra_settings=None):
         """
         Fetch page, find login form, try to login and return cookies.
         This call is blocking, and we assume that Twisted reactor is not used
@@ -17,16 +26,22 @@ class AutoLogin(object):
         Non-blocking interface is also possible:
         see http_api.AutologinAPI._login.
         """
-        crawler_process = CrawlerProcess(
-            get_settings(splash_url=splash_url))
-        crawler_process.crawl(
-            LoginSpider,
-            url=url,
-            username=username,
-            password=password,
-            use_splash=bool(splash_url))
-        crawler_process.start()
-        # TODO - get items (maybe using scrape_items)
+        crochet.setup()
+        @crochet.wait_for(timeout=None)
+        def inner():
+            runner = crawl_runner(
+                splash_url=splash_url, extra_settings=extra_settings)
+            items = scrape_items(
+                runner, LoginSpider,
+                url=url, username=username, password=password)
+            d = items.fetch_next
+            d.addCallback(lambda result: items.next_item() if result else
+                                         {'ok': False, 'error': 'nologinform'})
+            return d
+        result = inner()
+        if not result['ok']:
+            raise AutoLoginException(result.get('error'))
+        return result['cookies']
 
     def login_request(
             self, html_source, username, password, base_url=None):

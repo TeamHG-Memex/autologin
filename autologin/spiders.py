@@ -46,7 +46,7 @@ base_settings = Settings(values=dict(
 configure_logging({'LOG_FORMAT': '%(levelname)s: %(message)s'})
 
 
-def get_settings(splash_url=None, extra_settings=None):
+def crawl_runner(splash_url=None, extra_settings=None):
     settings = base_settings.copy()
     if splash_url:
         settings['SPLASH_URL'] = splash_url
@@ -65,11 +65,7 @@ def get_settings(splash_url=None, extra_settings=None):
         }
     if extra_settings is not None:
         settings.update(extra_settings, priority="cmdline")
-    return settings
-
-
-def crawl_runner(**kwargs):
-    return CrawlerRunner(get_settings(**kwargs))
+    return CrawlerRunner(settings)
 
 
 class DefaultExecuteSplashRequest(SplashRequest):
@@ -219,7 +215,7 @@ class LoginSpider(BaseSpider):
             meta=meta,
         )
         self.logger.debug("submit parameters: %s" % params)
-        initial_cookies = _cookie_dicts(response) or []
+        initial_cookies = cookie_dicts(_response_cookies(response)) or []
 
         return self.request(params['url'], self.parse_login,
             method=params['method'],
@@ -230,10 +226,10 @@ class LoginSpider(BaseSpider):
         )
 
     def parse_login(self, response):
-        cookies = _cookie_dicts(response) or []
+        cookies = _response_cookies(response) or []
 
         old_cookies = set(_cookie_tuples(response.meta['initial_cookies']))
-        new_cookies = set(_cookie_tuples(cookies))
+        new_cookies = set(_cookie_tuples(cookie_dicts(cookies)))
 
         if new_cookies <= old_cookies:  # no new or changed cookies
             return {'ok': False, 'error': 'badauth'}
@@ -292,14 +288,17 @@ def login_params(url, username, password, form, meta):
     )
 
 
-def _cookie_dicts(response):
-    if hasattr(response, 'cookiejar'):  # using splash
-        cookiejar = response.cookiejar
-    else:  # using ExposeCookiesMiddleware
-        cookiejar = get_cookiejar(response)
+def cookie_dicts(cookiejar):
     if cookiejar is None:
         return None
     return [c.__dict__ for c in cookiejar]
+
+
+def _response_cookies(response):
+    if hasattr(response, 'cookiejar'):  # using splash
+        return response.cookiejar
+    else:  # using ExposeCookiesMiddleware
+        return get_cookiejar(response)
 
 
 def _cookie_tuples(cookie_dicts):
