@@ -22,11 +22,13 @@ setup(
         'six',
         'lxml',
     ],
-    scripts = [
-        'bin/autologin-server',
-        'bin/autologin-http-api',
-        'bin/autologin',
-    ],
+    entry_points = {
+        'console_scripts': [
+            'autologin = autologin.autologin:main',
+            'autologin-server = autologin.server:main',
+            'autologin-http-api = autologin.http_api:main',
+        ]
+    },
     long_description=read('README.rst'),
     classifiers=[
         "Development Status :: 3 - Alpha",
