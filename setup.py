@@ -1,10 +1,12 @@
 import os
 from setuptools import setup
 
+
 # Utility function to read the README file
 # Easier than line wrapping a long string...
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 
 setup(
     name = "autologin",
@@ -30,6 +32,7 @@ setup(
         'formasaurus[with-deps]==0.7.1',
         'scrapy-splash==0.4',
         'crochet',
+        'requests',
     ],
     entry_points = {
         'console_scripts': [
@@ -40,8 +43,15 @@ setup(
     },
     long_description=read('README.rst'),
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Topic :: Web scraping, Utilities",
-        "License :: OSI Approved :: BSD License",
+        'Development Status :: 3 - Alpha',
+        'Topic :: Web scraping, Utilities',
+        'License :: OSI Approved :: BSD License',
+                'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
     ],
 )

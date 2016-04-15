@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function
 import argparse, pprint, webbrowser
 
 import crochet
+import requests
 
 from .spiders import LoginSpider, get_login_form, login_params, crawl_runner, \
     USER_AGENT
@@ -25,6 +26,7 @@ class AutoLogin(object):
         If it is used, for example in a scrapy spider, use HTTP API.
         Non-blocking interface is also possible:
         see http_api.AutologinAPI._login.
+        :return: cookie jar, or raise an AutoLoginException with reason.
         """
         crochet.setup()
         @crochet.wait_for(timeout=None)
@@ -68,6 +70,14 @@ def show_in_browser(url, cookie_jar):
     Get html source, save in /tmp/ directory,
     then show in browser using webbrowser.
     """
+    response = cookie_request(url, cookie_jar)
+    filename = '/tmp/autologin_show_in_browser.html'
+    with open(filename, 'w+') as f:
+        f.write(response.text)
+    webbrowser.open(filename, new=2)
+
+
+def cookie_request(url, cookie_jar):
     headers = {
         'User-Agent': USER_AGENT,
         'Accept': (
@@ -76,16 +86,8 @@ def show_in_browser(url, cookie_jar):
         ),
         'Accept-Language': 'en',
     }
-    # TODO - py3 compat
-    import urllib2
-    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie_jar))
-    req = urllib2.Request(url, headers=headers)
-    response = opener.open(req, timeout=10)
-    html_source = response.read()
-    filename = '/tmp/autologin_show_in_browser.html'
-    with open(filename, 'w+') as f:
-        f.write(html_source)
-    webbrowser.open(filename, new=2)
+    cookies = {c.name: c.value for c in cookie_jar}
+    return requests.get(url, headers=headers, cookies=cookies)
 
 
 def main():

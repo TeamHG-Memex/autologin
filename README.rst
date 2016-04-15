@@ -25,6 +25,8 @@ You can make use of Autologin without generating http requests,
 so you can drop it right into your spider without worrying about
 impacting rate limits.
 
+Autologin works on Python 2.7 and 3.3+.
+
 .. contents::
 
 Features
