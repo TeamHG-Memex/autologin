@@ -21,7 +21,6 @@ class WebTest(unittest.TestCase):
                 url=url + '?foo=', username='admin', password='secret')
             yield render(view, request)
             result = api_result(request)
-            print(result)
             assert result['status'] == 'solved'
             assert result['start_url'] == 'http://localhost:8781/'
             assert {c['name']: c['value'] for c in result['cookies']} == \

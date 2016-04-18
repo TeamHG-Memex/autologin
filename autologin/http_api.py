@@ -89,6 +89,7 @@ class AutologinAPI(Resource):
             login_url = url
 
         item = yield self._login(runner, login_url, username, password)
+        yield runner.join()
         if item is None:
             return_json({'status': 'error', 'error': 'unknown'})
         elif not item['ok']:

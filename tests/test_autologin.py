@@ -28,6 +28,9 @@ def test_login_request():
         'url': '/login/'}
 
 
+# This should be run last as it uses crochet, and normal scrapy spider
+# is not finalized correctly after a call to crochet.setup.
+@pytest.mark.last
 def test_auth_cookies_from_url():
     al = AutoLogin()
     url = 'http://localhost:{}'.format(PORT)
