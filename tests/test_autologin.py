@@ -35,11 +35,17 @@ def test_auth_cookies_from_url():
     al = AutoLogin()
     url = 'http://localhost:{}'.format(PORT)
     with MockServer():
+        # no login form
         with pytest.raises(AutoLoginException) as e:
             al.auth_cookies_from_url(url + '?hide=', 'admin', 'secret')
         assert e.value.args[0] == 'nologinform'
+        # wrong password
         with pytest.raises(AutoLoginException) as e:
             al.auth_cookies_from_url(url + '?foo=', 'admin', 'wrong')
         assert e.value.args[0] == 'badauth'
+        # normal auth
         cookies = al.auth_cookies_from_url(url + '?foo=', 'admin', 'secret')
+        assert {c.name: c.value for c in cookies} == {'_auth': 'yes'}
+        # redirect to the same URL
+        cookies = al.auth_cookies_from_url(url, 'admin', 'secret')
         assert {c.name: c.value for c in cookies} == {'_auth': 'yes'}
