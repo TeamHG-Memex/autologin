@@ -22,8 +22,8 @@ class AutoLogin(object):
                               extra_settings=None):
         """
         Fetch page, find login form, try to login and return cookies.
-        This call is blocking, and we assume that Twisted reactor is not used
-        If it is used, for example in a scrapy spider, use HTTP API.
+        This call is blocking, and we assume that Twisted reactor is not used.
+        If it is used, for example in a scrapy spider, use the HTTP API.
         Non-blocking interface is also possible:
         see http_api.AutologinAPI._login.
         :return: cookie jar, or raise an AutoLoginException with reason.

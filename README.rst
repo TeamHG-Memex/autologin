@@ -95,6 +95,12 @@ It then return any cookies it has picked up::
 Note that it returns all cookies, they may be session cookies rather
 than authenticated cookies.
 
+This call is blocking, and uses Crhochet to run the Twisted reactor
+and a Scrapy spider in a separate thread.
+If you have a Scrapy spider (or use Twisted in some other way),
+use the HTTP API, or the non-blocking API (it's not documented,
+see ``http_api.AutologinAPI._login``).
+
 
 Login request
 -------------
@@ -122,8 +128,8 @@ Command Line
                      username password url
 
 
-Web Service
------------
+HTTP API
+--------
 
 You can start the autologin HTTP API with::
 
@@ -156,11 +162,16 @@ Response is JSON with a ``status`` field with the following possible values:
 - ``solved`` means that cookies were obtained, they are returned in the
   ``cookies`` field, in ``Cookie.__dict__`` format.
 
+
+Keychain UI
+-----------
+
 Start keychain UI with::
 
     $ autologin-server
 
-Note that UI and autologin-server are not protected by any authentication.
+Note that both ``autologin-server`` and ``autologin-http-api``
+are not protected by any authentication.
 
 
 Contributors
