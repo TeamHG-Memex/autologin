@@ -38,7 +38,7 @@ class AutoLogin(object):
                 url=url, username=username, password=password)
             d = items.fetch_next
             d.addCallback(lambda result: items.next_item() if result else
-                                         {'ok': False, 'error': 'nologinform'})
+                                         {'ok': False, 'error': 'noresult'})
             return d
         result = inner()
         if not result['ok']:

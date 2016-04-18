@@ -1,4 +1,7 @@
-from autologin import AutoLogin
+import pytest
+
+from autologin import AutoLogin, AutoLoginException
+from tests.mockserver import MockServer, PORT
 
 
 def test_login_request():
@@ -23,3 +26,17 @@ def test_login_request():
         'headers': {b'Content-Type': b'application/x-www-form-urlencoded'},
         'method': 'POST',
         'url': '/login/'}
+
+
+def test_auth_cookies_from_url():
+    al = AutoLogin()
+    url = 'http://localhost:{}'.format(PORT)
+    with MockServer():
+        with pytest.raises(AutoLoginException) as e:
+            al.auth_cookies_from_url(url + '?hide=', 'admin', 'secret')
+        assert e.value.message == 'nologinform'
+        with pytest.raises(AutoLoginException) as e:
+            al.auth_cookies_from_url(url + '?foo', 'admin', 'wrong')
+        assert e.value.message == 'badauth'
+        cookies = al.auth_cookies_from_url(url + '?foo', 'admin', 'secret')
+        assert {c.name: c.value for c in cookies} == {'_auth': 'yes'}
