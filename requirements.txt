@@ -6,9 +6,7 @@ Flask-SQLAlchemy==2.1
 Flask-WTF==0.12
 WTForms==2.1
 scrapy==1.1.0rc3
-sklearn
-sklearn-crfsuite
-formasaurus[with-deps]==0.7.1
+formasaurus[with-deps]==0.7.2
 scrapy-splash==0.4
 crochet
 requests
