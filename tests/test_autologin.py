@@ -34,9 +34,9 @@ def test_auth_cookies_from_url():
     with MockServer():
         with pytest.raises(AutoLoginException) as e:
             al.auth_cookies_from_url(url + '?hide=', 'admin', 'secret')
-        assert e.value.message == 'nologinform'
+        assert e.value.args[0] == 'nologinform'
         with pytest.raises(AutoLoginException) as e:
-            al.auth_cookies_from_url(url + '?foo', 'admin', 'wrong')
-        assert e.value.message == 'badauth'
-        cookies = al.auth_cookies_from_url(url + '?foo', 'admin', 'secret')
+            al.auth_cookies_from_url(url + '?foo=', 'admin', 'wrong')
+        assert e.value.args[0] == 'badauth'
+        cookies = al.auth_cookies_from_url(url + '?foo=', 'admin', 'secret')
         assert {c.name: c.value for c in cookies} == {'_auth': 'yes'}
