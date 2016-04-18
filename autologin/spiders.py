@@ -221,6 +221,7 @@ class LoginSpider(BaseSpider):
             headers=params['headers'],
             body=params['body'],
             meta={'initial_cookies': initial_cookies},
+            dont_filter=True,
         )
 
     def parse_login(self, response):
