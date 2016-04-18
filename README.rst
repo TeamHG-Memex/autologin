@@ -103,7 +103,11 @@ This method extracts the login form (if there is one),
 fills the fields and returns a dictionary with the form url and args
 for your spider to submit. No http requests are made::
 
-    cookies = al.login_request(html_source, username, password, base_url=None)
+    >>> cookies = al.login_request(html_source, username, password, base_url=None)
+    {'body': 'login=admin&password=secret',
+     'headers': {b'Content-Type': b'application/x-www-form-urlencoded'},
+     'method': 'POST',
+     'url': '/login'}
 
 Relative form action will be resolved against the ``base_url``.
 
@@ -156,7 +160,7 @@ Start keychain UI with::
 
     $ autologin-server
 
-TODO - think about auth here
+Note that UI and autologin-server are not protected by any authentication.
 
 
 Contributors
@@ -164,6 +168,7 @@ Contributors
 
 Source code and bug tracker are on github:
 https://github.com/TeamHG-Memex/autologin.
+
 
 License
 -------
