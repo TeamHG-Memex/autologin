@@ -5,7 +5,6 @@ import shutil
 
 from lxml import html
 from flask import render_template
-from flask import request
 from flask import flash
 import flask_admin
 import requests
@@ -15,11 +14,6 @@ from .forms import LoginForm
 from .app import app, db, server_path
 from .login_keychain import KeychainItemAdmin, KeychainItem
 from .autologin import cookie_request, AutoLoginException
-
-
-# Add the admin
-admin = flask_admin.Admin(app, template_mode='bootstrap3')
-admin.add_view(KeychainItemAdmin(KeychainItem, db.session))
 
 
 def flash_errors(form):
@@ -81,6 +75,7 @@ def index():
     saves the source and allows you to view in browser.
     Useful for checking whether login was successful.
     """
+    from flask import request
     form = LoginForm(request.form)
     auto_login = AutoLogin()
     login_cookies = None
@@ -128,5 +123,9 @@ def main():
     parser.add_argument('--port', type=int, default=8088)
     parser.add_argument('--debug', action='store_true')
     args = parser.parse_args()
+
     db.create_all()
+    admin = flask_admin.Admin(app, template_mode='bootstrap3')
+    admin.add_view(KeychainItemAdmin(KeychainItem, db.session))
+
     app.run(args.host, args.port, debug=args.debug, threaded=True)
