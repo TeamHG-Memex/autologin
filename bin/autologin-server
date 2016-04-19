@@ -1,2 +1,0 @@
-from autologin.server import main
-main()

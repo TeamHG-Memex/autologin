@@ -1,7 +1,16 @@
 Autologin: Automatic login for web spiders
 ==========================================
 
-AutoLogin is a utility that makes it easier for web spiders to
+.. image:: https://img.shields.io/travis/TeamHG-Memex/autologin/prepare-merge.svg
+   :target: http://travis-ci.org/TeamHG-Memex/autologin
+   :alt: Build Status
+
+.. image:: https://codecov.io/github/TeamHG-Memex/autologin/coverage.svg?branch=prepare-merge
+   :target: https://codecov.io/github/TeamHG-Memex/autologin?branch=prepare-merge
+   :alt: Code Coverage
+
+
+AutoLogin is a library that makes it easier for web spiders to
 **crawl websites that require login**.
 Provide it with credentials and a URL or the html source of a page
 (normally the homepage), and it will attempt to login for you.
@@ -15,6 +24,8 @@ Autologin can be used as a library, on the command line, or as a service.
 You can make use of Autologin without generating http requests,
 so you can drop it right into your spider without worrying about
 impacting rate limits.
+
+Autologin works on Python 2.7 and 3.3+.
 
 .. contents::
 
@@ -84,20 +95,11 @@ It then return any cookies it has picked up::
 Note that it returns all cookies, they may be session cookies rather
 than authenticated cookies.
 
-
-Auth cookies from HTML
-----------------------
-
-This method extracts the login form (if there is one),
-fills the fields and submits the form.
-It then return any cookies it has picked up::
-
-    cookies = al.auth_cookies_from_html(
-        html_source, username, password, base_url=None)
-
-Relative form action will be resolved against the ``base_url``.
-Note that it returns all cookies,
-they may be session cookies rather than authenticated cookies.
+This call is blocking, and uses Crhochet to run the Twisted reactor
+and a Scrapy spider in a separate thread.
+If you have a Scrapy spider (or use Twisted in some other way),
+use the HTTP API, or the non-blocking API (it's not documented,
+see ``http_api.AutologinAPI._login``).
 
 
 Login request
@@ -107,7 +109,11 @@ This method extracts the login form (if there is one),
 fills the fields and returns a dictionary with the form url and args
 for your spider to submit. No http requests are made::
 
-    cookies = al.login_request(html_source, username, password, base_url=None)
+    >>> cookies = al.login_request(html_source, username, password, base_url=None)
+    {'body': 'login=admin&password=secret',
+     'headers': {b'Content-Type': b'application/x-www-form-urlencoded'},
+     'method': 'POST',
+     'url': '/login'}
 
 Relative form action will be resolved against the ``base_url``.
 
@@ -122,8 +128,8 @@ Command Line
                      username password url
 
 
-Web Service
------------
+HTTP API
+--------
 
 You can start the autologin HTTP API with::
 
@@ -156,17 +162,24 @@ Response is JSON with a ``status`` field with the following possible values:
 - ``solved`` means that cookies were obtained, they are returned in the
   ``cookies`` field, in ``Cookie.__dict__`` format.
 
+
+Keychain UI
+-----------
+
 Start keychain UI with::
 
     $ autologin-server
 
-TODO - think about auth here
+Note that both ``autologin-server`` and ``autologin-http-api``
+are not protected by any authentication.
+
 
 Contributors
 ------------
 
 Source code and bug tracker are on github:
 https://github.com/TeamHG-Memex/autologin.
+
 
 License
 -------

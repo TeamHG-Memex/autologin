@@ -22,6 +22,11 @@ PASSWORD_FIELD_TYPES = {'password'}
 SUBMIT_TYPES = {'submit button'}
 DEFAULT_POST_HEADERS = {b'Content-Type': b'application/x-www-form-urlencoded'}
 
+USER_AGENT = (
+    'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 '
+    '(KHTML, like Gecko) Ubuntu Chromium/43.0.2357.130 '
+    'Chrome/43.0.2357.130 Safari/537.36'
+)
 
 base_settings = Settings(values=dict(
     TELNETCONSOLE_ENABLED = False,
@@ -34,13 +39,9 @@ base_settings = Settings(values=dict(
     SCHEDULER_DISK_QUEUE = 'scrapy.squeues.PickleFifoDiskQueue',
     SCHEDULER_MEMORY_QUEUE = 'scrapy.squeues.FifoMemoryQueue',
     CLOSESPIDER_PAGECOUNT = 2000,
-    # DOWNLOADER_MIDDLEWARES are set in crawl_runner
+    # DOWNLOADER_MIDDLEWARES are set in get_settings
     DOWNLOAD_MAXSIZE = 1*1024*1024,  # 1MB
-    USER_AGENT = (
-            'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 '
-            '(KHTML, like Gecko) Ubuntu Chromium/43.0.2357.130 '
-            'Chrome/43.0.2357.130 Safari/537.36'
-        ),
+    USER_AGENT = USER_AGENT,
     ))
 configure_logging({'LOG_FORMAT': '%(levelname)s: %(message)s'})
 
@@ -199,7 +200,7 @@ class LoginSpider(BaseSpider):
         super(LoginSpider, self).__init__(*args, **kwargs)
 
     def parse(self, response):
-        forminfo = self._get_login_form(response)
+        forminfo = get_login_form(response.text)
         if forminfo is None:
             return {'ok': False, 'error': 'nologinform'}
 
@@ -211,10 +212,10 @@ class LoginSpider(BaseSpider):
             username=self.username,
             password=self.password,
             form=form,
-            meta=meta
+            meta=meta,
         )
         self.logger.debug("submit parameters: %s" % params)
-        initial_cookies = _cookie_dicts(response) or []
+        initial_cookies = cookie_dicts(_response_cookies(response)) or []
 
         return self.request(params['url'], self.parse_login,
             method=params['method'],
@@ -225,19 +226,20 @@ class LoginSpider(BaseSpider):
         )
 
     def parse_login(self, response):
-        cookies = _cookie_dicts(response) or []
+        cookies = _response_cookies(response) or []
 
         old_cookies = set(_cookie_tuples(response.meta['initial_cookies']))
-        new_cookies = set(_cookie_tuples(cookies))
+        new_cookies = set(_cookie_tuples(cookie_dicts(cookies)))
 
         if new_cookies <= old_cookies:  # no new or changed cookies
             return {'ok': False, 'error': 'badauth'}
         return {'ok': True, 'cookies': cookies, 'start_url': response.url}
 
-    def _get_login_form(self, response):
-        for form, meta in formasaurus.extract_forms(response.text):
-            if meta['form'] == 'login':
-                return form, meta
+
+def get_login_form(html_source):
+    for form, meta in formasaurus.extract_forms(html_source):
+        if meta['form'] == 'login':
+            return form, meta
 
 
 def relative_url(url):
@@ -279,21 +281,24 @@ def login_params(url, username, password, form, meta):
             submit_values.append((field_name, form.fields[field_name]))
 
     return dict(
-        url=urljoin(url, form.action),
+        url=form.action if url is None else urljoin(url, form.action),
         method=form.method,
         headers=DEFAULT_POST_HEADERS.copy() if form.method == 'POST' else {},
         body=urlencode(submit_values),
     )
 
 
-def _cookie_dicts(response):
-    if hasattr(response, 'cookiejar'):  # using splash
-        cookiejar = response.cookiejar
-    else:  # using ExposeCookiesMiddleware
-        cookiejar = get_cookiejar(response)
+def cookie_dicts(cookiejar):
     if cookiejar is None:
         return None
     return [c.__dict__ for c in cookiejar]
+
+
+def _response_cookies(response):
+    if hasattr(response, 'cookiejar'):  # using splash
+        return response.cookiejar
+    else:  # using ExposeCookiesMiddleware
+        return get_cookiejar(response)
 
 
 def _cookie_tuples(cookie_dicts):

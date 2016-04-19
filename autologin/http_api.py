@@ -9,7 +9,7 @@ from twisted.web.resource import Resource
 
 from .app import app, db
 from .login_keychain import KeychainItem
-from .spiders import FormSpider, LoginSpider, crawl_runner
+from .spiders import FormSpider, LoginSpider, crawl_runner, cookie_dicts
 from .scrapyutils import scrape_items
 
 logger = logging.getLogger(__name__)
@@ -89,6 +89,7 @@ class AutologinAPI(Resource):
             login_url = url
 
         item = yield self._login(runner, login_url, username, password)
+        yield runner.join()
         if item is None:
             return_json({'status': 'error', 'error': 'unknown'})
         elif not item['ok']:
@@ -96,7 +97,7 @@ class AutologinAPI(Resource):
 
         return_json({
             'status': 'solved',
-            'cookies': item['cookies'],
+            'cookies': cookie_dicts(item['cookies']),
             'start_url': item['start_url']
         })
 
