@@ -4,7 +4,7 @@ sudo: false
 
 branches:
     only:
-        - prepare-merge
+        - crawler-integration
         - /^\d\.\d+$/
 
 install:

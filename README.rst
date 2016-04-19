@@ -1,12 +1,12 @@
 Autologin: Automatic login for web spiders
 ==========================================
 
-.. image:: https://img.shields.io/travis/TeamHG-Memex/autologin/prepare-merge.svg
+.. image:: https://img.shields.io/travis/TeamHG-Memex/autologin/crawler-integration.svg
    :target: http://travis-ci.org/TeamHG-Memex/autologin
    :alt: Build Status
 
-.. image:: https://codecov.io/github/TeamHG-Memex/autologin/coverage.svg?branch=prepare-merge
-   :target: https://codecov.io/github/TeamHG-Memex/autologin?branch=prepare-merge
+.. image:: https://codecov.io/github/TeamHG-Memex/autologin/coverage.svg?branch=crawler-integration
+   :target: https://codecov.io/github/TeamHG-Memex/autologin?branch=crawler-integration
    :alt: Code Coverage
 
 
