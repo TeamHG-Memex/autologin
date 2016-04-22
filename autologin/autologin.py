@@ -4,6 +4,7 @@ import argparse, pprint, webbrowser
 
 import crochet
 import requests
+from scrapy.utils.log import configure_logging
 
 from .spiders import LoginSpider, get_login_form, login_params, crawl_runner, \
     USER_AGENT
@@ -94,6 +95,7 @@ def main():
     """
     Command line utility for extracting authenticated login cookies.
     """
+    configure_logging()
     argparser = argparse.ArgumentParser(add_help=True)
     argparser.add_argument('username', help='login username')
     argparser.add_argument('password', help='login password')

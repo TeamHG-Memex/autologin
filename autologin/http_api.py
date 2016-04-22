@@ -6,11 +6,13 @@ from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks, returnValue
 from twisted.web.server import Site, NOT_DONE_YET
 from twisted.web.resource import Resource
+from scrapy.utils.log import configure_logging
 
 from .app import app, db
 from .login_keychain import KeychainItem
 from .spiders import FormSpider, LoginSpider, crawl_runner, cookie_dicts
 from .scrapyutils import scrape_items
+
 
 logger = logging.getLogger(__name__)
 
@@ -119,6 +121,7 @@ root.putChild(b'login-cookies', AutologinAPI())
 
 def main():
     import argparse
+    configure_logging()
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, default=8089)
     args = parser.parse_args()

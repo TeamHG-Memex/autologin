@@ -6,7 +6,6 @@ import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.settings import Settings
 from scrapy.crawler import CrawlerRunner
-from scrapy.utils.log import configure_logging
 from scrapy.exceptions import CloseSpider
 from scrapy.utils.response import get_base_url
 from scrapy_splash import SplashRequest
@@ -43,7 +42,6 @@ base_settings = Settings(values=dict(
     DOWNLOAD_MAXSIZE = 1*1024*1024,  # 1MB
     USER_AGENT = USER_AGENT,
     ))
-configure_logging({'LOG_FORMAT': '%(levelname)s: %(message)s'})
 
 
 def crawl_runner(splash_url=None, extra_settings=None):
