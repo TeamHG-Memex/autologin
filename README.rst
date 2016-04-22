@@ -101,6 +101,21 @@ If you have a Scrapy spider (or use Twisted in some other way),
 use the HTTP API, or the non-blocking API (it's not documented,
 see ``http_api.AutologinAPI._login``).
 
+There are two opitonal arguments for ``AutoLogin.auth_cookies_from_url``:
+
+- ``splash_url`` if set, `Splash <splash.readthedocs.org>`_
+  will be used to make all requests. Use it if your cawler also uses
+  splash and the session is tied to IP and User-Agent, or for Tor sites.
+- ``settings`` is a dictionary with Scrapy settings to override.
+  Use it e.g. to set a custom User-Agent with scrapy ``USER_AGENT`` option.
+
+An example of using this options::
+
+    cookies = al.auth_cookies_from_url(
+        url, username, password,
+        splash_url='http://127.0.0.1:8050',
+        settings={'USER_AGENT': 'Mozilla/2.02 [fr] (WinNT; I)'})
+
 
 Login request
 -------------
@@ -146,7 +161,7 @@ The following arguments are supported:
   will be used to make all requests. Use it if your cawler also uses
   splash and the session is tied to IP and User-Agent, or for Tor sites.
 - ``settings`` (optional) - a dictionary with Scrapy settings to override.
-  Use it e.g. to set a custom User-Agent with scrapy USER_AGENT option.
+  Use it e.g. to set a custom User-Agent with scrapy ``USER_AGENT`` option.
 
 If ``username`` and ``password`` are not provided, autologin tries to find
 them in the login keychain. If no matching credentials are found (they are

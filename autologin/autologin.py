@@ -20,7 +20,7 @@ class AutoLoginException(Exception):
 
 class AutoLogin(object):
     def auth_cookies_from_url(self, url, username, password, splash_url=None,
-                              extra_settings=None):
+                              settings=None):
         """
         Fetch page, find login form, try to login and return cookies.
         This call is blocking, and we assume that Twisted reactor is not used.
@@ -33,7 +33,7 @@ class AutoLogin(object):
         @crochet.wait_for(timeout=None)
         def inner():
             runner = crawl_runner(
-                splash_url=splash_url, extra_settings=extra_settings)
+                splash_url=splash_url, extra_settings=settings)
             items = scrape_items(
                 runner, LoginSpider,
                 url=url, username=username, password=password)
