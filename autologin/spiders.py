@@ -54,6 +54,7 @@ base_settings = Settings(values=dict(
         'DEATHBYCAPTCHA_USERNAME'),
     DECAPTCHA_DEATHBYCAPTCHA_PASSWORD = os.environ.get(
         'DEATHBYCAPTCHA_PASSWORD'),
+    LOGIN_MAX_RETRIES = 10,
     ))
 
 
@@ -116,7 +117,7 @@ class BaseSpider(scrapy.Spider):
                     '"extra_js" not supported without "splash_url"')
             self.request = scrapy.Request
         for url in self.start_urls:
-            yield self.request(url, callback=self.parse)
+            yield self.request(url)
 
 
 class FormSpider(BaseSpider):
@@ -193,31 +194,56 @@ class LoginSpider(BaseSpider):
     lua_source = 'login.lua'
 
     def __init__(self, url, username, password, *args, **kwargs):
-        self.start_urls = [url]
+        self.start_url = url
+        self.start_urls = [self.start_url]
         self.username = username
         self.password = password
         super(LoginSpider, self).__init__(*args, **kwargs)
 
     def start_requests(self):
         self.solver = DeathbycaptchaSolver(self.crawler)
+        self.retries_left = self.crawler.settings.getint('LOGIN_MAX_RETRIES')
         for x in super(LoginSpider, self).start_requests():
             yield x
 
+    def retry(self, tried_login=False):
+        self.retries_left -= 1
+        if self.retries_left:
+            self.logger.debug('Retrying login')
+            return self.request(
+                self.start_url,
+                callback=partial(self.parse, tried_login=tried_login),
+                dont_filter=True)
+        else:
+            self.logger.debug('No retries left, giving up')
+
     @inlineCallbacks
-    def parse(self, response):
+    def parse(self, response, tried_login=False):
+        initial_cookies = _response_cookies(response)
         forminfo = get_login_form(response.text)
         if forminfo is None:
+            if tried_login and initial_cookies:
+                # If we can not find a login form on retry, then we must
+                # have already logged in, but the cookies did not change,
+                # so we did not detect our success.
+                returnValue({
+                    'ok': True,
+                    'cookies': initial_cookies,
+                    'start_url': response.url})
             returnValue({'ok': False, 'error': 'nologinform'})
 
         form_idx, form, meta = forminfo
         self.logger.info('found login form: %s' % meta)
-
         extra_fields = {}
+        captcha_solved = False
         captcha_field = self.get_captcha_field(meta)
         if captcha_field and self.using_splash:
             captcha_value = yield self.solve_captcha(response, form_idx)
             if captcha_value:
+                captcha_solved = True
                 extra_fields[captcha_field] = captcha_value
+            else:
+                returnValue(self.retry())
 
         params = login_params(
             url=get_base_url(response),
@@ -228,15 +254,28 @@ class LoginSpider(BaseSpider):
             extra_fields=extra_fields,
         )
         self.logger.debug('submit parameters: %s' % params)
-        initial_cookies = cookie_dicts(_response_cookies(response)) or []
 
-        returnValue(self.request(params['url'], self.parse_login,
+        returnValue(self.request(params['url'],
+            callback=partial(self.parse_login, retry=captcha_solved),
             method=params['method'],
             headers=params['headers'],
             body=params['body'],
-            meta={'initial_cookies': initial_cookies},
+            meta={'initial_cookies': _cookie_dicts(initial_cookies) or []},
             dont_filter=True,
         ))
+
+    def parse_login(self, response, retry=False):
+        cookies = _response_cookies(response) or []
+
+        old_cookies = set(_cookie_tuples(response.meta['initial_cookies']))
+        new_cookies = set(_cookie_tuples(_cookie_dicts(cookies)))
+
+        if self.using_splash:
+            self.debug_screenshot('page', b64decode(response.data['page']))
+        if new_cookies <= old_cookies:  # no new or changed cookies
+            fail = {'ok': False, 'error': 'badauth'}
+            return (retry and self.retry(tried_login=True)) or fail
+        return {'ok': True, 'cookies': cookies, 'start_url': response.url}
 
     def get_captcha_field(self, meta):
         for name, field_type in meta['fields'].items():
@@ -249,7 +288,7 @@ class LoginSpider(BaseSpider):
             form_screenshot = response.data['forms'][str(form_idx + 1)]
         except KeyError:
             self.logger.error('captcha form screenshot not found')
-            returnValue(None) # will try to submit without captcha
+            returnValue(None)
         form_screenshot = b64decode(form_screenshot)
         self.debug_screenshot('captcha', form_screenshot)
         try:
@@ -278,18 +317,6 @@ class LoginSpider(BaseSpider):
         with open(filename, 'wb') as f:
             f.write(screenshot)
         self.logger.debug('saved %s screenshot to %s' % (name, filename))
-
-    def parse_login(self, response):
-        cookies = _response_cookies(response) or []
-
-        old_cookies = set(_cookie_tuples(response.meta['initial_cookies']))
-        new_cookies = set(_cookie_tuples(cookie_dicts(cookies)))
-
-        if self.using_splash:
-            self.debug_screenshot('page', b64decode(response.data['page']))
-        if new_cookies <= old_cookies:  # no new or changed cookies
-            return {'ok': False, 'error': 'badauth'}
-        return {'ok': True, 'cookies': cookies, 'start_url': response.url}
 
 
 def get_login_form(html_source):
@@ -347,7 +374,7 @@ def login_params(url, username, password, form, meta, extra_fields=None):
     )
 
 
-def cookie_dicts(cookiejar):
+def _cookie_dicts(cookiejar):
     if cookiejar is None:
         return None
     return [c.__dict__ for c in cookiejar]
