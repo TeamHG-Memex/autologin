@@ -1,4 +1,6 @@
 from __future__ import absolute_import
+from functools import partial
+import os.path
 from six.moves.urllib.parse import urlsplit, urlunsplit, urlencode, urljoin
 
 import formasaurus
@@ -66,53 +68,27 @@ def crawl_runner(splash_url=None, extra_settings=None):
     return CrawlerRunner(settings)
 
 
-class DefaultExecuteSplashRequest(SplashRequest):
-    '''
-    This is a SplashRequest subclass that uses minimal default body
-    for the execute endpoint with support for POST requests and cookies.
-    '''
-    SPLASH_SCRIPT = '''
-    function main(splash)
-        splash:init_cookies(splash.args.cookies)
-        local ok, reason = splash:go{
-            splash.args.url,
-            headers=splash.args.headers,
-            http_method=splash.args.http_method,
-            body=splash.args.body,
-        }
-        if ok then
-            assert(splash:wait(0.5))
-        end
-
-        local entries = splash:history()
-        if #entries > 0 then
-            local last_response = entries[#entries].response
-            return {
-                headers=last_response.headers,
-                cookies=splash:get_cookies(),
-                html=splash:html(),
-                http_status=last_response.status,
-            }
-        else
-            assert(false, reason)
-        end
-    end
-    '''
-
-    def __init__(self, *args, **kwargs):
-        kwargs['endpoint'] = 'execute'
-        splash_args = kwargs.setdefault('args', {})
-        splash_args['lua_source'] = self.SPLASH_SCRIPT
-        super(DefaultExecuteSplashRequest, self).__init__(*args, **kwargs)
+def splash_request(lua_source, *args, **kwargs):
+    kwargs['endpoint'] = 'execute'
+    splash_args = kwargs.setdefault('args', {})
+    splash_args['lua_source'] = lua_source
+    return SplashRequest(*args, **kwargs)
 
 
 class BaseSpider(scrapy.Spider):
     """
-    Base spider. It uses Splash for requests if SPLASH_URL is not None or empty.
+    Base spider.
+    It uses Splash for requests if SPLASH_URL is not None or empty.
     """
+    lua_source = 'default.lua'
+
     def start_requests(self):
         if self.settings.get('SPLASH_URL'):
-            self.request = DefaultExecuteSplashRequest
+            with open(os.path.join(
+                    os.path.dirname(__file__), 'directives', self.lua_source),
+                    'rb') as f:
+                lua_source = f.read().decode('utf-8')
+            self.request = partial(splash_request, lua_source)
         else:
             self.request = scrapy.Request
         for url in self.start_urls:
