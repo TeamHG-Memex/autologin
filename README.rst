@@ -195,6 +195,14 @@ Contributors
 Source code and bug tracker are on github:
 https://github.com/TeamHG-Memex/autologin.
 
+Run tests with ``tox``::
+
+    $ tox
+
+Splash support is not tested directly here, but there are indirect tests for it
+in the `undercrawler <https://github.com/TeamHG-Memex/undercrawler>`_
+test suite.
+
 
 License
 -------
