@@ -6,6 +6,8 @@ import os.path
 import uuid
 from six.moves.urllib.parse import urlsplit, urlunsplit, urlencode, urljoin
 
+from decaptcha.exceptions import DecaptchaError
+from decaptcha.solvers.deathbycaptcha import DeathbycaptchaSolver
 import formasaurus
 import scrapy
 from scrapy.linkextractors import LinkExtractor
@@ -14,6 +16,7 @@ from scrapy.crawler import CrawlerRunner
 from scrapy.exceptions import CloseSpider
 from scrapy.utils.response import get_base_url
 from scrapy_splash import SplashRequest
+from twisted.internet.defer import inlineCallbacks, returnValue
 
 from .middleware import get_cookiejar
 from .app import app, db, server_path
@@ -23,6 +26,7 @@ from .login_keychain import get_domain
 USERNAME_FIELD_TYPES = {'username', 'email', 'username or email'}
 CHECK_CHECKBOXES = {'remember me checkbox'}
 PASSWORD_FIELD_TYPES = {'password'}
+CAPTCHA_FIELD_TYPES = {'captcha'}
 SUBMIT_TYPES = {'submit button'}
 DEFAULT_POST_HEADERS = {b'Content-Type': b'application/x-www-form-urlencoded'}
 
@@ -46,6 +50,10 @@ base_settings = Settings(values=dict(
     # DOWNLOADER_MIDDLEWARES are set in get_settings
     DOWNLOAD_MAXSIZE = 1*1024*1024,  # 1MB
     USER_AGENT = USER_AGENT,
+    DECAPTCHA_DEATHBYCAPTCHA_USERNAME = os.environ.get(
+        'DEATHBYCAPTCHA_USERNAME'),
+    DECAPTCHA_DEATHBYCAPTCHA_PASSWORD = os.environ.get(
+        'DEATHBYCAPTCHA_PASSWORD'),
     ))
 
 
@@ -190,13 +198,26 @@ class LoginSpider(BaseSpider):
         self.password = password
         super(LoginSpider, self).__init__(*args, **kwargs)
 
+    def start_requests(self):
+        self.solver = DeathbycaptchaSolver(self.crawler)
+        for x in super(LoginSpider, self).start_requests():
+            yield x
+
+    @inlineCallbacks
     def parse(self, response):
         forminfo = get_login_form(response.text)
         if forminfo is None:
-            return {'ok': False, 'error': 'nologinform'}
+            returnValue({'ok': False, 'error': 'nologinform'})
 
-        form, meta = forminfo
-        self.logger.info("found login form: %s" % meta)
+        form_idx, form, meta = forminfo
+        self.logger.info('found login form: %s' % meta)
+
+        extra_fields = {}
+        captcha_field = self.get_captcha_field(meta)
+        if captcha_field and self.using_splash:
+            captcha_value = yield self.solve_captcha(response, form_idx)
+            if captcha_value:
+                extra_fields[captcha_field] = captcha_value
 
         params = login_params(
             url=get_base_url(response),
@@ -204,17 +225,50 @@ class LoginSpider(BaseSpider):
             password=self.password,
             form=form,
             meta=meta,
+            extra_fields=extra_fields,
         )
-        self.logger.debug("submit parameters: %s" % params)
+        self.logger.debug('submit parameters: %s' % params)
         initial_cookies = cookie_dicts(_response_cookies(response)) or []
 
-        return self.request(params['url'], self.parse_login,
+        returnValue(self.request(params['url'], self.parse_login,
             method=params['method'],
             headers=params['headers'],
             body=params['body'],
             meta={'initial_cookies': initial_cookies},
             dont_filter=True,
-        )
+        ))
+
+    def get_captcha_field(self, meta):
+        for name, field_type in meta['fields'].items():
+            if field_type in CAPTCHA_FIELD_TYPES:
+                return name
+
+    @inlineCallbacks
+    def solve_captcha(self, response, form_idx):
+        try:
+            form_screenshot = response.data['forms'][str(form_idx + 1)]
+        except KeyError:
+            self.logger.error('captcha form screenshot not found')
+            returnValue(None) # will try to submit without captcha
+        form_screenshot = b64decode(form_screenshot)
+        self.debug_screenshot('captcha', form_screenshot)
+        try:
+            captcha_value = yield self.solver.solve(form_screenshot)
+        except DecaptchaError as e:
+            self.logger.error('captcha not solved', exc=e)
+            returnValue(None)
+        else:
+            self.logger.debug('captcha solved: "%s"' % captcha_value)
+            returnValue(captcha_value)
+
+    def debug_screenshot(self, name, screenshot):
+        if not self.logger.isEnabledFor(logging.DEBUG):
+            return
+        browser_dir = os.path.join(server_path, 'static/browser')
+        filename = os.path.join(browser_dir, '{}.jpeg'.format(uuid.uuid4()))
+        with open(filename, 'w') as f:
+            f.write(screenshot)
+        self.logger.debug('saved %s screenshot to %s' % (name, filename))
 
     def debug_screenshot(self, name, screenshot):
         if not self.logger.isEnabledFor(logging.DEBUG):
@@ -239,9 +293,9 @@ class LoginSpider(BaseSpider):
 
 
 def get_login_form(html_source):
-    for form, meta in formasaurus.extract_forms(html_source):
+    for idx, (form, meta) in enumerate(formasaurus.extract_forms(html_source)):
         if meta['form'] == 'login':
-            return form, meta
+            return idx, form, meta
 
 
 def relative_url(url):
@@ -249,7 +303,7 @@ def relative_url(url):
     return urlunsplit(('', '') + parts[2:])
 
 
-def login_params(url, username, password, form, meta):
+def login_params(url, username, password, form, meta, extra_fields=None):
     """
     Return ``{'url': url, 'method': method, 'body': body}``
     with all required information for submitting a login form.
@@ -275,6 +329,9 @@ def login_params(url, username, password, form, meta):
 
     form.fields[username_field] = username
     form.fields[password_field] = password
+    if extra_fields:
+        for k, v in extra_fields.items():
+            form.fields[k] = v
 
     submit_values = form.form_values()
 
