@@ -20,7 +20,7 @@ class AutoLoginException(Exception):
 
 class AutoLogin(object):
     def auth_cookies_from_url(self, url, username, password, splash_url=None,
-                              settings=None):
+                              extra_js=None, settings=None):
         """
         Fetch page, find login form, try to login and return cookies.
         This call is blocking, and we assume that Twisted reactor is not used.
@@ -36,7 +36,8 @@ class AutoLogin(object):
                 splash_url=splash_url, extra_settings=settings)
             items = scrape_items(
                 runner, LoginSpider,
-                url=url, username=username, password=password)
+                url=url, username=username, password=password,
+                extra_js=extra_js)
             d = items.fetch_next
             d.addCallback(lambda result: items.next_item() if result else
                                          {'ok': False, 'error': 'noresult'})
