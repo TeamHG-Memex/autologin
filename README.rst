@@ -146,7 +146,7 @@ Command Line
 ::
 
     $ autologin
-    usage: autologin [-h] [--proxy PROXY] [--show-in-browser SHOW_IN_BROWSER]
+    usage: autologin [-h] [--splash-url SPLASH_URL] [--show-in-browser]
                      username password url
 
 
