@@ -147,7 +147,8 @@ Command Line
 ::
 
     $ autologin
-    usage: autologin [-h] [--splash-url SPLASH_URL] [--show-in-browser]
+    usage: autologin [-h] [--splash-url SPLASH_URL] [--extra-js EXTRA_JS]
+                     [--show-in-browser]
                      username password url
 
 

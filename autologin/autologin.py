@@ -101,15 +101,26 @@ def main():
     argparser.add_argument('username', help='login username')
     argparser.add_argument('password', help='login password')
     argparser.add_argument('url', help='url for the site you wish to login to')
-    argparser.add_argument('--splash-url')
+    argparser.add_argument(
+        '--splash-url',
+        help='URL of the splash instance (by default splash is not used)')
+    argparser.add_argument(
+        '--extra-js', help='path to extra js script executed on login page')
     argparser.add_argument('--show-in-browser', '-b',
         help='show page in browser after login (default: False)',
         action='store_true')
     args = argparser.parse_args()
     # Try logging into site
     auto_login = AutoLogin()
+    if args.extra_js:
+        with open(args.extra_js, 'rb') as f:
+            extra_js = f.read().decode('utf-8')
+    else:
+        extra_js = None
     login_cookies = auto_login.auth_cookies_from_url(
-        args.url, args.username, args.password, splash_url=args.splash_url)
+        args.url, args.username, args.password,
+        splash_url=args.splash_url,
+        extra_js=extra_js)
     # Print extracted cookies
     pprint.pprint(login_cookies.__dict__)
     # Open browser tab with page using cookies
