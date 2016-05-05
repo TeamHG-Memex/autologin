@@ -8,6 +8,12 @@ function main(splash)
     }
     if ok then
         assert(splash:wait(0.5))
+
+        if splash.args.extra_js then
+          assert(splash:runjs(splash.args.extra_js))
+          assert(splash:wait(1.0))
+        end
+
         splash:set_viewport_full()
     end
 

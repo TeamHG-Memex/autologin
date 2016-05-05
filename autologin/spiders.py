@@ -75,6 +75,9 @@ def splash_request(lua_source, *args, **kwargs):
     kwargs['endpoint'] = 'execute'
     splash_args = kwargs.setdefault('args', {})
     splash_args['lua_source'] = lua_source
+    extra_js = kwargs.pop('extra_js', None)
+    if extra_js:
+        splash_args['extra_js'] = extra_js
     return SplashRequest(*args, **kwargs)
 
 
@@ -85,6 +88,10 @@ class BaseSpider(scrapy.Spider):
     """
     lua_source = 'default.lua'
 
+    def __init__(self, *args, **kwargs):
+        self.extra_js = kwargs.pop('extra_js', None)
+        super(BaseSpider, self).__init__(*args, **kwargs)
+
     def start_requests(self):
         self.using_splash = bool(self.settings.get('SPLASH_URL'))
         if self.using_splash:
@@ -92,8 +99,13 @@ class BaseSpider(scrapy.Spider):
                     os.path.dirname(__file__), 'directives', self.lua_source),
                     'rb') as f:
                 lua_source = f.read().decode('utf-8')
-            self.request = partial(splash_request, lua_source)
+            self.request = partial(
+                splash_request, lua_source,
+                extra_js=self.extra_js)
         else:
+            if self.extra_js:
+                raise ValueError(
+                    '"extra_js" not supported without "splash_url"')
             self.request = scrapy.Request
         for url in self.start_urls:
             yield self.request(url, callback=self.parse)

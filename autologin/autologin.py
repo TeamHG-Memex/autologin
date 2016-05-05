@@ -20,7 +20,7 @@ class AutoLoginException(Exception):
 
 class AutoLogin(object):
     def auth_cookies_from_url(self, url, username, password, splash_url=None,
-                              settings=None):
+                              extra_js=None, settings=None):
         """
         Fetch page, find login form, try to login and return cookies.
         This call is blocking, and we assume that Twisted reactor is not used.
@@ -36,7 +36,8 @@ class AutoLogin(object):
                 splash_url=splash_url, extra_settings=settings)
             items = scrape_items(
                 runner, LoginSpider,
-                url=url, username=username, password=password)
+                url=url, username=username, password=password,
+                extra_js=extra_js)
             d = items.fetch_next
             d.addCallback(lambda result: items.next_item() if result else
                                          {'ok': False, 'error': 'noresult'})
@@ -100,15 +101,26 @@ def main():
     argparser.add_argument('username', help='login username')
     argparser.add_argument('password', help='login password')
     argparser.add_argument('url', help='url for the site you wish to login to')
-    argparser.add_argument('--splash-url')
+    argparser.add_argument(
+        '--splash-url',
+        help='URL of the splash instance (by default splash is not used)')
+    argparser.add_argument(
+        '--extra-js', help='path to extra js script executed on login page')
     argparser.add_argument('--show-in-browser', '-b',
         help='show page in browser after login (default: False)',
         action='store_true')
     args = argparser.parse_args()
     # Try logging into site
     auto_login = AutoLogin()
+    if args.extra_js:
+        with open(args.extra_js, 'rb') as f:
+            extra_js = f.read().decode('utf-8')
+    else:
+        extra_js = None
     login_cookies = auto_login.auth_cookies_from_url(
-        args.url, args.username, args.password, splash_url=args.splash_url)
+        args.url, args.username, args.password,
+        splash_url=args.splash_url,
+        extra_js=extra_js)
     # Print extracted cookies
     pprint.pprint(login_cookies.__dict__)
     # Open browser tab with page using cookies
