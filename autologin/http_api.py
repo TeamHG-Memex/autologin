@@ -54,6 +54,7 @@ class AutologinAPI(Resource):
             username=data.get('username'),
             password=data.get('password'),
             splash_url=data.get('splash_url'),
+            extra_js=data.get('extra_js'),
             settings=data.get('settings'),
         )
 
@@ -68,7 +69,7 @@ class AutologinAPI(Resource):
     @inlineCallbacks
     def _handle_request(self, url,
                         username=None, password=None, splash_url=None,
-                        settings=None):
+                        extra_js=None, settings=None):
         runner = crawl_runner(splash_url=splash_url, extra_settings=settings)
         if username is None and password is None:
             with app.app_context():
@@ -90,7 +91,8 @@ class AutologinAPI(Resource):
         else:
             login_url = url
 
-        item = yield self._login(runner, login_url, username, password)
+        item = yield self._login(
+            runner, login_url, username, password, extra_js=extra_js)
         yield runner.join()
         if item is None:
             return_json({'status': 'error', 'error': 'unknown'})
@@ -104,12 +106,13 @@ class AutologinAPI(Resource):
         })
 
     @inlineCallbacks
-    def _login(self, runner, login_url, username, password):
+    def _login(self, runner, login_url, username, password, extra_js=None):
         async_items = scrape_items(runner,
                                    LoginSpider,
                                    url=login_url,
                                    username=username,
-                                   password=password)
+                                   password=password,
+                                   extra_js=extra_js)
         while (yield async_items.fetch_next):
             returnValue(async_items.next_item())
 

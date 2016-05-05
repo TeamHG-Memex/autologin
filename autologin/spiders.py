@@ -103,6 +103,9 @@ class BaseSpider(scrapy.Spider):
                 splash_request, lua_source,
                 extra_js=self.extra_js)
         else:
+            if self.extra_js:
+                raise ValueError(
+                    '"extra_js" not supported without "splash_url"')
             self.request = scrapy.Request
         for url in self.start_urls:
             yield self.request(url, callback=self.parse)

@@ -109,11 +109,15 @@ If you have a Scrapy spider (or use Twisted in some other way),
 use the HTTP API, or the non-blocking API (it's not documented,
 see ``http_api.AutologinAPI._login``).
 
-There are two opitonal arguments for ``AutoLogin.auth_cookies_from_url``:
+There are also opitonal arguments for ``AutoLogin.auth_cookies_from_url``:
 
 - ``splash_url`` if set, `Splash <http://splash.readthedocs.org>`_
   will be used to make all requests. Use it if your cawler also uses
   splash and the session is tied to IP and User-Agent, or for Tor sites.
+- ``extra_js`` (experimental)
+  is a string with an extra JS script that should be executed
+  on the login page before making a POST request. For example, it can be used
+  to accept cookie use. It is supported only when ``splash_url`` is also given.
 - ``settings`` is a dictionary with Scrapy settings to override.
   Use it e.g. to set a custom User-Agent with scrapy ``USER_AGENT`` option.
 
@@ -122,6 +126,7 @@ An example of using this options::
     cookies = al.auth_cookies_from_url(
         url, username, password,
         splash_url='http://127.0.0.1:8050',
+        extra_js='document.getElementById("accept-cookies").click();',
         settings={'USER_AGENT': 'Mozilla/2.02 [fr] (WinNT; I)'})
 
 
@@ -169,6 +174,10 @@ The following arguments are supported:
 - ``splash_url`` (optional): if set, `Splash <http://splash.readthedocs.org>`_
   will be used to make all requests. Use it if your cawler also uses
   splash and the session is tied to IP and User-Agent, or for Tor sites.
+- ``extra_js`` (optional, experimental)
+  is a string with an extra JS script that should be executed
+  on the login page before making a POST request. For example, it can be used
+  to accept cookie use. It is supported only when ``splash_url`` is also given.
 - ``settings`` (optional) - a dictionary with Scrapy settings to override.
   Use it e.g. to set a custom User-Agent with scrapy ``USER_AGENT`` option.
 
