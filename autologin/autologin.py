@@ -100,6 +100,7 @@ def main():
     argparser.add_argument('username', help='login username')
     argparser.add_argument('password', help='login password')
     argparser.add_argument('url', help='url for the site you wish to login to')
+    argparser.add_argument('--splash-url')
     argparser.add_argument('--show-in-browser', '-b',
         help='show page in browser after login (default: False)',
         action='store_true')
@@ -107,7 +108,7 @@ def main():
     # Try logging into site
     auto_login = AutoLogin()
     login_cookies = auto_login.auth_cookies_from_url(
-        args.url, args.username, args.password)
+        args.url, args.username, args.password, splash_url=args.splash_url)
     # Print extracted cookies
     pprint.pprint(login_cookies.__dict__)
     # Open browser tab with page using cookies

@@ -1,6 +1,9 @@
 from __future__ import absolute_import
+from base64 import b64decode
 from functools import partial
+import logging
 import os.path
+import uuid
 from six.moves.urllib.parse import urlsplit, urlunsplit, urlencode, urljoin
 
 import formasaurus
@@ -13,7 +16,7 @@ from scrapy.utils.response import get_base_url
 from scrapy_splash import SplashRequest
 
 from .middleware import get_cookiejar
-from .app import app, db
+from .app import app, db, server_path
 from .login_keychain import get_domain
 
 
@@ -83,7 +86,8 @@ class BaseSpider(scrapy.Spider):
     lua_source = 'default.lua'
 
     def start_requests(self):
-        if self.settings.get('SPLASH_URL'):
+        self.using_splash = bool(self.settings.get('SPLASH_URL'))
+        if self.using_splash:
             with open(os.path.join(
                     os.path.dirname(__file__), 'directives', self.lua_source),
                     'rb') as f:
@@ -166,6 +170,7 @@ class FormSpider(BaseSpider):
 class LoginSpider(BaseSpider):
     """ This spider tries to login and returns an item with login cookies. """
     name = 'login'
+    lua_source = 'login.lua'
 
     def __init__(self, url, username, password, *args, **kwargs):
         self.start_urls = [url]
@@ -199,6 +204,15 @@ class LoginSpider(BaseSpider):
             dont_filter=True,
         )
 
+    def debug_screenshot(self, name, screenshot):
+        if not self.logger.isEnabledFor(logging.DEBUG):
+            return
+        browser_dir = os.path.join(server_path, 'static/browser')
+        filename = os.path.join(browser_dir, '{}.jpeg'.format(uuid.uuid4()))
+        with open(filename, 'w') as f:
+            f.write(screenshot)
+        self.logger.debug('saved %s screenshot to %s' % (name, filename))
+
     def parse_login(self, response):
         cookies = _response_cookies(response) or []
 
@@ -206,6 +220,8 @@ class LoginSpider(BaseSpider):
         new_cookies = set(_cookie_tuples(cookie_dicts(cookies)))
 
         if new_cookies <= old_cookies:  # no new or changed cookies
+            if self.using_splash:
+                self.debug_screenshot('page', b64decode(response.data['page']))
             return {'ok': False, 'error': 'badauth'}
         return {'ok': True, 'cookies': cookies, 'start_url': response.url}
 
