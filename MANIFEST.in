@@ -1,2 +1,3 @@
 recursive-include autologin/templates *
 recursive-include autologin/static *
+recursive-include autologin/directives *.lua

@@ -1,8 +1,13 @@
 *.pyc
-/static/browser/
+autologin/static/browser/
+autologin/db.sqlite
 .ipynb_checkpoints/
+venv/
 build/
 dist/
 autologin.egg-info/
-
-
+.tox
+.idea
+htmlcov
+.coverage
+.cache
