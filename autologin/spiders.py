@@ -209,7 +209,7 @@ class LoginSpider(BaseSpider):
             return
         browser_dir = os.path.join(server_path, 'static/browser')
         filename = os.path.join(browser_dir, '{}.jpeg'.format(uuid.uuid4()))
-        with open(filename, 'w') as f:
+        with open(filename, 'wb') as f:
             f.write(screenshot)
         self.logger.debug('saved %s screenshot to %s' % (name, filename))
 
