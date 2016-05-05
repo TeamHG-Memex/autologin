@@ -219,9 +219,9 @@ class LoginSpider(BaseSpider):
         old_cookies = set(_cookie_tuples(response.meta['initial_cookies']))
         new_cookies = set(_cookie_tuples(cookie_dicts(cookies)))
 
+        if self.using_splash:
+            self.debug_screenshot('page', b64decode(response.data['page']))
         if new_cookies <= old_cookies:  # no new or changed cookies
-            if self.using_splash:
-                self.debug_screenshot('page', b64decode(response.data['page']))
             return {'ok': False, 'error': 'badauth'}
         return {'ok': True, 'cookies': cookies, 'start_url': response.url}
 
