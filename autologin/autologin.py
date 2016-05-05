@@ -57,7 +57,7 @@ class AutoLogin(object):
         forminfo = get_login_form(html_source)
         if forminfo is None:
             return None
-        form, meta = forminfo
+        _, form, meta = forminfo
         return login_params(
             url=base_url,
             username=username,

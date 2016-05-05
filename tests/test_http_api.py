@@ -13,16 +13,15 @@ from autologin.http_api import AutologinAPI
 
 class WebTest(unittest.TestCase):
     @inlineCallbacks
-    def test(self):
-        url = 'http://localhost:{}'.format(PORT)
+    def test_login1(self):
+        url = 'http://localhost:{}/login1'.format(PORT)
         view = AutologinAPI()
         with MockServer():
-            request = api_request(
-                url=url + '?foo=', username='admin', password='secret')
+            request = api_request(url=url, username='admin', password='secret')
             yield render(view, request)
             result = api_result(request)
             assert result['status'] == 'solved'
-            assert result['start_url'] == 'http://localhost:8781/'
+            assert result['start_url'] == 'http://localhost:8781/login1'
             assert {c['name']: c['value'] for c in result['cookies']} == \
                    {'_auth': 'yes'}
 
@@ -30,8 +29,7 @@ class WebTest(unittest.TestCase):
 def api_request(**kwargs):
     request = DummyRequest([''])
     request.method = b'POST'
-    request.content = six.BytesIO(
-        json.dumps(kwargs).encode('utf-8'))
+    request.content = six.BytesIO(json.dumps(kwargs).encode('utf-8'))
     return request
 
 

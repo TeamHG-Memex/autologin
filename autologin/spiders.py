@@ -206,8 +206,10 @@ class LoginSpider(BaseSpider):
         for x in super(LoginSpider, self).start_requests():
             yield x
 
-    def retry(self, tried_login=False):
+    def retry(self, tried_login=False, retry_once=False):
         self.retries_left -= 1
+        if retry_once:
+            self.retries_left = min(1, self.retries_left)
         if self.retries_left:
             self.logger.debug('Retrying login')
             return self.request(
@@ -220,8 +222,10 @@ class LoginSpider(BaseSpider):
     @inlineCallbacks
     def parse(self, response, tried_login=False):
         initial_cookies = _response_cookies(response)
+        print('initial_cookies', list(initial_cookies))
         forminfo = get_login_form(response.text)
         if forminfo is None:
+            print('tried_login', tried_login)
             if tried_login and initial_cookies:
                 # If we can not find a login form on retry, then we must
                 # have already logged in, but the cookies did not change,
@@ -256,25 +260,27 @@ class LoginSpider(BaseSpider):
         self.logger.debug('submit parameters: %s' % params)
 
         returnValue(self.request(params['url'],
-            callback=partial(self.parse_login, retry=captcha_solved),
+            # If we did not try solving the captcha, retry just once
+            # to check if the login form dissapears (and we logged in).
+            callback=partial(self.parse_login, retry_once=not captcha_solved),
             method=params['method'],
             headers=params['headers'],
             body=params['body'],
-            meta={'initial_cookies': _cookie_dicts(initial_cookies) or []},
+            meta={'initial_cookies': cookie_dicts(initial_cookies) or []},
             dont_filter=True,
         ))
 
-    def parse_login(self, response, retry=False):
+    def parse_login(self, response, retry_once=False):
         cookies = _response_cookies(response) or []
 
         old_cookies = set(_cookie_tuples(response.meta['initial_cookies']))
-        new_cookies = set(_cookie_tuples(_cookie_dicts(cookies)))
+        new_cookies = set(_cookie_tuples(cookie_dicts(cookies)))
 
         if self.using_splash:
             self.debug_screenshot('page', b64decode(response.data['page']))
         if new_cookies <= old_cookies:  # no new or changed cookies
             fail = {'ok': False, 'error': 'badauth'}
-            return (retry and self.retry(tried_login=True)) or fail
+            return self.retry(tried_login=True, retry_once=retry_once) or fail
         return {'ok': True, 'cookies': cookies, 'start_url': response.url}
 
     def get_captcha_field(self, meta):
@@ -374,7 +380,7 @@ def login_params(url, username, password, form, meta, extra_fields=None):
     )
 
 
-def _cookie_dicts(cookiejar):
+def cookie_dicts(cookiejar):
     if cookiejar is None:
         return None
     return [c.__dict__ for c in cookiejar]
@@ -387,6 +393,6 @@ def _response_cookies(response):
         return get_cookiejar(response)
 
 
-def _cookie_tuples(cookie_dicts):
+def _cookie_tuples(cookie_dicts_):
     return [(c['name'], c['value'], c['domain'], c['path'], c['port'])
-            for c in cookie_dicts]
+            for c in cookie_dicts_]
