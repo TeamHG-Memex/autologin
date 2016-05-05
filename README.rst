@@ -1,12 +1,12 @@
 Autologin: Automatic login for web spiders
 ==========================================
 
-.. image:: https://img.shields.io/travis/TeamHG-Memex/autologin/crawler-integration.svg
+.. image:: https://img.shields.io/travis/TeamHG-Memex/autologin/master.svg
    :target: http://travis-ci.org/TeamHG-Memex/autologin
    :alt: Build Status
 
-.. image:: https://codecov.io/github/TeamHG-Memex/autologin/coverage.svg?branch=crawler-integration
-   :target: https://codecov.io/github/TeamHG-Memex/autologin?branch=crawler-integration
+.. image:: https://codecov.io/github/TeamHG-Memex/autologin/coverage.svg?branch=master
+   :target: https://codecov.io/github/TeamHG-Memex/autologin?branch=master
    :alt: Code Coverage
 
 
@@ -49,7 +49,7 @@ Don't like reading documentation?
 
 ::
 
-    from autologin.autologin import AutoLogin
+    from autologin import AutoLogin
 
     url = 'https://reddit.com'
     username = 'foo'
@@ -82,6 +82,13 @@ may fail.
 In this case install dependencies manually, one by one
 (follow their install instructions).
 
+A recent ``pip`` is recommended (update it with ``pip install pip -U``).
+On Ubuntu, the following packages are required (use ``python3-dev`` if you
+are using Python 3)::
+
+    $ apt-get install build-essential libssl-dev libffi-dev python-dev
+
+
 Auth cookies from URL
 ---------------------
 
@@ -103,7 +110,7 @@ see ``http_api.AutologinAPI._login``).
 
 There are two opitonal arguments for ``AutoLogin.auth_cookies_from_url``:
 
-- ``splash_url`` if set, `Splash <splash.readthedocs.org>`_
+- ``splash_url`` if set, `Splash <http://splash.readthedocs.org>`_
   will be used to make all requests. Use it if your cawler also uses
   splash and the session is tied to IP and User-Agent, or for Tor sites.
 - ``settings`` is a dictionary with Scrapy settings to override.
@@ -157,7 +164,7 @@ The following arguments are supported:
 - ``username`` (optional): if not provided, it will be fetched from the
   login keychain
 - ``password`` (optional): same as ``username``
-- ``splash_url`` (optional): if set, `Splash <splash.readthedocs.org>`_
+- ``splash_url`` (optional): if set, `Splash <http://splash.readthedocs.org>`_
   will be used to make all requests. Use it if your cawler also uses
   splash and the session is tied to IP and User-Agent, or for Tor sites.
 - ``settings`` (optional) - a dictionary with Scrapy settings to override.
