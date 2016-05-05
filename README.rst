@@ -83,10 +83,11 @@ In this case install dependencies manually, one by one
 (follow their install instructions).
 
 A recent ``pip`` is recommended (update it with ``pip install pip -U``).
-On Ubuntu, the following packages are required (use ``python3-dev`` if you
-are using Python 3)::
+On Ubuntu, the following packages are required::
 
-    $ apt-get install build-essential libssl-dev libffi-dev python-dev
+    $ apt-get install build-essential libssl-dev libffi-dev \
+                      libxml2-dev libxslt1-dev \
+                      python-dev  # or python3-dev for python 3
 
 
 Auth cookies from URL
