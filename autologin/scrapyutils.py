@@ -43,6 +43,7 @@ class ItemCursor(object):
         self.crawler = crawler
 
         crawler.signals.connect(self._on_item_scraped, signals.item_scraped)
+        crawler.signals.connect(self._on_error, signals.spider_error)
 
         crawl_d.addCallback(self._on_finished)
         crawl_d.addErrback(self._on_error)
