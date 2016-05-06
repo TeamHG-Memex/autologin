@@ -33,7 +33,7 @@ setup(
         'scipy',
         'scikit-learn',
         'formasaurus[with-deps]==0.7.2',
-        'scrapy-splash==0.4',
+        'scrapy-splash>=0.4',
         'crochet',
         'requests',
     ],
