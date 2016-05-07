@@ -39,22 +39,15 @@ USER_AGENT = (
 base_settings = Settings(values=dict(
     TELNETCONSOLE_ENABLED = False,
     ROBOTSTXT_OBEY = False,
-    DEPTH_LIMIT = 3,
     DOWNLOAD_DELAY = 2.0,
     DEPTH_PRIORITY = 1,
     CONCURRENT_REQUESTS = 2,
     CONCURRENT_REQUESTS_PER_DOMAIN = 2,
     SCHEDULER_DISK_QUEUE = 'scrapy.squeues.PickleFifoDiskQueue',
     SCHEDULER_MEMORY_QUEUE = 'scrapy.squeues.FifoMemoryQueue',
-    CLOSESPIDER_PAGECOUNT = 2000,
     # DOWNLOADER_MIDDLEWARES are set in get_settings
     DOWNLOAD_MAXSIZE = 1*1024*1024,  # 1MB
     USER_AGENT = USER_AGENT,
-    DECAPTCHA_DEATHBYCAPTCHA_USERNAME = os.environ.get(
-        'DEATHBYCAPTCHA_USERNAME'),
-    DECAPTCHA_DEATHBYCAPTCHA_PASSWORD = os.environ.get(
-        'DEATHBYCAPTCHA_PASSWORD'),
-    LOGIN_MAX_RETRIES = 10,
     ))
 
 
@@ -126,6 +119,10 @@ class FormSpider(BaseSpider):
     When a form is found, its URL is saved to the database.
     """
     name = 'forms'
+    custom_settings = {
+        'DEPTH_LIMIT': 3,
+        'CLOSESPIDER_PAGECOUNT': 2000,
+    }
     priority_patterns = [
         # Login links
         'login',
@@ -192,6 +189,14 @@ class LoginSpider(BaseSpider):
     """ This spider tries to login and returns an item with login cookies. """
     name = 'login'
     lua_source = 'login.lua'
+    custom_settings = {
+        'DEPTH_LIMIT': 0,  # retries are tracked explicitly
+        'LOGIN_MAX_RETRIES': 10,
+        'DECAPTCHA_DEATHBYCAPTCHA_USERNAME':
+            os.environ.get('DEATHBYCAPTCHA_USERNAME'),
+        'DECAPTCHA_DEATHBYCAPTCHA_PASSWORD':
+            os.environ.get('DEATHBYCAPTCHA_PASSWORD'),
+    }
 
     def __init__(self, url, username, password, *args, **kwargs):
         self.start_url = url
@@ -222,10 +227,8 @@ class LoginSpider(BaseSpider):
     @inlineCallbacks
     def parse(self, response, tried_login=False):
         initial_cookies = _response_cookies(response)
-        print('initial_cookies', list(initial_cookies))
         forminfo = get_login_form(response.text)
         if forminfo is None:
-            print('tried_login', tried_login)
             if tried_login and initial_cookies:
                 # If we can not find a login form on retry, then we must
                 # have already logged in, but the cookies did not change,
@@ -305,15 +308,6 @@ class LoginSpider(BaseSpider):
         else:
             self.logger.debug('captcha solved: "%s"' % captcha_value)
             returnValue(captcha_value)
-
-    def debug_screenshot(self, name, screenshot):
-        if not self.logger.isEnabledFor(logging.DEBUG):
-            return
-        browser_dir = os.path.join(server_path, 'static/browser')
-        filename = os.path.join(browser_dir, '{}.jpeg'.format(uuid.uuid4()))
-        with open(filename, 'w') as f:
-            f.write(screenshot)
-        self.logger.debug('saved %s screenshot to %s' % (name, filename))
 
     def debug_screenshot(self, name, screenshot):
         if not self.logger.isEnabledFor(logging.DEBUG):
