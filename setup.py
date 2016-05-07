@@ -28,7 +28,7 @@ setup(
         'Flask-SQLAlchemy==2.1',
         'Flask-WTF==0.12',
         'WTForms==2.1',
-        'scrapy==1.1.0rc3',
+        'scrapy>=1.1.0rc3',
         'numpy',  # There 3 are formasaurus deps, make sure we always have them
         'scipy',
         'scikit-learn',
