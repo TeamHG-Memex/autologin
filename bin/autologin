@@ -1,4 +1,0 @@
-import sys
-from autologin.autologin import main
-
-main(sys.argv)
