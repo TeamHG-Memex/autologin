@@ -203,6 +203,9 @@ class LoginSpider(BaseSpider):
         self.start_urls = [self.start_url]
         self.username = username
         self.password = password
+        self.solver = None
+        self.retries_left = None
+        self.attempted_captchas = []
         super(LoginSpider, self).__init__(*args, **kwargs)
 
     def start_requests(self):
@@ -233,6 +236,7 @@ class LoginSpider(BaseSpider):
                 # If we can not find a login form on retry, then we must
                 # have already logged in, but the cookies did not change,
                 # so we did not detect our success.
+                yield self.report_captchas()
                 returnValue({
                     'ok': True,
                     'cookies': initial_cookies,
@@ -262,7 +266,8 @@ class LoginSpider(BaseSpider):
         )
         self.logger.debug('submit parameters: %s' % params)
 
-        returnValue(self.request(params['url'],
+        returnValue(
+            self.request(params['url'],
             # If we did not try solving the captcha, retry just once
             # to check if the login form dissapears (and we logged in).
             callback=partial(self.parse_login, retry_once=not captcha_solved),
@@ -273,6 +278,7 @@ class LoginSpider(BaseSpider):
             dont_filter=True,
         ))
 
+    @inlineCallbacks
     def parse_login(self, response, retry_once=False):
         cookies = _response_cookies(response) or []
 
@@ -283,8 +289,10 @@ class LoginSpider(BaseSpider):
             self.debug_screenshot('page', b64decode(response.data['page']))
         if new_cookies <= old_cookies:  # no new or changed cookies
             fail = {'ok': False, 'error': 'badauth'}
-            return self.retry(tried_login=True, retry_once=retry_once) or fail
-        return {'ok': True, 'cookies': cookies, 'start_url': response.url}
+            returnValue(
+                self.retry(tried_login=True, retry_once=retry_once) or fail)
+        yield self.report_captchas()
+        returnValue({'ok': True, 'cookies': cookies, 'start_url': response.url})
 
     def get_captcha_field(self, meta):
         for name, field_type in meta['fields'].items():
@@ -307,7 +315,17 @@ class LoginSpider(BaseSpider):
             returnValue(None)
         else:
             self.logger.debug('captcha solved: "%s"' % captcha_value)
+            self.attempted_captchas.append(form_screenshot)
             returnValue(captcha_value)
+
+    @inlineCallbacks
+    def report_captchas(self):
+        # We assume that if we have logged in, then all previous failed attempts
+        # were due to incorrectly solved captchas.
+        if self.attempted_captchas:
+            for captcha_image in self.attempted_captchas[:-1]:
+                yield self.solver.report(captcha_image)
+            self.attempted_captchas = []
 
     def debug_screenshot(self, name, screenshot):
         if not self.logger.isEnabledFor(logging.DEBUG):
