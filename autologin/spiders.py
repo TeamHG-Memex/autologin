@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from base64 import b64decode
+from collections import namedtuple
 from functools import partial
 import logging
 import os.path
@@ -46,7 +47,6 @@ base_settings = Settings(values=dict(
     SCHEDULER_DISK_QUEUE = 'scrapy.squeues.PickleFifoDiskQueue',
     SCHEDULER_MEMORY_QUEUE = 'scrapy.squeues.FifoMemoryQueue',
     # DOWNLOADER_MIDDLEWARES are set in get_settings
-    DOWNLOAD_MAXSIZE = 1*1024*1024,  # 1MB
     USER_AGENT = USER_AGENT,
     ))
 
@@ -122,6 +122,7 @@ class FormSpider(BaseSpider):
     custom_settings = {
         'DEPTH_LIMIT': 3,
         'CLOSESPIDER_PAGECOUNT': 2000,
+        'DOWNLOAD_MAXSIZE': 1*1024*1024,  # 1MB
     }
     priority_patterns = [
         # Login links
@@ -230,7 +231,10 @@ class LoginSpider(BaseSpider):
     @inlineCallbacks
     def parse(self, response, tried_login=False):
         initial_cookies = _response_cookies(response)
-        forminfo = get_login_form(response.text)
+        page_forms = response.data.get('forms') if self.using_splash else None
+        if page_forms:
+            page_forms = _from_lua(page_forms)
+        forminfo = get_login_form(response.text, page_forms=page_forms)
         if forminfo is None:
             if tried_login and initial_cookies:
                 # If we can not find a login form on retry, then we must
@@ -247,9 +251,9 @@ class LoginSpider(BaseSpider):
         self.logger.info('found login form: %s' % meta)
         extra_fields = {}
         captcha_solved = False
-        captcha_field = self.get_captcha_field(meta)
-        if captcha_field and self.using_splash:
-            captcha_value = yield self.solve_captcha(response, form_idx)
+        captcha_field = _get_captcha_field(meta)
+        if captcha_field and page_forms:
+            captcha_value = yield self.solve_captcha(page_forms[form_idx])
             if captcha_value:
                 captcha_solved = True
                 extra_fields[captcha_field] = captcha_value
@@ -294,19 +298,9 @@ class LoginSpider(BaseSpider):
         yield self.report_captchas()
         returnValue({'ok': True, 'cookies': cookies, 'start_url': response.url})
 
-    def get_captcha_field(self, meta):
-        for name, field_type in meta['fields'].items():
-            if field_type in CAPTCHA_FIELD_TYPES:
-                return name
-
     @inlineCallbacks
-    def solve_captcha(self, response, form_idx):
-        try:
-            form_screenshot = response.data['forms'][str(form_idx + 1)]
-        except KeyError:
-            self.logger.error('captcha form screenshot not found')
-            returnValue(None)
-        form_screenshot = b64decode(form_screenshot)
+    def solve_captcha(self, page_form):
+        form_screenshot = b64decode(page_form['screenshot'])
         self.debug_screenshot('captcha', form_screenshot)
         try:
             captcha_value = yield self.solver.solve(form_screenshot)
@@ -337,10 +331,35 @@ class LoginSpider(BaseSpider):
         self.logger.debug('saved %s screenshot to %s' % (name, filename))
 
 
-def get_login_form(html_source):
+def get_login_form(html_source, page_forms):
+    matches = []
+    Match = namedtuple('Match', ['idx', 'form', 'meta'])
     for idx, (form, meta) in enumerate(formasaurus.extract_forms(html_source)):
         if meta['form'] == 'login':
-            return idx, form, meta
+            matches.append(Match(idx, form, meta))
+    if matches:
+        if page_forms:
+            return max(matches, key=lambda match: (
+                _get_captcha_field(match.meta) is not None,
+                _form_area(page_forms[match.idx])))
+        else:
+            return matches[0]
+
+
+def _form_area(form_meta):
+    region = form_meta['region']
+    left, top, right, bottom = region
+    return (right - left) * (bottom - top)
+
+
+def _from_lua(table):
+    return [table[str(idx + 1)] for idx in range(len(table))]
+
+
+def _get_captcha_field(meta):
+    for name, field_type in meta['fields'].items():
+        if field_type in CAPTCHA_FIELD_TYPES:
+            return name
 
 
 def relative_url(url):

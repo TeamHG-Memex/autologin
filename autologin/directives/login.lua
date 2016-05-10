@@ -26,7 +26,7 @@ function main(splash)
             html=splash:html(),
             http_status=last_response.status,
             forms=render_forms(splash),
-            page=splash:jpeg{quality=70},
+            page=splash:jpeg{quality=80},
         }
     else
         assert(false, reason)
@@ -52,7 +52,10 @@ function render_forms(splash)
   local bboxes = get_forms_bboxes()
   local forms = {}
   for i = 1, #bboxes do
-    forms[i] = splash:jpeg{region=bboxes[i], quality=70}
+    forms[i] = {
+        region=bboxes[i],
+        screenshot=splash:jpeg{region=bboxes[i], quality=70},
+    }
   end
   return forms
 end
