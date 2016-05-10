@@ -343,7 +343,7 @@ class LoginSpider(BaseSpider):
         self.logger.debug('saved %s screenshot to %s' % (name, filename))
 
 
-def get_login_form(html_source, page_forms):
+def get_login_form(html_source, page_forms=None):
     matches = []
     Match = namedtuple('Match', ['idx', 'form', 'meta'])
     for idx, (form, meta) in enumerate(formasaurus.extract_forms(html_source)):
