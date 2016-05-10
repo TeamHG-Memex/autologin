@@ -1,4 +1,11 @@
 function main(splash)
+    local first_request = true
+    splash:on_request(function(request)
+        if first_request then
+            request:set_timeout(60)
+            first_request = false
+        end
+    end)
     splash:init_cookies(splash.args.cookies)
     local ok, reason = splash:go{
         splash.args.url,
@@ -14,7 +21,9 @@ function main(splash)
           assert(splash:wait(1.0))
         end
 
-        splash:set_viewport_full()
+        if splash.args.set_viewport_full then
+            splash:set_viewport_full()
+        end
     end
 
     local entries = splash:history()

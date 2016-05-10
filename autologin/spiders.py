@@ -77,6 +77,7 @@ def splash_request(lua_source, *args, **kwargs):
     kwargs['endpoint'] = 'execute'
     splash_args = kwargs.setdefault('args', {})
     splash_args['lua_source'] = lua_source
+    splash_args['timeout'] = 60
     extra_js = kwargs.pop('extra_js', None)
     if extra_js:
         splash_args['extra_js'] = extra_js
@@ -95,6 +96,11 @@ class BaseSpider(scrapy.Spider):
         super(BaseSpider, self).__init__(*args, **kwargs)
 
     def start_requests(self):
+        self._finish_init()
+        for url in self.start_urls:
+            yield self.request(url)
+
+    def _finish_init(self):
         self.using_splash = bool(self.settings.get('SPLASH_URL'))
         if self.using_splash:
             with open(os.path.join(
@@ -109,8 +115,6 @@ class BaseSpider(scrapy.Spider):
                 raise ValueError(
                     '"extra_js" not supported without "splash_url"')
             self.request = scrapy.Request
-        for url in self.start_urls:
-            yield self.request(url)
 
 
 class FormSpider(BaseSpider):
@@ -211,9 +215,12 @@ class LoginSpider(BaseSpider):
 
     def start_requests(self):
         self.solver = DeathbycaptchaSolver(self.crawler)
+        self._finish_init()
         self.retries_left = self.crawler.settings.getint('LOGIN_MAX_RETRIES')
-        for x in super(LoginSpider, self).start_requests():
-            yield x
+        request_kwargs = {}
+        if self.using_splash:
+            request_kwargs['args'] = {'set_viewport_full': True}
+        yield self.request(self.start_url, **request_kwargs)
 
     def retry(self, tried_login=False, retry_once=False):
         self.retries_left -= 1
@@ -270,8 +277,8 @@ class LoginSpider(BaseSpider):
         )
         self.logger.debug('submit parameters: %s' % params)
 
-        returnValue(
-            self.request(params['url'],
+        returnValue(self.request(
+            params['url'],
             # If we did not try solving the captcha, retry just once
             # to check if the login form dissapears (and we logged in).
             callback=partial(self.parse_login, retry_once=not captcha_solved),
