@@ -28,12 +28,14 @@ def test_login_request():
         'url': '/login/'}
 
 
-# This should be run last as it uses crochet, and normal scrapy spider
+# These tests should be run last as it uses crochet, and normal scrapy spider
 # is not finalized correctly after a call to crochet.setup.
+
+
 @pytest.mark.last
-def test_auth_cookies_from_url():
+def test_auth_cookies_from_url_login1():
     al = AutoLogin()
-    url = 'http://localhost:{}'.format(PORT)
+    url = 'http://localhost:{}/login1'.format(PORT)
     with MockServer():
         # no login form
         with pytest.raises(AutoLoginException) as e:
@@ -41,7 +43,7 @@ def test_auth_cookies_from_url():
         assert e.value.args[0] == 'nologinform'
         # wrong password
         with pytest.raises(AutoLoginException) as e:
-            al.auth_cookies_from_url(url + '?foo=', 'admin', 'wrong')
+            al.auth_cookies_from_url(url, 'admin', 'wrong')
         assert e.value.args[0] == 'badauth'
         # normal auth
         cookies = al.auth_cookies_from_url(url + '?foo=', 'admin', 'secret')
@@ -49,3 +51,18 @@ def test_auth_cookies_from_url():
         # redirect to the same URL
         cookies = al.auth_cookies_from_url(url, 'admin', 'secret')
         assert {c.name: c.value for c in cookies} == {'_auth': 'yes'}
+
+
+@pytest.mark.last
+def test_auth_cookies_from_url_login2():
+    al = AutoLogin()
+    url = 'http://localhost:{}/login2'.format(PORT)
+   #with MockServer():
+   #    # wrong password
+   #    with pytest.raises(AutoLoginException) as e:
+   #        al.auth_cookies_from_url(url + '?foo=', 'admin', 'wrong')
+   #    assert e.value.args[0] == 'badauth'
+    with MockServer():
+        # normal auth
+        cookies = al.auth_cookies_from_url(url, 'admin', 'secret')
+        assert {c.name: c.value for c in cookies} == {'session': '1'}

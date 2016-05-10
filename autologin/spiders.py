@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from base64 import b64decode
+from collections import namedtuple
 from functools import partial
 import logging
 import os.path
@@ -14,6 +15,7 @@ from scrapy.crawler import CrawlerRunner
 from scrapy.exceptions import CloseSpider
 from scrapy.utils.response import get_base_url
 from scrapy_splash import SplashRequest
+from twisted.internet.defer import inlineCallbacks, returnValue
 
 from .middleware import get_cookiejar
 from .app import app, db, server_path
@@ -23,6 +25,7 @@ from .login_keychain import get_domain
 USERNAME_FIELD_TYPES = {'username', 'email', 'username or email'}
 CHECK_CHECKBOXES = {'remember me checkbox'}
 PASSWORD_FIELD_TYPES = {'password'}
+CAPTCHA_FIELD_TYPES = {'captcha'}
 SUBMIT_TYPES = {'submit button'}
 DEFAULT_POST_HEADERS = {b'Content-Type': b'application/x-www-form-urlencoded'}
 
@@ -35,16 +38,13 @@ USER_AGENT = (
 base_settings = Settings(values=dict(
     TELNETCONSOLE_ENABLED = False,
     ROBOTSTXT_OBEY = False,
-    DEPTH_LIMIT = 3,
     DOWNLOAD_DELAY = 2.0,
     DEPTH_PRIORITY = 1,
     CONCURRENT_REQUESTS = 2,
     CONCURRENT_REQUESTS_PER_DOMAIN = 2,
     SCHEDULER_DISK_QUEUE = 'scrapy.squeues.PickleFifoDiskQueue',
     SCHEDULER_MEMORY_QUEUE = 'scrapy.squeues.FifoMemoryQueue',
-    CLOSESPIDER_PAGECOUNT = 2000,
     # DOWNLOADER_MIDDLEWARES are set in get_settings
-    DOWNLOAD_MAXSIZE = 1*1024*1024,  # 1MB
     USER_AGENT = USER_AGENT,
     ))
 
@@ -75,6 +75,7 @@ def splash_request(lua_source, *args, **kwargs):
     kwargs['endpoint'] = 'execute'
     splash_args = kwargs.setdefault('args', {})
     splash_args['lua_source'] = lua_source
+    splash_args['timeout'] = 60
     extra_js = kwargs.pop('extra_js', None)
     if extra_js:
         splash_args['extra_js'] = extra_js
@@ -93,6 +94,11 @@ class BaseSpider(scrapy.Spider):
         super(BaseSpider, self).__init__(*args, **kwargs)
 
     def start_requests(self):
+        self._finish_init()
+        for url in self.start_urls:
+            yield self.request(url)
+
+    def _finish_init(self):
         self.using_splash = bool(self.settings.get('SPLASH_URL'))
         if self.using_splash:
             with open(os.path.join(
@@ -107,8 +113,6 @@ class BaseSpider(scrapy.Spider):
                 raise ValueError(
                     '"extra_js" not supported without "splash_url"')
             self.request = scrapy.Request
-        for url in self.start_urls:
-            yield self.request(url, callback=self.parse)
 
 
 class FormSpider(BaseSpider):
@@ -117,6 +121,11 @@ class FormSpider(BaseSpider):
     When a form is found, its URL is saved to the database.
     """
     name = 'forms'
+    custom_settings = {
+        'DEPTH_LIMIT': 3,
+        'CLOSESPIDER_PAGECOUNT': 2000,
+        'DOWNLOAD_MAXSIZE': 1*1024*1024,  # 1MB
+    }
     priority_patterns = [
         # Login links
         'login',
@@ -183,20 +192,84 @@ class LoginSpider(BaseSpider):
     """ This spider tries to login and returns an item with login cookies. """
     name = 'login'
     lua_source = 'login.lua'
+    custom_settings = {
+        'DEPTH_LIMIT': 0,  # retries are tracked explicitly
+        'LOGIN_MAX_RETRIES': 10,
+        'DECAPTCHA_DEATHBYCAPTCHA_USERNAME':
+            os.environ.get('DEATHBYCAPTCHA_USERNAME'),
+        'DECAPTCHA_DEATHBYCAPTCHA_PASSWORD':
+            os.environ.get('DEATHBYCAPTCHA_PASSWORD'),
+    }
 
     def __init__(self, url, username, password, *args, **kwargs):
-        self.start_urls = [url]
+        self.start_url = url
+        self.start_urls = [self.start_url]
         self.username = username
         self.password = password
+        self.solver = None
+        self.retries_left = None
+        self.attempted_captchas = []
         super(LoginSpider, self).__init__(*args, **kwargs)
 
-    def parse(self, response):
-        forminfo = get_login_form(response.text)
-        if forminfo is None:
-            return {'ok': False, 'error': 'nologinform'}
+    def start_requests(self):
+        self._finish_init()
+        try:
+            import decaptcha
+        except ImportError:
+            self.solver = None
+        else:
+            from decaptcha.solvers.deathbycaptcha import DeathbycaptchaSolver
+            self.solver = DeathbycaptchaSolver(self.crawler)
+        self.retries_left = self.crawler.settings.getint('LOGIN_MAX_RETRIES')
+        request_kwargs = {}
+        if self.using_splash:
+            request_kwargs['args'] = {'full_render': True}
+        yield self.request(self.start_url, **request_kwargs)
 
-        form, meta = forminfo
-        self.logger.info("found login form: %s" % meta)
+    def retry(self, tried_login=False, retry_once=False):
+        self.retries_left -= 1
+        if retry_once:
+            self.retries_left = min(1, self.retries_left)
+        if self.retries_left:
+            self.logger.debug('Retrying login')
+            return self.request(
+                self.start_url,
+                callback=partial(self.parse, tried_login=tried_login),
+                dont_filter=True)
+        else:
+            self.logger.debug('No retries left, giving up')
+
+    @inlineCallbacks
+    def parse(self, response, tried_login=False):
+        initial_cookies = _response_cookies(response)
+        page_forms = response.data.get('forms') if self.using_splash else None
+        if page_forms:
+            page_forms = _from_lua(page_forms)
+        forminfo = get_login_form(response.text, page_forms=page_forms)
+        if forminfo is None:
+            if tried_login and initial_cookies:
+                # If we can not find a login form on retry, then we must
+                # have already logged in, but the cookies did not change,
+                # so we did not detect our success.
+                yield self.report_captchas()
+                returnValue({
+                    'ok': True,
+                    'cookies': initial_cookies,
+                    'start_url': response.url})
+            returnValue({'ok': False, 'error': 'nologinform'})
+
+        form_idx, form, meta = forminfo
+        self.logger.info('found login form: %s' % meta)
+        extra_fields = {}
+        captcha_solved = False
+        captcha_field = _get_captcha_field(meta)
+        if captcha_field and page_forms and self.solver:
+            captcha_value = yield self.solve_captcha(page_forms[form_idx])
+            if captcha_value:
+                captcha_solved = True
+                extra_fields[captcha_field] = captcha_value
+            else:
+                returnValue(self.retry())
 
         params = login_params(
             url=get_base_url(response),
@@ -204,17 +277,61 @@ class LoginSpider(BaseSpider):
             password=self.password,
             form=form,
             meta=meta,
+            extra_fields=extra_fields,
         )
-        self.logger.debug("submit parameters: %s" % params)
-        initial_cookies = cookie_dicts(_response_cookies(response)) or []
+        self.logger.debug('submit parameters: %s' % params)
 
-        return self.request(params['url'], self.parse_login,
+        returnValue(self.request(
+            params['url'],
+            # If we did not try solving the captcha, retry just once
+            # to check if the login form dissapears (and we logged in).
+            callback=partial(self.parse_login, retry_once=not captcha_solved),
             method=params['method'],
             headers=params['headers'],
             body=params['body'],
-            meta={'initial_cookies': initial_cookies},
+            meta={'initial_cookies': cookie_dicts(initial_cookies) or []},
             dont_filter=True,
-        )
+        ))
+
+    @inlineCallbacks
+    def parse_login(self, response, retry_once=False):
+        cookies = _response_cookies(response) or []
+
+        old_cookies = set(_cookie_tuples(response.meta['initial_cookies']))
+        new_cookies = set(_cookie_tuples(cookie_dicts(cookies)))
+
+        if self.using_splash:
+            self.debug_screenshot('page', b64decode(response.data['page']))
+        if new_cookies <= old_cookies:  # no new or changed cookies
+            fail = {'ok': False, 'error': 'badauth'}
+            returnValue(
+                self.retry(tried_login=True, retry_once=retry_once) or fail)
+        yield self.report_captchas()
+        returnValue({'ok': True, 'cookies': cookies, 'start_url': response.url})
+
+    @inlineCallbacks
+    def solve_captcha(self, page_form):
+        from decaptcha.exceptions import DecaptchaError
+        form_screenshot = b64decode(page_form['screenshot'])
+        self.debug_screenshot('captcha', form_screenshot)
+        try:
+            captcha_value = yield self.solver.solve(form_screenshot)
+        except DecaptchaError as e:
+            self.logger.error('captcha not solved', exc=e)
+            returnValue(None)
+        else:
+            self.logger.debug('captcha solved: "%s"' % captcha_value)
+            self.attempted_captchas.append(form_screenshot)
+            returnValue(captcha_value)
+
+    @inlineCallbacks
+    def report_captchas(self):
+        # We assume that if we have logged in, then all previous failed attempts
+        # were due to incorrectly solved captchas.
+        if self.attempted_captchas:
+            for captcha_image in self.attempted_captchas[:-1]:
+                yield self.solver.report(captcha_image)
+            self.attempted_captchas = []
 
     def debug_screenshot(self, name, screenshot):
         if not self.logger.isEnabledFor(logging.DEBUG):
@@ -225,23 +342,36 @@ class LoginSpider(BaseSpider):
             f.write(screenshot)
         self.logger.debug('saved %s screenshot to %s' % (name, filename))
 
-    def parse_login(self, response):
-        cookies = _response_cookies(response) or []
 
-        old_cookies = set(_cookie_tuples(response.meta['initial_cookies']))
-        new_cookies = set(_cookie_tuples(cookie_dicts(cookies)))
-
-        if self.using_splash:
-            self.debug_screenshot('page', b64decode(response.data['page']))
-        if new_cookies <= old_cookies:  # no new or changed cookies
-            return {'ok': False, 'error': 'badauth'}
-        return {'ok': True, 'cookies': cookies, 'start_url': response.url}
-
-
-def get_login_form(html_source):
-    for form, meta in formasaurus.extract_forms(html_source):
+def get_login_form(html_source, page_forms=None):
+    matches = []
+    Match = namedtuple('Match', ['idx', 'form', 'meta'])
+    for idx, (form, meta) in enumerate(formasaurus.extract_forms(html_source)):
         if meta['form'] == 'login':
-            return form, meta
+            matches.append(Match(idx, form, meta))
+    if matches:
+        if page_forms:
+            return max(matches, key=lambda match: (
+                _get_captcha_field(match.meta) is not None,
+                _form_area(page_forms[match.idx])))
+        else:
+            return matches[0]
+
+
+def _form_area(form_meta):
+    region = form_meta['region']
+    left, top, right, bottom = region
+    return (right - left) * (bottom - top)
+
+
+def _from_lua(table):
+    return [table[str(idx + 1)] for idx in range(len(table))]
+
+
+def _get_captcha_field(meta):
+    for name, field_type in meta['fields'].items():
+        if field_type in CAPTCHA_FIELD_TYPES:
+            return name
 
 
 def relative_url(url):
@@ -249,7 +379,7 @@ def relative_url(url):
     return urlunsplit(('', '') + parts[2:])
 
 
-def login_params(url, username, password, form, meta):
+def login_params(url, username, password, form, meta, extra_fields=None):
     """
     Return ``{'url': url, 'method': method, 'body': body}``
     with all required information for submitting a login form.
@@ -275,6 +405,9 @@ def login_params(url, username, password, form, meta):
 
     form.fields[username_field] = username
     form.fields[password_field] = password
+    if extra_fields:
+        for k, v in extra_fields.items():
+            form.fields[k] = v
 
     submit_values = form.form_values()
 
@@ -303,6 +436,6 @@ def _response_cookies(response):
         return get_cookiejar(response)
 
 
-def _cookie_tuples(cookie_dicts):
+def _cookie_tuples(cookie_dicts_):
     return [(c['name'], c['value'], c['domain'], c['path'], c['port'])
-            for c in cookie_dicts]
+            for c in cookie_dicts_]

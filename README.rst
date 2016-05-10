@@ -40,6 +40,7 @@ Features
 * Command line client
 * Web service
 * UI for managing login credentials
+* Captcha support
 
 
 Quickstart
@@ -194,6 +195,25 @@ Response is JSON with a ``status`` field with the following possible values:
   and no credentials have been entered yet
 - ``solved`` means that cookies were obtained, they are returned in the
   ``cookies`` field, in ``Cookie.__dict__`` format.
+
+
+Captcha support
+---------------
+
+There is experimental captcha support: if the login form contains a captcha,
+we will try to solve it using an external service (DeathByCaptcha),
+and will submit it as part of login request. This does not affect API in any
+way, you only have to provide environment variables with your DeathByCaptcha
+account details: ``DEATHBYCAPTCHA_USERNAME`` and ``DEATHBYCAPTCHA_PASSWORD``.
+This applies to all APIs: ``autologin-http-api``, ``autologin``, and
+the Python API.
+
+You also need to install the ``decaptcha`` library::
+
+    pip install git+https://github.com/TeamHG-Memex/decaptcha.git
+
+Support is still experimental, new Google ReCaptcha/NoCaptcha are not supported.
+Also, it currently works only with splash (when ``splash_url`` is set).
 
 
 Keychain UI
