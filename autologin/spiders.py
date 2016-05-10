@@ -7,8 +7,6 @@ import os.path
 import uuid
 from six.moves.urllib.parse import urlsplit, urlunsplit, urlencode, urljoin
 
-from decaptcha.exceptions import DecaptchaError
-from decaptcha.solvers.deathbycaptcha import DeathbycaptchaSolver
 import formasaurus
 import scrapy
 from scrapy.linkextractors import LinkExtractor
@@ -214,8 +212,14 @@ class LoginSpider(BaseSpider):
         super(LoginSpider, self).__init__(*args, **kwargs)
 
     def start_requests(self):
-        self.solver = DeathbycaptchaSolver(self.crawler)
         self._finish_init()
+        try:
+            import decaptcha
+        except ImportError:
+            self.solver = None
+        else:
+            from decaptcha.solvers.deathbycaptcha import DeathbycaptchaSolver
+            self.solver = DeathbycaptchaSolver(self.crawler)
         self.retries_left = self.crawler.settings.getint('LOGIN_MAX_RETRIES')
         request_kwargs = {}
         if self.using_splash:
@@ -259,7 +263,7 @@ class LoginSpider(BaseSpider):
         extra_fields = {}
         captcha_solved = False
         captcha_field = _get_captcha_field(meta)
-        if captcha_field and page_forms:
+        if captcha_field and page_forms and self.solver:
             captcha_value = yield self.solve_captcha(page_forms[form_idx])
             if captcha_value:
                 captcha_solved = True
@@ -307,6 +311,7 @@ class LoginSpider(BaseSpider):
 
     @inlineCallbacks
     def solve_captcha(self, page_form):
+        from decaptcha.exceptions import DecaptchaError
         form_screenshot = b64decode(page_form['screenshot'])
         self.debug_screenshot('captcha', form_screenshot)
         try:
