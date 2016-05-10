@@ -1,0 +1,10 @@
+*
+!setup.py
+!requirements.txt
+!supervisord.conf
+!README.rst
+!MANIFEST.in
+!autologin
+**/__pycache__
+**/*.pyc
+autologin/static/browser/*
