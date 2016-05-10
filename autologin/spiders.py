@@ -223,7 +223,7 @@ class LoginSpider(BaseSpider):
         self.retries_left = self.crawler.settings.getint('LOGIN_MAX_RETRIES')
         request_kwargs = {}
         if self.using_splash:
-            request_kwargs['args'] = {'set_viewport_full': True}
+            request_kwargs['args'] = {'full_render': True}
         yield self.request(self.start_url, **request_kwargs)
 
     def retry(self, tried_login=False, retry_once=False):

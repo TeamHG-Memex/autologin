@@ -1,4 +1,5 @@
 function main(splash)
+    local full_render = splash.args.full_render
     local first_request = true
     splash:on_request(function(request)
         if first_request then
@@ -21,7 +22,7 @@ function main(splash)
           assert(splash:wait(1.0))
         end
 
-        if splash.args.set_viewport_full then
+        if full_render then
             splash:set_viewport_full()
         end
     end
@@ -34,7 +35,7 @@ function main(splash)
             cookies=splash:get_cookies(),
             html=splash:html(),
             http_status=last_response.status,
-            forms=render_forms(splash),
+            forms=full_render and render_forms(splash) or nil,
             page=splash:jpeg{quality=80},
         }
     else
