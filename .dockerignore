@@ -7,4 +7,5 @@
 !autologin
 **/__pycache__
 **/*.pyc
+autologin/*.sqlite
 autologin/static/browser/*

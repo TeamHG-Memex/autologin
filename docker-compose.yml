@@ -1,0 +1,16 @@
+version: '2'
+
+volumes:
+  data: {}
+
+services:
+  autologin:
+    build: .
+    ports:
+     - "8088:8088"
+     - "8089:8089"
+    environment:
+     - DECAPTCHA_DEATHBYCAPTCHA_USERNAME
+     - DECAPTCHA_DEATHBYCAPTCHA_PASSWORD
+    volumes:
+     - data:/var/autologin
