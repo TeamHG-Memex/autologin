@@ -1,4 +1,4 @@
-import configparser
+from six.moves import configparser
 import os.path
 
 from flask import Flask
@@ -13,8 +13,7 @@ browser_dir = os.path.join(static_dir, 'browser')
 # Read config (defaults are in autologin.conf)
 config = configparser.ConfigParser()
 # Read default config
-with open(os.path.join(server_path, 'autologin.cfg')) as f:
-    config.read_file(f)
+config.read(os.path.join(server_path, 'autologin.cfg'))
 # Override by user-supplied config
 config.read([
     os.path.expanduser('~/.autologin.cfg'),
