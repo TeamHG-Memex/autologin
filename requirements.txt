@@ -9,7 +9,7 @@ scrapy==1.1.0
 numpy
 scipy
 scikit-learn
-formasaurus[with-deps]==0.7.2
+formasaurus[with_deps]==0.7.2
 scrapy-splash>=0.4
 crochet
 requests
