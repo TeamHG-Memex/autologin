@@ -213,14 +213,20 @@ class LoginSpider(BaseSpider):
 
     def start_requests(self):
         self._finish_init()
+        settings = self.crawler.settings
+        self.solver = None
         try:
             import decaptcha
         except ImportError:
-            self.solver = None
+            self.logger.warning('Decaptcha not installed')
         else:
             from decaptcha.solvers.deathbycaptcha import DeathbycaptchaSolver
-            self.solver = DeathbycaptchaSolver(self.crawler)
-        self.retries_left = self.crawler.settings.getint('LOGIN_MAX_RETRIES')
+            if (settings.get('DECAPTCHA_DEATHBYCAPTCHA_USERNAME') and
+                    settings.get('DECAPTCHA_DEATHBYCAPTCHA_PASSWORD')):
+                self.solver = DeathbycaptchaSolver(self.crawler)
+            else:
+                self.logger.warning('DeathByCaptcha account not provided')
+        self.retries_left = settings.getint('LOGIN_MAX_RETRIES')
         request_kwargs = {}
         if self.using_splash:
             request_kwargs['args'] = {'full_render': True}
