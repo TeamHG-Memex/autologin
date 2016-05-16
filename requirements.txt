@@ -13,4 +13,4 @@ formasaurus[with_deps]==0.8.0
 scrapy-splash==0.7
 crochet==1.5.0
 requests==2.10.0
-git+https://github.com/TeamHG-Memex/decaptcha.git@cf1be63a8aaa76ef26d3b53bc255382b557b92f6
+git+https://github.com/TeamHG-Memex/decaptcha.git@fuzzy-engine

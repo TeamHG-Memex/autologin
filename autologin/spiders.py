@@ -12,8 +12,9 @@ import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.settings import Settings
 from scrapy.crawler import CrawlerRunner
-from scrapy.exceptions import CloseSpider
+from scrapy.exceptions import CloseSpider, NotConfigured
 from scrapy.utils.response import get_base_url
+from scrapy.utils.misc import load_object
 from scrapy_splash import SplashRequest
 from twisted.internet.defer import inlineCallbacks, returnValue
 
@@ -195,14 +196,11 @@ class LoginSpider(BaseSpider):
     """ This spider tries to login and returns an item with login cookies. """
     name = 'login'
     lua_source = 'login.lua'
+
     custom_settings = {
         'DEPTH_LIMIT': 0,  # retries are tracked explicitly
         'LOGIN_MAX_RETRIES': 10,
-        'DECAPTCHA_DEATHBYCAPTCHA_USERNAME':
-            os.environ.get('DEATHBYCAPTCHA_USERNAME'),
-        'DECAPTCHA_DEATHBYCAPTCHA_PASSWORD':
-            os.environ.get('DEATHBYCAPTCHA_PASSWORD'),
-    }
+        }
 
     def __init__(self, url, username, password, *args, **kwargs):
         self.start_url = url
@@ -214,22 +212,43 @@ class LoginSpider(BaseSpider):
         self.attempted_captchas = []
         super(LoginSpider, self).__init__(*args, **kwargs)
 
-    def start_requests(self):
-        self._finish_init()
-        settings = self.crawler.settings
-        self.solver = None
+    @classmethod
+    def update_settings(cls, settings):
+        settings.setdict(cls.custom_settings or {}, priority='spider')
         try:
             import decaptcha
         except ImportError:
-            self.logger.warning('Decaptcha not installed')
+            pass
         else:
-            from decaptcha.solvers.deathbycaptcha import DeathbycaptchaSolver
-            if (settings.get('DECAPTCHA_DEATHBYCAPTCHA_USERNAME') and
-                    settings.get('DECAPTCHA_DEATHBYCAPTCHA_PASSWORD')):
-                self.solver = DeathbycaptchaSolver(self.crawler)
-            else:
-                self.logger.warning('DeathByCaptcha account not provided')
-        self.retries_left = settings.getint('LOGIN_MAX_RETRIES')
+            settings.update({
+                'DECAPTCHA_DEATHBYCAPTCHA_USERNAME':
+                    os.environ.get('DEATHBYCAPTCHA_USERNAME'),
+                'DECAPTCHA_DEATHBYCAPTCHA_PASSWORD':
+                    os.environ.get('DEATHBYCAPTCHA_PASSWORD'),
+                'DECAPTCHA_ENABLED': True,
+                'DECAPTCHA_DEBUG': True,
+                'DECAPTCHA_SOLVER':
+                    'decaptcha.solvers.deathbycaptcha.DeathbycaptchaSolver',
+                'DECAPTCHA_ENGINES': [
+                    'decaptcha.engines.fuzzy_text.FuzzyTextEngine',
+                ],
+            })
+            settings['DOWNLOADER_MIDDLEWARES'].update({
+                'decaptcha.downloadermiddleware.decaptcha.DecaptchaMiddleware':
+                    500,
+            })
+
+    def start_requests(self):
+        self._finish_init()
+        self.solver = None
+        solver_class = self.settings.get('DECAPTCHA_SOLVER')
+        if solver_class:
+            try:
+                self.solver = load_object(solver_class)(self.crawler)
+            except NotConfigured:
+                self.logger.debug(
+                    'Decaptcha solver not configured:', exc_info=True)
+        self.retries_left = self.crawler.settings.getint('LOGIN_MAX_RETRIES')
         request_kwargs = {}
         if self.using_splash:
             request_kwargs['args'] = {'full_render': True}
