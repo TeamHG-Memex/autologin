@@ -226,7 +226,6 @@ class LoginSpider(BaseSpider):
                 'DECAPTCHA_DEATHBYCAPTCHA_PASSWORD':
                     os.environ.get('DEATHBYCAPTCHA_PASSWORD'),
                 'DECAPTCHA_ENABLED': True,
-                'DECAPTCHA_DEBUG': True,
                 'DECAPTCHA_SOLVER':
                     'decaptcha.solvers.deathbycaptcha.DeathbycaptchaSolver',
                 'DECAPTCHA_ENGINES': [

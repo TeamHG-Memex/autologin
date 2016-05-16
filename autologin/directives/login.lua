@@ -7,6 +7,7 @@ function main(splash)
             first_request = false
         end
     end)
+    splash.images_enabled = false
     splash:init_cookies(splash.args.cookies)
     local ok, reason = splash:go{
         splash.args.url,
