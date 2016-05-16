@@ -29,7 +29,7 @@ setup(
         'Flask-WTF==0.12',
         'WTForms==2.1',
         'scrapy>=1.1.0',
-        'numpy',  # There 3 are formasaurus deps, make sure we always have them
+        'numpy',  # These 3 are formasaurus deps, make sure we always have them
         'scipy',
         'scikit-learn',
         'formasaurus[with_deps]==0.7.2',
