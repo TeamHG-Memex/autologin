@@ -110,15 +110,16 @@ If you have a Scrapy spider (or use Twisted in some other way),
 use the HTTP API, or the non-blocking API (it's not documented,
 see ``http_api.AutologinAPI._login``).
 
-There are also opitonal arguments for ``AutoLogin.auth_cookies_from_url``:
+There are also optional arguments for ``AutoLogin.auth_cookies_from_url``:
 
 - ``settings`` is a dictionary with Scrapy settings to override.
   Useful settings to pass include:
 
+    * ``HTTP_PROXY``, ``HTTPS_PROXY`` set proxies to use for all requests.
     * ``SPLASH_URL`` if set, `Splash <http://splash.readthedocs.org>`_
       will be used to make all requests. Use it if your crawler also uses
       splash and the session is tied to IP and User-Agent, or for Tor sites.
-    * ``USER_AGENT`` overrides default User-Agent
+    * ``USER_AGENT`` overrides default User-Agent.
 
 - ``extra_js`` (experimental)
   is a string with an extra JS script that should be executed
@@ -242,6 +243,9 @@ https://github.com/TeamHG-Memex/autologin.
 Run tests with ``tox``::
 
     $ tox
+
+Proxy tests require running ``polipo`` proxy with default config (any http
+proxy on port 8123 should work).
 
 Splash support is not tested directly here, but there are indirect tests for it
 in the `undercrawler <https://github.com/TeamHG-Memex/undercrawler>`_

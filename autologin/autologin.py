@@ -103,6 +103,8 @@ def main():
     argparser.add_argument(
         '--splash-url',
         help='URL of the splash instance (by default splash is not used)')
+    argparser.add_argument('--http-proxy', help='URL of the http proxy to use')
+    argparser.add_argument('--https-proxy', help='URL of the https proxy to use')
     argparser.add_argument(
         '--extra-js', help='path to extra js script executed on login page')
     argparser.add_argument('--show-in-browser', '-b',
@@ -119,6 +121,10 @@ def main():
     settings = {}
     if args.splash_url:
         settings['SPLASH_URL'] = args.splash_url
+    if args.http_proxy:
+        settings['HTTP_PROXY'] = args.http_proxy
+    if args.https_proxy:
+        settings['HTTPS_PROXY'] = args.https_proxy
     login_cookies = auto_login.auth_cookies_from_url(
         args.url, args.username, args.password,
         settings=settings, extra_js=extra_js)
