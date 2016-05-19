@@ -9,6 +9,8 @@ branches:
 
 install:
     - pip install -U tox codecov
+    - pip install proxy.py
+    - proxy.py --port 8123 &
 
 script: tox
 

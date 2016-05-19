@@ -160,10 +160,10 @@ Command Line
 ::
 
     $ autologin
-    usage: autologin [-h] [--splash-url SPLASH_URL] [--extra-js EXTRA_JS]
+    usage: autologin [-h] [--splash-url SPLASH_URL] [--http-proxy HTTP_PROXY]
+                     [--https-proxy HTTPS_PROXY] [--extra-js EXTRA_JS]
                      [--show-in-browser]
                      username password url
-
 
 HTTP API
 --------
@@ -244,8 +244,8 @@ Run tests with ``tox``::
 
     $ tox
 
-Proxy tests require running ``polipo`` proxy with default config (any http
-proxy on port 8123 should work).
+Proxy tests require an http proxy running on port 8123. For example, you can
+use ``polipo`` with default config, or pure Python ``proxy.py --port 8123``.
 
 Splash support is not tested directly here, but there are indirect tests for it
 in the `undercrawler <https://github.com/TeamHG-Memex/undercrawler>`_
