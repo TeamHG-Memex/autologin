@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-from scrapy.downloadermiddlewares.cookies import CookiesMiddleware
 from scrapy.http.cookies import CookieJar
+from scrapy.downloadermiddlewares.cookies import CookiesMiddleware
+from scrapy.downloadermiddlewares.httpproxy import HttpProxyMiddleware
+from scrapy.exceptions import NotConfigured
 
 
 class ExposeCookiesMiddleware(CookiesMiddleware):
@@ -30,3 +32,23 @@ def get_cookiejar(response):
     for obj in response.flags:
         if isinstance(obj, CookieJar):
             return obj
+
+
+class ProxyFromSettingsMiddleware(HttpProxyMiddleware):
+    """A middleware that sets proxy from settings file"""
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler.settings)
+
+    def __init__(self, settings):
+        self.proxies = {}
+        proxies = [
+            ('http', settings.get('HTTP_PROXY')),
+            ('https', settings.get('HTTPS_PROXY')),
+        ]
+        for type_, url in proxies:
+            if url:
+                self.proxies[type_] = self._get_proxy(url, type_)
+        if not self.proxies:
+            raise NotConfigured

@@ -46,7 +46,11 @@ base_settings = Settings(values=dict(
     SCHEDULER_MEMORY_QUEUE = 'scrapy.squeues.FifoMemoryQueue',
     # DOWNLOADER_MIDDLEWARES are set in get_settings
     USER_AGENT = USER_AGENT,
-    ))
+    DOWNLOADER_MIDDLEWARES = {
+        'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': None,
+        'autologin.middleware.ProxyFromSettingsMiddleware': 750,
+    },
+))
 
 
 def crawl_runner(extra_settings=None):
@@ -55,18 +59,18 @@ def crawl_runner(extra_settings=None):
         settings.update(extra_settings, priority='cmdline')
     if settings.get('SPLASH_URL'):
         settings['DUPEFILTER_CLASS'] = 'scrapy_splash.SplashAwareDupeFilter'
-        settings['DOWNLOADER_MIDDLEWARES'] = {
+        settings.setdefault('DOWNLOADER_MIDDLEWARES', {}).update({
             'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': None,
             'scrapy_splash.SplashCookiesMiddleware': 723,
             'scrapy_splash.SplashMiddleware': 725,
             'scrapy.downloadermiddlewares.httpcompression'
                 '.HttpCompressionMiddleware': 810,
-        }
+        })
     else:
-        settings['DOWNLOADER_MIDDLEWARES'] = {
+        settings.setdefault('DOWNLOADER_MIDDLEWARES', {}).update({
             'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': None,
             'autologin.middleware.ExposeCookiesMiddleware': 700,
-        }
+        })
     return CrawlerRunner(settings)
 
 
