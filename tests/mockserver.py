@@ -13,12 +13,13 @@ configure_logging()
 
 
 class MockServer():
-    def __init__(self):
+    def __init__(self, module='tests.mockserver'):
         self.proc = None
+        self.module = module
 
     def __enter__(self):
         self.proc = Popen(
-            [sys.executable, '-u', '-m', 'tests.mockserver'], stdout=PIPE)
+            [sys.executable, '-u', '-m', self.module], stdout=PIPE)
         self.proc.stdout.readline()
         return self
 
@@ -40,6 +41,7 @@ AUTH_FORM = (
 
 class Login(Resource):
     isLeaf = True
+    url = '/login'
 
     def render_GET(self, request):
         request.setHeader(b'utm', b'mark')
@@ -48,7 +50,7 @@ class Login(Resource):
         auth = request.received_cookies.get(b'_auth') == b'yes'
         return (
             '<h1>Auth: {auth}</h1>' + AUTH_FORM
-            ).format(action='login1', auth=auth).encode('utf-8')
+            ).format(action=self.url, auth=auth).encode('utf-8')
 
     def render_POST(self, request):
         if (request.args[b'login'][0] == b'admin' and
@@ -56,11 +58,21 @@ class Login(Resource):
             request.setHeader(b'set-cookie', b'_auth=yes')
         elif request.received_cookies.get(b'_auth'):
             request.setHeader(b'set-cookie', b'_auth=')
-        return Redirect(b'/login1').render(request)
+        return Redirect(self.url.encode('utf-8')).render(request)
+
+
+class LoginCheckProxy(Login):
+    url = '/login-check-proxy'
+
+    def render_POST(self, request):
+        if request.getHeader(b'aproxy') != b'yes':
+            return Redirect(self.url.encode('utf-8')).render(request)
+        return Login.render_POST(self, request)
 
 
 class LoginNoChangeCookie(Resource):
     isLeaf = True
+    url = '/login-no-change-cookie'
 
     def render_GET(self, request):
         request.setHeader(b'set-cookie', b'session=1')
@@ -69,20 +81,20 @@ class LoginNoChangeCookie(Resource):
         if self.is_auth:
             return b'You have logged in'
         else:
-            return AUTH_FORM.format(action='login2').encode('utf-8')
+            return AUTH_FORM.format(action=self.url).encode('utf-8')
 
     def render_POST(self, request):
         self.is_auth = (
             request.args[b'login'][0] == b'admin' and
             request.args[b'password'][0] == b'secret')
-        return Redirect(b'/login2').render(request)
+        return Redirect(self.url.encode('utf-8')).render(request)
 
 
 class Root(Resource):
     def __init__(self):
         Resource.__init__(self)
-        self.putChild(b'login1', Login())
-        self.putChild(b'login2', LoginNoChangeCookie())
+        for R in [Login, LoginCheckProxy, LoginNoChangeCookie]:
+            self.putChild(R.url.lstrip('/').encode('utf-8'), R())
 
 
 def main():

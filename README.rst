@@ -244,9 +244,6 @@ Run tests with ``tox``::
 
     $ tox
 
-Proxy tests require an http proxy running on port 8123. For example, you can
-use ``polipo`` with default config, or pure Python ``proxy.py --port 8123``.
-
 Splash support is not tested directly here, but there are indirect tests for it
 in the `undercrawler <https://github.com/TeamHG-Memex/undercrawler>`_
 test suite.

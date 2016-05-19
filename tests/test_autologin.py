@@ -2,7 +2,9 @@ import pytest
 import unittest
 
 from autologin import AutoLogin, AutoLoginException
-from tests.mockserver import MockServer, PORT
+from tests.mockserver import MockServer, PORT, Login, LoginNoChangeCookie, \
+    LoginCheckProxy
+from tests.proxy import PROXY_PORT
 
 
 def test_login_request():
@@ -33,9 +35,11 @@ def test_login_request():
 # is not finalized correctly after a call to crochet.setup.
 @pytest.mark.last
 class TestAuthCookiesFromUrl(unittest.TestCase):
-    
-    url = 'http://127.0.0.1:{}/login1'.format(PORT)
-    url_no_change_cookie = 'http://127.0.0.1:{}/login2'.format(PORT)
+
+    base_url = 'http://127.0.0.1:{}'.format(PORT)
+    url = base_url + Login.url
+    url_no_change_cookie = base_url + LoginNoChangeCookie.url
+    url_check_proxy = base_url + LoginCheckProxy.url
 
     def setUp(self):
         self.al = AutoLogin()
@@ -67,10 +71,16 @@ class TestAuthCookiesFromUrl(unittest.TestCase):
 
     def test_proxy(self):
         assert 'localhost' not in self.url, 'proxy_bypass bypasses localhost'
-        cookies = self.al.auth_cookies_from_url(
-            self.url, 'admin', 'secret',
-            settings={'HTTP_PROXY': 'http://127.0.0.1:8123'},
-        )
+        with MockServer('tests.proxy'):
+            with pytest.raises(AutoLoginException) as e:
+                self.al.auth_cookies_from_url(
+                    self.url_check_proxy, 'admin', 'secret')
+            cookies = self.al.auth_cookies_from_url(
+                self.url_check_proxy, 'admin', 'secret',
+                settings={
+                    'HTTP_PROXY': 'http://127.0.0.1:{}'.format(PROXY_PORT)
+                },
+            )
         assert {c.name: c.value for c in cookies} == {'_auth': 'yes'}
 
     def test_no_change_cookie(self):
