@@ -25,6 +25,8 @@ EXPOSE 8088 8089
 # Create the data folder
 RUN mkdir -p /var/autologin
 
+VOLUME /var/autologin
+
 # Copy config to set up the database location
 COPY autologin/autologin.docker.cfg /etc/autologin.cfg
 

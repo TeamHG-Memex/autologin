@@ -1,8 +1,5 @@
 version: '2'
 
-volumes:
-  data: {}
-
 services:
   autologin:
     build: .
@@ -13,4 +10,4 @@ services:
      - DEATHBYCAPTCHA_USERNAME
      - DEATHBYCAPTCHA_PASSWORD
     volumes:
-     - data:/var/autologin
+     - /var/autologin
