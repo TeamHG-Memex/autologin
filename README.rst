@@ -1,6 +1,10 @@
 Autologin: Automatic login for web spiders
 ==========================================
 
+.. image:: https://img.shields.io/pypi/v/autologin.svg
+   :target: https://pypi.python.org/pypi/autologin
+   :alt: PyPI Version
+
 .. image:: https://img.shields.io/travis/TeamHG-Memex/autologin/master.svg
    :target: http://travis-ci.org/TeamHG-Memex/autologin
    :alt: Build Status
@@ -10,7 +14,7 @@ Autologin: Automatic login for web spiders
    :alt: Code Coverage
 
 
-AutoLogin is a library that makes it easier for web spiders to
+Autologin is a library that makes it easier for web spiders to
 **crawl websites that require login**.
 Provide it with credentials and a URL or the html source of a page
 (normally the homepage), and it will attempt to login for you.
@@ -25,7 +29,15 @@ You can make use of Autologin without generating http requests,
 so you can drop it right into your spider without worrying about
 impacting rate limits.
 
+If you are using `Scrapy <scrapy.readthedocs.org>`_ for crawling, check out
+`autologin-middleware <https://github.com/TeamHG-Memex/autologin-middleware>`_,
+which is a scrapy middleware that uses autologin http-api to maintain
+a logged-in state for a scrapy spider.
+
 Autologin works on Python 2.7 and 3.3+.
+
+.. note:: The library is in the alpha stage.
+   API can still change, especially around the keychain UI.
 
 .. contents::
 
@@ -71,7 +83,11 @@ You now have a dictionary.
 Installation
 ------------
 
-This is not (yet) registered on PyPi::
+Install the latest release from PyPI::
+
+    $ pip install -U autologin
+
+or the version with the latest changes from Github::
 
     $ pip install git+https://github.com/TeamHG-Memex/autologin.git
 
@@ -104,7 +120,7 @@ It then return any cookies it has picked up::
 Note that it returns all cookies, they may be session cookies rather
 than authenticated cookies.
 
-This call is blocking, and uses Crhochet to run the Twisted reactor
+This call is blocking, and uses Crochet to run the Twisted reactor
 and a Scrapy spider in a separate thread.
 If you have a Scrapy spider (or use Twisted in some other way),
 use the HTTP API, or the non-blocking API (it's not documented,

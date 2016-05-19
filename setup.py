@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "autologin",
-    version = "0.0.1",
+    version = "0.1.1",
     author = "Alejandro Caceres, Luke Maxwell",
     author_email = "lukemaxwellshouse@gmail.com",
     description = ("A utility for finding login links, forms and autologging "
@@ -47,9 +47,9 @@ setup(
     long_description=read('README.rst'),
     classifiers=[
         'Development Status :: 3 - Alpha',
-        'Topic :: Web scraping, Utilities',
+        'Topic :: Internet :: WWW/HTTP :: Indexing/Search',
         'License :: OSI Approved :: BSD License',
-                'Programming Language :: Python',
+        'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',

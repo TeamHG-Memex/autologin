@@ -1,4 +1,6 @@
 include autologin/autologin.cfg
-recursive-include autologin/templates *
+recursive-include autologin/templates *.html
 recursive-include autologin/static *
+recursive-exclude autologin/static/browser *
+include autologin/static/browser/README
 recursive-include autologin/directives *.lua
