@@ -49,10 +49,11 @@ base_settings = Settings(values=dict(
     ))
 
 
-def crawl_runner(splash_url=None, extra_settings=None):
+def crawl_runner(extra_settings=None):
     settings = base_settings.copy()
-    if splash_url:
-        settings['SPLASH_URL'] = splash_url
+    if extra_settings is not None:
+        settings.update(extra_settings, priority='cmdline')
+    if settings.get('SPLASH_URL'):
         settings['DUPEFILTER_CLASS'] = 'scrapy_splash.SplashAwareDupeFilter'
         settings['DOWNLOADER_MIDDLEWARES'] = {
             'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': None,
@@ -66,8 +67,6 @@ def crawl_runner(splash_url=None, extra_settings=None):
             'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': None,
             'autologin.middleware.ExposeCookiesMiddleware': 700,
         }
-    if extra_settings is not None:
-        settings.update(extra_settings, priority="cmdline")
     return CrawlerRunner(settings)
 
 
@@ -111,7 +110,7 @@ class BaseSpider(scrapy.Spider):
         else:
             if self.extra_js:
                 raise ValueError(
-                    '"extra_js" not supported without "splash_url"')
+                    '"extra_js" not supported without "SPLASH_URL"')
             self.request = scrapy.Request
 
 

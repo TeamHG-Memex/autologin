@@ -112,23 +112,29 @@ see ``http_api.AutologinAPI._login``).
 
 There are also opitonal arguments for ``AutoLogin.auth_cookies_from_url``:
 
-- ``splash_url`` if set, `Splash <http://splash.readthedocs.org>`_
-  will be used to make all requests. Use it if your cawler also uses
-  splash and the session is tied to IP and User-Agent, or for Tor sites.
+- ``settings`` is a dictionary with Scrapy settings to override.
+  Useful settings to pass include:
+
+    * ``SPLASH_URL`` if set, `Splash <http://splash.readthedocs.org>`_
+      will be used to make all requests. Use it if your crawler also uses
+      splash and the session is tied to IP and User-Agent, or for Tor sites.
+    * ``USER_AGENT`` overrides default User-Agent
+
 - ``extra_js`` (experimental)
   is a string with an extra JS script that should be executed
   on the login page before making a POST request. For example, it can be used
-  to accept cookie use. It is supported only when ``splash_url`` is also given.
-- ``settings`` is a dictionary with Scrapy settings to override.
-  Use it e.g. to set a custom User-Agent with scrapy ``USER_AGENT`` option.
+  to accept cookie use. It is supported only when ``SPLASH_URL`` is also given
+  in ``settings``.
 
 An example of using this options::
 
     cookies = al.auth_cookies_from_url(
         url, username, password,
-        splash_url='http://127.0.0.1:8050',
         extra_js='document.getElementById("accept-cookies").click();',
-        settings={'USER_AGENT': 'Mozilla/2.02 [fr] (WinNT; I)'})
+        settings={
+            'SPLASH_URL': 'http://127.0.0.1:8050',
+            'USER_AGENT': 'Mozilla/2.02 [fr] (WinNT; I)',
+        })
 
 
 Login request
@@ -171,16 +177,15 @@ The following arguments are supported:
 - ``url`` (required): url of the site where we would like to login
 - ``username`` (optional): if not provided, it will be fetched from the
   login keychain
-- ``password`` (optional): same as ``username``
-- ``splash_url`` (optional): if set, `Splash <http://splash.readthedocs.org>`_
-  will be used to make all requests. Use it if your cawler also uses
-  splash and the session is tied to IP and User-Agent, or for Tor sites.
+- ``password`` (optional): if not provided, it will be fetched from the
+  login keychain
 - ``extra_js`` (optional, experimental)
   is a string with an extra JS script that should be executed
   on the login page before making a POST request. For example, it can be used
-  to accept cookie use. It is supported only when ``splash_url`` is also given.
-- ``settings`` (optional) - a dictionary with Scrapy settings to override.
-  Use it e.g. to set a custom User-Agent with scrapy ``USER_AGENT`` option.
+  to accept cookie use. It is supported only when ``SPLASH_URL`` is also given
+  in ``settings``.
+- ``settings`` (optional) - a dictionary with Scrapy settings to override,
+  useful values are described above.
 
 If ``username`` and ``password`` are not provided, autologin tries to find
 them in the login keychain. If no matching credentials are found (they are
@@ -213,7 +218,8 @@ You also need to install the ``decaptcha`` library::
     pip install git+https://github.com/TeamHG-Memex/decaptcha.git
 
 Support is still experimental, new Google ReCaptcha/NoCaptcha are not supported.
-Also, it currently works only with splash (when ``splash_url`` is set).
+Also, it currently works only with splash (when ``SPLASH_URL`` is passed in
+``settings``).
 
 
 Keychain UI

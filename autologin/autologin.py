@@ -19,7 +19,7 @@ class AutoLoginException(Exception):
 
 
 class AutoLogin(object):
-    def auth_cookies_from_url(self, url, username, password, splash_url=None,
+    def auth_cookies_from_url(self, url, username, password,
                               extra_js=None, settings=None):
         """
         Fetch page, find login form, try to login and return cookies.
@@ -32,8 +32,7 @@ class AutoLogin(object):
         crochet.setup()
         @crochet.wait_for(timeout=None)
         def inner():
-            runner = crawl_runner(
-                splash_url=splash_url, extra_settings=settings)
+            runner = crawl_runner(extra_settings=settings)
             items = scrape_items(
                 runner, LoginSpider,
                 url=url, username=username, password=password,
@@ -117,10 +116,12 @@ def main():
             extra_js = f.read().decode('utf-8')
     else:
         extra_js = None
+    settings = {}
+    if args.splash_url:
+        settings['SPLASH_URL'] = args.splash_url
     login_cookies = auto_login.auth_cookies_from_url(
         args.url, args.username, args.password,
-        splash_url=args.splash_url,
-        extra_js=extra_js)
+        settings=settings, extra_js=extra_js)
     # Print extracted cookies
     pprint.pprint(login_cookies.__dict__)
     # Open browser tab with page using cookies

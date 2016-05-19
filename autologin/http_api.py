@@ -42,21 +42,20 @@ class AutologinAPI(Resource):
         if url is None:
             request.setResponseCode(400)
             return b'Missing required field "url"'
+        extra_keys = set(data).difference(
+            {'url', 'username', 'password', 'extra_js', 'settings'})
+        if extra_keys:
+            request.setResponseCode(400)
+            return 'Arguments {} not supported'.format(', '.join(extra_keys))\
+                .encode('utf-8')
 
-        logger.info("Login request: %s" % data)
+        logger.info('Login request: %s' % data)
         self._render_POST(request, data)
         return NOT_DONE_YET
 
     @inlineCallbacks
     def _render_POST(self, request, data):
-        result = yield self._handle_request(
-            data['url'],
-            username=data.get('username'),
-            password=data.get('password'),
-            splash_url=data.get('splash_url'),
-            extra_js=data.get('extra_js'),
-            settings=data.get('settings'),
-        )
+        result = yield self._handle_request(**data)
 
         if not isinstance(result, bytes):
             result = result.encode('utf8')
@@ -67,10 +66,9 @@ class AutologinAPI(Resource):
             request.finish()
 
     @inlineCallbacks
-    def _handle_request(self, url,
-                        username=None, password=None, splash_url=None,
+    def _handle_request(self, url, username=None, password=None,
                         extra_js=None, settings=None):
-        runner = crawl_runner(splash_url=splash_url, extra_settings=settings)
+        runner = crawl_runner(extra_settings=settings)
         if username is None and password is None:
             with app.app_context():
                 credentials = KeychainItem.get_credentials(url)
