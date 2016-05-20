@@ -106,6 +106,11 @@ On Ubuntu, the following packages are required::
                       libxml2-dev libxslt1-dev \
                       python-dev  # or python3-dev for python 3
 
+If you want to just use the HTTP API, another option is to use a docker image::
+
+    docker pull hyperiongray/autologin
+    docker run -p 8088:8088 -p 8089:8089 hyperiongray/autologin
+
 
 Auth cookies from URL
 ---------------------
