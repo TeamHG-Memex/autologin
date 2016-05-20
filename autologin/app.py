@@ -18,16 +18,10 @@ def init_app():
     default_config = os.path.join(server_path, 'autologin.cfg')
     config.read(default_config)
     # Override by user-supplied config
-    user_configs = [
+    custom_configs = config.read([
         os.path.expanduser('~/.autologin.cfg'),
         '/etc/autologin.cfg',
-        ]
-    config.read(user_configs)
-    used_config = default_config
-    for path in user_configs:
-        if os.path.exists(path):
-            used_config = path
-            break
+        ])
 
     # Initiate flask app
     app = Flask(__name__)
@@ -37,12 +31,14 @@ def init_app():
     except configparser.NoOptionError:
         db_path = os.path.join(os.path.dirname(__file__), 'db.sqlite')
     else:
-        if not os.path.isabs(db_path):
+        if not os.path.isabs(db_path) and custom_configs:
+            where = custom_configs[0] if len(custom_configs) == 1 else \
+                    'one of {}'.format(', '.join(custom_configs))
             raise RuntimeError(
                 'You must specify an absolute path to the database. '
-                'Invalid relative path "{db_path}" in config file {used_config}'
-                .format(db_path=db_path, used_config=used_config))
-    assert os.path.isabs(db_path)
+                'Invalid relative path "{db_path}" in {where}'
+                .format(db_path=db_path, where=where))
+    assert os.path.isabs(db_path), 'Absolute path expected'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}'.format(db_path)
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     return app
