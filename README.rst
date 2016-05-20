@@ -111,6 +111,18 @@ If you want to just use the HTTP API, another option is to use a docker image::
     docker pull hyperiongray/autologin
     docker run -p 8088:8088 -p 8089:8089 hyperiongray/autologin
 
+Keychain UI stores credentials in an sqlite database that is stored in the
+``/var/autologin`` volume. One way of preserving the credentials is to mount
+a host directory (current directory in this example) as the data volume::
+
+    docker run -p 8088:8088 -p 8089:8089 -v `pwd`:/var/autologin/ \
+        hyperiongray/autologin
+
+A ``db.sqlite`` file will be created in the specified directory. The keychain UI
+will be accessible at http://127.0.0.1:8088 for Linux,
+and at the ip address of the Docker machine for OS X and Windows
+(for example, http://192.168.99.100:8088).
+
 
 Auth cookies from URL
 ---------------------
