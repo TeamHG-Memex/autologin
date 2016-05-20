@@ -8,10 +8,11 @@ from flask import render_template
 from flask import flash
 import flask_admin
 import requests
+from scrapy.utils.log import configure_logging
 
 from .autologin import AutoLogin
 from .forms import LoginForm
-from .app import app, db, server_path
+from .app import app, db, server_path, init_db
 from .login_keychain import KeychainItemAdmin, KeychainItem
 from .autologin import cookie_request, AutoLoginException
 
@@ -118,13 +119,14 @@ def index():
 
 def main():
     import argparse
+    configure_logging()
     parser = argparse.ArgumentParser()
     parser.add_argument('--host', default='127.0.0.1')
     parser.add_argument('--port', type=int, default=8088)
     parser.add_argument('--debug', action='store_true')
     args = parser.parse_args()
 
-    db.create_all()
+    init_db()
     admin = flask_admin.Admin(app, template_mode='bootstrap3')
     admin.add_view(KeychainItemAdmin(KeychainItem, db.session))
 
