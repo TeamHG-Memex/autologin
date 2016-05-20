@@ -14,8 +14,8 @@ setup(
     author = "Alejandro Caceres, Luke Maxwell",
     author_email = "lukemaxwellshouse@gmail.com",
     description = ("A utility for finding login links, forms and autologging "
-                     "into websites with a set of valid credentials."),
-    license = "BSD",
+                   "into websites with a set of valid credentials."),
+    license = "MIT",
     keywords = "login, automated, spider",
     url = "https://github.com/TeamHG-Memex/autologin",
     packages=['autologin'],
