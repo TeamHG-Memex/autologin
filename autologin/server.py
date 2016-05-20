@@ -11,7 +11,7 @@ import requests
 
 from .autologin import AutoLogin
 from .forms import LoginForm
-from .app import app, db, server_path
+from .app import app, db, server_path, init_db
 from .login_keychain import KeychainItemAdmin, KeychainItem
 from .autologin import cookie_request, AutoLoginException
 
@@ -124,7 +124,7 @@ def main():
     parser.add_argument('--debug', action='store_true')
     args = parser.parse_args()
 
-    db.create_all()
+    init_db()
     admin = flask_admin.Admin(app, template_mode='bootstrap3')
     admin.add_view(KeychainItemAdmin(KeychainItem, db.session))
 

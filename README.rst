@@ -249,6 +249,19 @@ Start keychain UI with::
 Note that both ``autologin-server`` and ``autologin-http-api``
 are not protected by any authentication.
 
+Keychain UI stores credentials in an sqlite database. It is located near
+the library itself by default, which is not always good, especially if you want
+to persist the data between updates or do not have write permissions
+for that folder. You can configure database location and
+``secret_key`` used by the flask app by creating an ``/etc/autologin.cfg`` or
+``~/.autologin.cfg`` file (should be the same user under which autologin
+services are running). Here is an example config that changes default secret_key
+and specifies a different database path (both items are optional)::
+
+    [autologin]
+    secret_key = 8a0b923820dcc509a6f75849b
+    db = /var/autologin/db.sqlite
+
 
 Contributors
 ------------

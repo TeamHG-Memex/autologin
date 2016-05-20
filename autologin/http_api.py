@@ -8,7 +8,7 @@ from twisted.web.server import Site, NOT_DONE_YET
 from twisted.web.resource import Resource
 from scrapy.utils.log import configure_logging
 
-from .app import app, db
+from .app import app, init_db
 from .login_keychain import KeychainItem
 from .spiders import FormSpider, LoginSpider, crawl_runner, cookie_dicts
 from .scrapyutils import scrape_items
@@ -126,7 +126,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, default=8089)
     args = parser.parse_args()
-    db.create_all()
+
+    init_db()
     logger.info("Autologin HTTP API is started on port %s" % args.port)
     reactor.listenTCP(args.port, Site(root))
     reactor.run()
