@@ -31,4 +31,4 @@ VOLUME /var/autologin
 COPY autologin/autologin.docker.cfg /etc/autologin.cfg
 
 # Set the default command to execute when creating a new container
-CMD supervisord -c /opt/autologin/supervisord.conf
+CMD autologin-init-db && supervisord -c /opt/autologin/supervisord.conf

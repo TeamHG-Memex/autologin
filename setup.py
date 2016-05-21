@@ -42,6 +42,7 @@ setup(
             'autologin = autologin.autologin:main',
             'autologin-server = autologin.server:main',
             'autologin-http-api = autologin.http_api:main',
+            'autologin-init-db = autologin.app:init_db',
         ]
     },
     long_description=read('README.rst'),
