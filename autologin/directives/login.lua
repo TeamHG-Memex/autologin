@@ -39,7 +39,7 @@ function main(splash)
             page=splash:jpeg{quality=80},
         }
     else
-        assert(false, reason)
+        error(reason)
     end
 end
 

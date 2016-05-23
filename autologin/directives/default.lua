@@ -20,6 +20,6 @@ function main(splash)
             http_status=last_response.status,
         }
     else
-        assert(false, reason)
+        error(reason)
     end
 end
