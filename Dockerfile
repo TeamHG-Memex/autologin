@@ -8,8 +8,9 @@ WORKDIR /opt/autologin
 # Get pip to download and install requirements
 # This comes early because requirements rarely change so this step will be cached
 COPY requirements.txt requirements.txt
-RUN pip install -U pip && pip install -r requirements.txt
-RUN python -c "import formasaurus; formasaurus.extract_forms('a')"
+RUN pip install -U pip && \
+    pip install -r requirements.txt && \
+    formasaurus init
 
 ADD . /opt/autologin
 
