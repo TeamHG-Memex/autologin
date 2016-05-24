@@ -32,7 +32,7 @@ setup(
         'numpy',  # These 3 are formasaurus deps, make sure we always have them
         'scipy',
         'scikit-learn',
-        'formasaurus[with_deps]>=0.7.2',
+        'formasaurus[with_deps]>=0.8',
         'scrapy-splash>=0.4',
         'crochet',
         'requests',
