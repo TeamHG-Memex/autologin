@@ -274,7 +274,7 @@ Run tests with ``tox``::
     $ tox
 
 Splash support is not tested directly here, but there are indirect tests for it
-in the `undercrawler <https://github.com/TeamHG-Memex/undercrawler>`_
+in the `autologin-middleware <https://github.com/TeamHG-Memex/autologin-middleware>`_
 test suite.
 
 
