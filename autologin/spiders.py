@@ -245,7 +245,7 @@ class LoginSpider(BaseSpider):
             try:
                 self.solver = load_object(solver_class)(self.crawler)
             except NotConfigured:
-                self.logger.debug(
+                self.logger.warning(
                     'Decaptcha solver not configured:', exc_info=True)
         self.retries_left = self.crawler.settings.getint('LOGIN_MAX_RETRIES')
         request_kwargs = {}
@@ -343,8 +343,8 @@ class LoginSpider(BaseSpider):
         self.debug_screenshot('captcha', form_screenshot)
         try:
             captcha_value = yield self.solver.solve(form_screenshot)
-        except DecaptchaError as e:
-            self.logger.error('captcha not solved', exc=e)
+        except DecaptchaError:
+            self.logger.error('captcha not solved', exc_info=True)
             returnValue(None)
         else:
             self.logger.debug('captcha solved: "%s"' % captcha_value)
