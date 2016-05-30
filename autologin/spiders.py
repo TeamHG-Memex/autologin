@@ -248,10 +248,12 @@ class LoginSpider(BaseSpider):
                 self.logger.warning(
                     'Decaptcha solver not configured:', exc_info=True)
         self.retries_left = self.crawler.settings.getint('LOGIN_MAX_RETRIES')
-        request_kwargs = {}
+        yield self._start_request()
+
+    def _start_request(self, **kwargs):
         if self.using_splash:
-            request_kwargs['args'] = {'full_render': True}
-        yield self.request(self.start_url, **request_kwargs)
+            kwargs['args'] = {'full_render': True}
+        return self.request(self.start_url, **kwargs)
 
     def retry(self, tried_login=False, retry_once=False):
         self.retries_left -= 1
@@ -259,8 +261,7 @@ class LoginSpider(BaseSpider):
             self.retries_left = min(1, self.retries_left)
         if self.retries_left:
             self.logger.debug('Retrying login')
-            return self.request(
-                self.start_url,
+            return self._start_request(
                 callback=partial(self.parse, tried_login=tried_login),
                 dont_filter=True)
         else:
