@@ -323,19 +323,23 @@ class LoginSpider(BaseSpider):
 
     @inlineCallbacks
     def parse_login(self, response, retry_once=False):
-        cookies = _response_cookies(response) or []
+        if self.using_splash:
+            self.debug_screenshot('page', b64decode(response.data['page']))
 
+        cookies = _response_cookies(response) or []
         old_cookies = set(_cookie_tuples(response.meta['initial_cookies']))
         new_cookies = set(_cookie_tuples(cookie_dicts(cookies)))
 
-        if self.using_splash:
-            self.debug_screenshot('page', b64decode(response.data['page']))
-        if new_cookies <= old_cookies:  # no new or changed cookies
-            fail = {'ok': False, 'error': 'badauth'}
+        if new_cookies <= old_cookies:
+            self.logger.debug('Failed to login: no new or changed cookies')
+        elif get_login_form(response.text):
+            self.logger.debug('Failed to login: login form still present')
+        else:  # login successful
+            yield self.report_captchas()
             returnValue(
-                self.retry(tried_login=True, retry_once=retry_once) or fail)
-        yield self.report_captchas()
-        returnValue({'ok': True, 'cookies': cookies, 'start_url': response.url})
+                {'ok': True, 'cookies': cookies, 'start_url': response.url})
+        fail = {'ok': False, 'error': 'badauth'}
+        returnValue(self.retry(tried_login=True, retry_once=retry_once) or fail)
 
     @inlineCallbacks
     def solve_captcha(self, page_form):
