@@ -7,7 +7,6 @@ function main(splash)
             first_request = false
         end
     end)
-    splash.images_enabled = false
     splash:init_cookies(splash.args.cookies)
     local ok, reason = splash:go{
         splash.args.url,
@@ -31,42 +30,47 @@ function main(splash)
     local entries = splash:history()
     if #entries > 0 then
         local last_response = entries[#entries].response
-        return {
+        local result = {
             headers=last_response.headers,
             cookies=splash:get_cookies(),
             html=splash:html(),
             http_status=last_response.status,
-            forms=full_render and render_forms(splash) or nil,
             page=splash:jpeg{quality=80},
         }
+        if full_render then
+            result.forms = render_elements(splash, 'form')
+            result.images = render_elements(splash, 'img')
+        end
+        return result
     else
         error(reason)
     end
 end
 
 
-function render_forms(splash)
-  -- Return a table with base64-encoded screenshots of forms on the page.
-  -- Ordering of getElementsByTagName is guaranteed by
-  -- https://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#method-getElementsByTagName
-  local get_forms_bboxes = splash:jsfunc([[
-    function() {
-      var forms = document.getElementsByTagName('form');
+function render_elements(splash, tag)
+    -- Return a table with base64-encoded screenshots of tag-elements on the page.
+    -- Ordering of getElementsByTagName is guaranteed by
+    -- https://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#method-getElementsByTagName
+    local get_bboxes = splash:jsfunc([[
+    function(tag) {
+      var elements = document.getElementsByTagName(tag);
       var bboxes = [];
-      for (var i = 0; i < forms.length; i++) {
-        var r = forms[i].getBoundingClientRect();
+      for (var i = 0; i < elements.length; i++) {
+        var r = elements[i].getBoundingClientRect();
         bboxes.push([r.left, r.top, r.right, r.bottom]);
       }
       return bboxes;
     }
-  ]])
-  local bboxes = get_forms_bboxes()
-  local forms = {}
-  for i = 1, #bboxes do
-    forms[i] = {
-        region=bboxes[i],
-        screenshot=splash:jpeg{region=bboxes[i], quality=70},
-    }
-  end
-  return forms
+    ]])
+    local bboxes = get_bboxes(tag)
+    local result = {}
+    for i = 1, #bboxes do
+        local bbox = bboxes[i]
+        result[i] = {
+            region=bbox,
+            screenshot=splash:jpeg{region=bbox, quality=70},
+        }
+    end
+    return result
 end
