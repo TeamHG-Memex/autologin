@@ -9,3 +9,4 @@
 **/*.pyc
 autologin/*.sqlite
 autologin/static/browser/*
+!autologin/static/browser/README
