@@ -34,8 +34,11 @@ def get_cookiejar(response):
             return obj
 
 
-class ProxyFromSettingsMiddleware(HttpProxyMiddleware):
-    """A middleware that sets proxy from settings file"""
+class ProxyMiddleware(HttpProxyMiddleware):
+    """ A middleware that sets proxy from settings for non-splash requests,
+    and passes proxy splash args for splash requests.
+    This middleware must be placed **before** splash middleware.
+    """
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -43,12 +46,21 @@ class ProxyFromSettingsMiddleware(HttpProxyMiddleware):
 
     def __init__(self, settings):
         self.proxies = {}
+        self.auth_encoding = settings.get('HTTPPROXY_AUTH_ENCODING')
         proxies = [
             ('http', settings.get('HTTP_PROXY')),
             ('https', settings.get('HTTPS_PROXY')),
         ]
+        self.splash_proxy = settings.get('HTTP_PROXY')
         for type_, url in proxies:
             if url:
                 self.proxies[type_] = self._get_proxy(url, type_)
         if not self.proxies:
             raise NotConfigured
+
+    def process_request(self, request, spider):
+        if 'splash' in request.meta:
+            if self.splash_proxy:
+                request.meta['splash']['args']['proxy'] = self.splash_proxy
+        else:
+            super(ProxyMiddleware, self).process_request(request, spider)
