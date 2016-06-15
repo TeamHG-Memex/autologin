@@ -219,6 +219,19 @@ Response is JSON with a ``status`` field with the following possible values:
   ``cookies`` field, in ``Cookie.__dict__`` format.
 
 
+Proxy support
+-------------
+
+Proxies can be specified via ``HTTP_PROXY`` and ``HTTPS_PROOXY`` keys
+in ``settings`` argument. Username and password can be specified
+as part of the proxy url (the format is ``protocol://username:password@url``).
+
+If you are using proxy with Splash, it is assumed that
+you want to have Splash make requests via given proxy,
+and not make a request **to** Splash via proxy.
+``HTTP_PROXY`` is always used for Splash.
+
+
 Captcha support
 ---------------
 

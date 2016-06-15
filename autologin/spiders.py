@@ -48,7 +48,8 @@ base_settings = Settings(values=dict(
     USER_AGENT = USER_AGENT,
     DOWNLOADER_MIDDLEWARES = {
         'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': None,
-        'autologin.middleware.ProxyFromSettingsMiddleware': 750,
+        # Placed before splash middleware
+        'autologin.middleware.ProxyMiddleware': 720,
     },
 ))
 
