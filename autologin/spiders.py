@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from base64 import b64decode
+from base64 import b64encode, b64decode
 from collections import namedtuple
 from functools import partial
 import logging
@@ -265,8 +265,14 @@ class LoginSpider(BaseSpider):
                 returnValue({
                     'ok': True,
                     'cookies': initial_cookies,
-                    'start_url': response.url})
-            returnValue({'ok': False, 'error': 'nologinform'})
+                    'start_url': response.url,
+                    'response': _serialize_response(response),
+                })
+            returnValue({
+                'ok': False,
+                'error': 'nologinform',
+                'response': _serialize_response(response),
+            })
 
         form_idx, form, meta = forminfo
         self.logger.info('found login form: %s' % meta)
@@ -313,11 +319,20 @@ class LoginSpider(BaseSpider):
         if self.using_splash:
             self.debug_screenshot('page', b64decode(response.data['page']))
         if new_cookies <= old_cookies:  # no new or changed cookies
-            fail = {'ok': False, 'error': 'badauth'}
+            fail = {
+                'ok': False,
+                'error': 'badauth',
+                'response': _serialize_response(response),
+            }
             returnValue(
                 self.retry(tried_login=True, retry_once=retry_once) or fail)
         yield self.report_captchas()
-        returnValue({'ok': True, 'cookies': cookies, 'start_url': response.url})
+        returnValue({
+            'ok': True,
+            'cookies': cookies,
+            'start_url': response.url,
+            'response': _serialize_response(response),
+        })
 
     @inlineCallbacks
     def solve_captcha(self, page_form):
@@ -449,3 +464,17 @@ def _response_cookies(response):
 def _cookie_tuples(cookie_dicts_):
     return [(c['name'], c['value'], c['domain'], c['path'], c['port'])
             for c in cookie_dicts_]
+
+
+def _serialize_response(response):
+    """ Convert response to JSON-serializable object.
+    """
+    data = {
+        'headers': dict(response.headers.to_unicode_dict()),
+        'cookies': cookie_dicts(_response_cookies(response)),
+    }
+    if hasattr(response, 'text'):
+        data['text'] = response.text
+    else:
+        data['body_b64'] = b64encode(response.body)
+    return data
