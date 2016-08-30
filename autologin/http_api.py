@@ -95,12 +95,17 @@ class AutologinAPI(Resource):
         if item is None:
             return_json({'status': 'error', 'error': 'unknown'})
         elif not item['ok']:
-            return_json({'status': 'error', 'error': item['error']})
+            return_json({
+                'status': 'error',
+                'error': item['error'],
+                'response': item['response'],
+            })
 
         return_json({
             'status': 'solved',
             'cookies': cookie_dicts(item['cookies']),
-            'start_url': item['start_url']
+            'start_url': item['start_url'],
+            'response': item['response'],
         })
 
     @inlineCallbacks

@@ -209,14 +209,23 @@ them in the login keychain. If no matching credentials are found (they are
 matched by domain, not by precise url), then human is expected to eventually
 provide them in the keychain UI, or mark domain as "skipped".
 
-Response is JSON with a ``status`` field with the following possible values:
+Response is JSON with the following fields:
 
-- ``error`` status means an error occured, ``error`` field has more info
-- ``skipped`` means that domain is maked as "skipped" in keychain UI
-- ``pending`` means there is an item in keychain UI (or it was just created),
-  and no credentials have been entered yet
-- ``solved`` means that cookies were obtained, they are returned in the
-  ``cookies`` field, in ``Cookie.__dict__`` format.
+- ``status``, which can take the following values:
+
+    - ``error`` status means an error occurred, ``error`` field has more info
+    - ``skipped`` means that domain is marked as "skipped" in keychain UI
+    - ``pending`` means there is an item in keychain UI (or it was just created),
+      and no credentials have been entered yet
+    - ``solved`` means that login was successful and cookies were obtained
+
+- ``error`` - human-readable explanation of the error.
+- ``response`` - last response received by autologin (can be None in some cases).
+  This is a dict with ``cookies``, ``headers``, and either a
+  ``text`` or ``body_b64`` fields (depending on response content type).
+- ``cookies`` - a list of dictionaries in ``Cookie.__dict__`` format. Present only
+  if status is ``solved``.
+- ``start_url`` - a url that was reached after successful login.
 
 
 Proxy support

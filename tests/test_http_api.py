@@ -25,6 +25,26 @@ class WebTest(unittest.TestCase):
             assert result['start_url'] == url
             assert {c['name']: c['value'] for c in result['cookies']} == \
                    {'_auth': 'yes'}
+            assert 'response' in result
+            response = result['response']
+            assert response['cookies'] == result['cookies']
+            assert 'text' in response
+            assert 'headers' in response
+
+    @inlineCallbacks
+    def test_login_wrong_pw(self):
+        url = 'http://localhost:{}{}'.format(PORT, Login.url)
+        view = AutologinAPI()
+        with MockServer():
+            request = api_request(url=url, username='admin', password='wrong')
+            yield render(view, request)
+            result = api_result(request)
+            assert result['status'] == 'error'
+            assert 'response' in result
+            response = result['response']
+            assert 'cookies' in response
+            assert 'text' in response
+            assert 'headers' in response
 
     @inlineCallbacks
     def test_errors(self):
