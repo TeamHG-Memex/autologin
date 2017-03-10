@@ -24,7 +24,7 @@ setup(
         'six',
         'lxml',
         'Flask==0.10.1',
-        'Flask-Admin==1.4.0',
+        'Flask-Admin==1.4.2',
         'Flask-SQLAlchemy==2.1',
         'Flask-WTF==0.12',
         'WTForms==2.1',
