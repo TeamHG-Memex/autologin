@@ -3,6 +3,11 @@ Changes
 
 .. contents::
 
+0.1.4 (2017-03-10)
+------------------
+
+- Python 3.5 support for the Keychain UI interface (Flask-Admin updated)
+
 
 0.1.3 (2016-08-31)
 ------------------
