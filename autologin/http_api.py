@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 import json
 import logging
+from pprint import pformat
 
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks, returnValue
@@ -18,7 +19,11 @@ logger = logging.getLogger(__name__)
 
 
 def return_json(dct):
-    logger.info("Result: %s" % dct)
+    log_dct = dict(dct)
+    if 'text' in log_dct.get('response', {}):
+        log_dct['response']['text'] = (
+            'omitted ({} chars)'.format(len(log_dct['response']['text'])))
+    logger.info('Result: {}'.format(pformat(log_dct)))
     returnValue(json.dumps(dct).encode('utf-8'))
 
 
