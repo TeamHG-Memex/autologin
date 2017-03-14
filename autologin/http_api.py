@@ -132,7 +132,7 @@ root.putChild(b'login-cookies', AutologinAPI())
 
 def main():
     import argparse
-    configure_logging()
+    configure_logging({'LOG_LEVEL': 'INFO'})
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, default=8089)
     args = parser.parse_args()

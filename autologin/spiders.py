@@ -241,16 +241,18 @@ class LoginSpider(BaseSpider):
         if retry_once:
             self.retries_left = min(1, self.retries_left)
         if self.retries_left:
-            self.logger.debug('Retrying login')
+            self.logger.info('Retrying login')
             return self.request(
                 self.start_url,
                 callback=partial(self.parse, tried_login=tried_login),
                 dont_filter=True)
         else:
-            self.logger.debug('No retries left, giving up')
+            self.logger.info('No retries left, giving up')
 
     @inlineCallbacks
     def parse(self, response, tried_login=False):
+        if self.using_splash:
+            self.save_screenshot(response, b64decode(response.data['page']))
         initial_cookies = _response_cookies(response)
         page_forms = response.data.get('forms') if self.using_splash else None
         if page_forms:
@@ -295,7 +297,7 @@ class LoginSpider(BaseSpider):
             meta=meta,
             extra_fields=extra_fields,
         )
-        self.logger.debug('submit parameters: %s' % params)
+        self.logger.info('submit parameters: %s' % params)
 
         returnValue(self.request(
             params['url'],
@@ -317,7 +319,7 @@ class LoginSpider(BaseSpider):
         new_cookies = set(_cookie_tuples(cookie_dicts(cookies)))
 
         if self.using_splash:
-            self.debug_screenshot('page', b64decode(response.data['page']))
+            self.save_screenshot(response, b64decode(response.data['page']))
         if new_cookies <= old_cookies:  # no new or changed cookies
             fail = {
                 'ok': False,
@@ -338,14 +340,14 @@ class LoginSpider(BaseSpider):
     def solve_captcha(self, page_form):
         from decaptcha.exceptions import DecaptchaError
         form_screenshot = b64decode(page_form['screenshot'])
-        self.debug_screenshot('captcha', form_screenshot)
+        self.save_screenshot('captcha', form_screenshot)
         try:
             captcha_value = yield self.solver.solve(form_screenshot)
         except DecaptchaError as e:
             self.logger.error('captcha not solved', exc=e)
             returnValue(None)
         else:
-            self.logger.debug('captcha solved: "%s"' % captcha_value)
+            self.logger.info('captcha solved: "%s"' % captcha_value)
             self.attempted_captchas.append(form_screenshot)
             returnValue(captcha_value)
 
@@ -358,14 +360,14 @@ class LoginSpider(BaseSpider):
                 yield self.solver.report(captcha_image)
             self.attempted_captchas = []
 
-    def debug_screenshot(self, name, screenshot):
-        if not self.logger.isEnabledFor(logging.DEBUG):
+    def save_screenshot(self, name, screenshot):
+        if not self.logger.isEnabledFor(logging.INFO):
             return
         browser_dir = os.path.join(server_path, 'static/browser')
         filename = os.path.join(browser_dir, '{}.jpeg'.format(uuid.uuid4()))
         with open(filename, 'wb') as f:
             f.write(screenshot)
-        self.logger.debug('saved %s screenshot to %s' % (name, filename))
+        self.logger.info('saved %s screenshot to %s' % (name, filename))
 
 
 def get_login_form(html_source, page_forms=None):
