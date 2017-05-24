@@ -1,3 +1,6 @@
+json = require('json')
+
+
 function main(splash)
     local full_render = splash.args.full_render
     local first_request = true
@@ -18,8 +21,14 @@ function main(splash)
         assert(splash:wait(0.5))
 
         if splash.args.extra_js then
-          assert(splash:runjs(splash.args.extra_js))
-          assert(splash:wait(1.0))
+            local js_ok, js_reason = splash:runjs(splash.args.extra_js)
+            if not js_ok then
+                if type(js_reason) == 'table' then
+                    js_reason = json.encode(js_reason)
+                end
+                error(js_reason)
+            end
+            assert(splash:wait(1.0))
         end
 
         if full_render then
