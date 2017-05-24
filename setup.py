@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "autologin",
-    version = "0.1.3",
+    version = "0.1.4",
     author = "Alejandro Caceres, Luke Maxwell",
     author_email = "lukemaxwellshouse@gmail.com",
     description = ("A utility for finding login links, forms and autologging "

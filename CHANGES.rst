@@ -3,10 +3,11 @@ Changes
 
 .. contents::
 
-0.1.4 (?)
+0.1.4 (2017-05-24)
 ------------------
 
 - Python 3.5 support for the Keychain UI interface (Flask-Admin updated)
+- Fixed error reporting when extra_js fails to run
 
 
 0.1.3 (2016-08-31)
