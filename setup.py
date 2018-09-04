@@ -23,11 +23,11 @@ setup(
     install_requires = [
         'six',
         'lxml',
-        'Flask==0.10.1',
-        'Flask-Admin==1.4.2',
-        'Flask-SQLAlchemy==2.1',
-        'Flask-WTF==0.12',
-        'WTForms==2.1',
+        'Flask>=0.12.3',
+        'Flask-Admin>=1.4.2',
+        'Flask-SQLAlchemy>=2.1',
+        'Flask-WTF>=0.12',
+        'WTForms>=2.1',
         'scrapy>=1.1.0',
         'numpy',  # These 3 are formasaurus deps, make sure we always have them
         'scipy',
