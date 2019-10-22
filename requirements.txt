@@ -1,6 +1,6 @@
 six
 lxml==3.6.0
-Flask==0.12.3
+Flask==1.0
 Flask-Admin>=1.4.2
 Flask-SQLAlchemy>=2.1
 Flask-WTF>=0.12
